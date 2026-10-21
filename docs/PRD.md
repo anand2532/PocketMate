@@ -1,0 +1,11 @@
+# PocketMate — Product Requirements Brief (MVP)
+Personal AI companion on Raspberry Pi CM5 4GB (CM4 alternate). Vision: capture anything important, find it when needed, get the next step done. Dependable, fast, privacy-conscious; not a phone replacement.
+Users: professionals, students, makers/engineers, travelers/multilingual.
+MVP: push-to-talk voice assistant with listening/processing indicators; voice+typed notes stored locally; searchable memory with source-linked answers; camera OCR; basic image understanding (local/cloud); reminders, daily tasks, action-item extraction; offline notes/docs/utilities; configurable local/cloud; physical mic mute + clear recording controls; data review/export/edit/delete; USB-C charging + battery monitoring; reliable sleep/wake + controlled shutdown.
+Hardware: CM5 4GB; 4.3" IPS capacitive ~800x480+; 32GB eMMC or microSD; CSI autofocus camera; 2 digital MEMS mics; speaker+amp+audio interface; Wi-Fi/BT (LTE later); action/power/volume buttons; protected battery w/ charger, power path, fuel gauge; low-power MCU if needed; custom carrier PCB + compact serviceable enclosure after prototype validation.
+Software: 64-bit Linux; Qt/QML UI; Python services (C++ where justified); modular ASR/LLM/OCR/TTS; SQLite FTS; optional semantic retrieval; optional cloud adapter w/ explicit controls; background services, logging, signed updates, recovery.
+Privacy: no covert/default continuous recording; clear mic status; explicit consent for cloud; secure storage/comms; user-controlled retention/deletion; confirm consequential actions; source links; documented backup/recovery.
+ID: ~125x75x18-24mm, 200-300g, rounded ergonomic, durable front cover, distinctive tactile action button, USB-C, serviceable. COMPACT is a priority.
+Strategy: validate use cases -> prototype on existing CM5 carrier -> capture/search/OCR/reminders -> test perf/privacy/battery/thermal -> custom PCB+enclosure -> user trials -> cost/pricing.
+Tools: KiCad MCP (user-kicad) for PCB, FreeCAD MCP (user-freecad) for enclosure. Repo: https://github.com/anand2532/PocketMate.git (push as anand2532 via issue -> branch -> PR -> merge, through PocketMate Git).
+Principle: build a device people use every day because it's genuinely useful, not merely because it contains AI.
