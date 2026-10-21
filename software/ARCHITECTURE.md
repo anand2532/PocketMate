@@ -1,6 +1,6 @@
-# PocketMate — Software Architecture v0.3.7
+# PocketMate — Software Architecture v0.3.9
 
-Status: final v0.3.7 (baseline) · Owner: software · Source of truth for requirements: `../docs/PRD.md`, plus PM decisions and research (`../research/market.md` §6–7, `../research/bom.md` §7–8)
+Status: final v0.3.9 (baseline) · Owner: software · Source of truth for requirements: `../docs/PRD.md`, plus PM decisions and research (`../research/market.md` §6–7, `../research/bom.md` §7–8)
 Tag conventions:
 - **[PRD]**: stated in the PRD.
 - **[PM 2026-10-21]**: a PM decision or requirement dated 2026-10-21.
@@ -13,7 +13,7 @@ Tag conventions:
 |---|---|---|
 | Display | 4.3" 800×480, landscape | §3, §4 |
 | Battery | **~3.6 Ah cell (8.5×51×65.5 mm) in the 125×75×22 mm passive v4_22 body** [PM/Enclosure 2026-10-21]. This supersedes 2.7 Ah / 20 mm. Target: 16 h mixed use + ≥ 24 h standby with the CM5 fully off and the MCU holding. ~9 W system cap for the 1C prototype cell | §10.2–10.5 |
-| Low-power MCU | **STM32U0** confirmed. Prototype uses NUCLEO-U083RC | §11, §12, B2, B3 |
+| Low-power MCU | **STM32U031K8** (UFQFPN-32) [Schematic netlist v3]. Prototype uses NUCLEO-U031R8 | §11, §12, B2, B3 |
 | Languages | English + Hindi at launch. Hinglish (code-mixed) is a known risk | §6.2, §6.4, §6.5, §6.9 |
 | ASR | Default is IndicWhisper or a Hinglish Whisper fine-tune on-device. Sarvam is the opt-in cloud ASR adapter | §6.2, §6.7, §6.10 |
 | OCR | Default is PaddleOCR or IndicPhotoOCR, replacing Tesseract | §6.4 |
@@ -41,9 +41,11 @@ Tag conventions:
 | **v0.3.1** Consent dialog | Consent dialog 12b must show **each provider's retention and training terms** | §8.3, §6.7.1 |
 | **v0.3.1** Sarvam | The adapter defaults to the **training opt-out** wherever the API/account allows it. **Sarvam DPA is a pre-launch action for Anand.** Until then, terms remain unconfirmed | §6.7.1 |
 | **v0.3.2** Compute | **v1 = CM5 4 GB only. The 2 GB SKU is deferred and not part of v1.** Measured CM5 idle 2.4–2.65 W exceeds the ~1.6–1.75 W passive budget, so **the CM5 is OFF by default** and sessions are duty-cycled. Aggressive power policy. s2idle test with a decision rule. Rev-2 Radxa CM5 (RK3588S2, RKNN) portability | §10.0, §10.3, §10.3b, §10.6, §10.7, §17 |
+| **v0.3.9** [Schematic netlist v3.1] | **REC interlock implemented**: `MIC_PWR_EN` = PA11 → U14 TPS22917 → MIC_FEED → SW5 → mics; green REC LED D6 on MIC_FEED. MIC_ENABLE accepted | §8, §11, §12, B2, B3, B5, §16 |
+| **v0.3.8** [Schematic netlist v3] [PM 2026-10-21, v0.3.8] | +3V3_PERIPH = buck U12 enabled by CM5_3V3 (A-70 resolved). MCU = **STM32U031K8** (QFN-32, 64 KB/12 KB), prototype NUCLEO-U031R8. Case NTC on PB0 with PA12-switched bias (A-72 resolved); cell NTC → BQ25895 TS, read via TSPCT. Mic interlock rewritten around DPDT SW5 (REC LED + MIC_PWR_EN added in v0.3.9). Cells: prototype Akyga LP655063, production custom 2C ~3.2 Ah (A-67 resolved) | §8, §10.2–10.4, §11, §12, B2, B3, B5, §16 |
 | **v0.3.7** [Schematic netlist v3] | Bus map confirmed (v0.3.6 items retagged). STUSB4500 at 0x28 (A-69 address part resolved). Mic-mute status on CM5 GPIO17 + MCU PA10 (high = muted), used in the privacy interlock. Buttons active-low: PWR PA0/WKUP1, ACTION (PTT) PA1/WKUP3, VOL+ PA4, VOL− PA5. Mics/display/camera on +3V3_PERIPH, which is only on with the CM5 up | §3, §5, §8, §11, §12, B3, B5, §16 |
 | **v0.3.6** [Schematic netlist v3] | VEML7700, BQ25895, MAX17055 and STUSB4500 on STM32U0 I2C1 (PB6/PB7, always-on 3V3). Link is CM5 UART0 (GPIO14/15) ↔ MCU USART2, with `MCU_IRQ_N` on CM5 GPIO4. DRV2605L (DNP) on CM5 I2C1 (GPIO2/3). A-66 resolved; I2C address map added; protocol opcode collisions fixed (0x27/0x28) | §3, §10.4.3, §11, §12, B3, §16 |
-| **v0.3.5** [Enclosure 2026-10-21] | A-64 confirmed for the prototype (thresholds on the compensated hot spot, intentionally double-counting lag; relax after M5b). Prototype cell LP755060 (3.0 Ah nominal, below the 3.6 Ah budget; runtime impact flagged). VEML7700 light sensor: pocket detection + auto-brightness; A-65 resolved, no proximity sensor in v1 | §10.2–10.4, B2, B5, §16 |
+| **v0.3.5** [Enclosure 2026-10-21] | A-64 confirmed for the prototype (thresholds on the compensated hot spot, intentionally double-counting lag; relax after M5b). Prototype cell LP755060 (superseded in v0.3.8 by LP655063; 3.0 Ah nominal, below the 3.6 Ah budget; runtime impact flagged). VEML7700 light sensor: pocket detection + auto-brightness; A-65 resolved, no proximity sensor in v1 | §10.2–10.4, B2, B5, §16 |
 | **v0.3.4** Baseline [PM/Enclosure 2026-10-21] | **Passive, fan-free 22 mm aluminium enclosure v4_22** (the micro blower is not baseline; only an unused fan hook remains). **~3.6 Ah cell.** **CM5-off-by-default is the core strategy.** **Radxa rev 2 is unfunded until after M5b.** Frozen governor limits and stages, case NTC on the STM32U0, battery NTC to charger JEITA, case detection heuristic, external Wi-Fi FPC antenna (`dtparam=ant2`) | §3, §10.3–10.4, §11, §17, B4 |
 | **v0.3.3** Compute decision [Anand 2026-10-21] | **Stay on Raspberry Pi CM5 (4 GB) for v1.** The body may grow to **22–26 mm** for cooling. **Keep driving idle power down**, because every watt saved keeps the body thinner. Radxa CM5 stays a rev-2 option only (§17) | §10.0, §10.3c, §10.8 |
 | **v0.3.1** Keys | No emergency key designee for now | §2.2.1 |
@@ -283,7 +285,7 @@ Custom overlay `pocketmate-carrier.dtbo` (for the custom PCB) defines: the I2S c
 
 ### 5.3 Main voice flow (sequence)
 1. MCU detects action-button press → `EVT_BUTTON{PTT,down}` → pm-power → D-Bus signal `PttPressed`.
-2. pm-audio checks the mute GPIO (GPIO17, high = muted; if muted it refuses and the UI shows "Mic off (hardware)"), then opens capture. **The MCU turns the hardware recording LED on** (the CM5 asks, and the MCU also lights it independently whenever mic-power-enable is asserted, §8.2). The UI shows the Listening overlay.
+2. pm-audio checks the mute GPIO (GPIO17, high = muted; if muted it refuses and the UI shows "Mic off (hardware)"). pm-power sends `MIC_ENABLE{on, session_id, max_s}` while ACTION is held (or for a confirmed tap-to-talk session); the MCU drives PA11 high, U14 powers MIC_FEED, and **the green REC LED lights in hardware**. pm-audio waits for `ACK` + `EVT_MIC_RAIL{on}`, shows the on-screen listening overlay (a second indicator), then opens capture.
 3. PCM is streamed to pm-asr and partial transcripts are shown live.
 4. Button released (hold mode) or VAD end / second press (toggle mode). Capture closes and the LED goes off.
 5. pm-core routes the intent. For a question, it runs pm-memory hybrid search → builds a RAG prompt with source ids → pm-llm streams tokens → UI renders them with source chips → optional pm-tts.
@@ -1023,8 +1025,8 @@ SELECT ts, event, scope, provider, bytes_sent FROM consent_log ORDER BY id DESC 
 | # | Rule | Enforcement |
 |---|---|---|
 | P1 | **Push-to-talk only.** No wake word, no continuous or background recording in MVP | pm-audio opens capture only during a PTT session. There's no API for unattended capture. Code review gate + test that capture fails without a PTT event |
-| P2 | **Visible recording indicator** whenever the mic is live | Hardware LED controlled by the MCU and tied to mic power/enable (§8.2), plus a UI overlay. The UI can't dismiss it |
-| P3 | **Physical mic mute** [Schematic netlist v3] | The slide switch's status is **`MIC_MUTE`, high = muted, wired to both CM5 GPIO17 and MCU PA10**.<br>• **pm-audio refuses to open capture while muted.** It checks GPIO17 at PTT start and watches it during the session; a mute mid-session closes capture within 20 ms and discards the partial buffer.<br>• **The MCU independently refuses `MIC_ENABLE`** (keeps `MIC_PWR_EN` low, so mic power and the REC LED stay off) while PA10 is high, and sends `EVT_MIC_MUTE`.<br>• On a CM5/MCU disagreement, muted wins.<br>• **The UI shows a persistent "Mic off (hardware)" status-bar icon** and, on PTT, the PTT sheet shows "Mic is muted, slide the switch to talk" (no capture, no ASR job).<br>• Whether the switch also cuts mic power directly in hardware: [A-16] |
+| P2 | **Visible recording indicator** whenever the mic is live [Schematic netlist v3.1] | **Green REC LED D6 on MIC_FEED** (the switched mic supply): the mics can't be powered unless it's lit (§8.2), plus the on-screen listening overlay. Neither can be dismissed |
+| P3 | **Physical mic mute** [Schematic netlist v3] | **DPDT slide switch SW5**: pole 1 moves MIC_FEED (after U14, v3.1) from the mics to the red mute LED, and pole 2 grounds the mic data line (§8.2). Software reads only **`MUTE_STATUS_IO`** (CM5 GPIO17 and MCU PA10, high = muted).<br>• **pm-audio refuses to open capture while muted.** It checks GPIO17 at PTT start and watches it during the session; a mute mid-session closes capture within 20 ms and discards the partial buffer.<br>• **The MCU reports every mute change** (`EVT_MIC_MUTE`), and refuses `MIC_ENABLE` while muted [Schematic netlist v3.1]. On a CM5/MCU disagreement, muted wins.<br>• **The UI shows a persistent "Mic off (hardware)" status-bar icon** and, on PTT, "Mic is muted, slide the switch to talk" (no capture, no ASR job) |
 | P4 | **No covert camera** | Camera opens only from the Scan screen with a visible preview. The shutter is a user action. The LED blinks on capture |
 | P5 | **Max session length** | PTT session auto-stops at 120 s (configurable up to 10 min for dictation) with a visible countdown |
 | P6 | **Audio not stored by default; transcripts only** [PM 2026-10-21, v0.3] | PCM lives in RAM and is dropped after transcription. **Opt-in audio saving**: a global setting (off) and a per-note "Keep audio" toggle. Saved audio goes to the LUKS data partition (Opus 16 kbps) and follows retention rules. Search-to-audio-timestamp (PM-S1) works only for saved audio; otherwise the transcript segment is highlighted |
@@ -1037,11 +1039,31 @@ SELECT ts, event, scope, provider, bytes_sent FROM consent_log ORDER BY id DESC 
 | P12 | **Source links** | Every assistant answer that uses memory stores citations. If nothing was retrieved, the UI labels the answer "No sources: general knowledge" |
 
 ### 8.2 Recording indicator integrity
-- **Peripheral rail** [Schematic netlist v3]: the mics, display and camera run from **+3V3_PERIPH**, which is only up while the CM5 is up. **When the CM5 is off (S4/ship), the mics are physically unpowered**, so covert recording is impossible in standby, independent of any firmware. This strengthens P1/P3.
-  - In S0–S2, mic power is gated further by `MIC_PWR_EN` (MCU) and the mute switch.
+- **Peripheral rail** [Schematic netlist v3]: the mics, display and camera run from **+3V3_PERIPH** (buck U12, EN from CM5_3V3), which is only up while the CM5 is up. **When the CM5 is off (S4/ship), the mics are physically unpowered**, so covert recording is impossible in standby, independent of any firmware. This strengthens P1/P3.
+  - In S0–S2, mic power is gated only by the **SW5 mute switch** (below). There is currently no MCU or CM5 mic-power control.
   - Rail sequencing: see §11 "Power control".
-- The mic enable/power rail is driven by the **MCU**, and the MCU lights the red LED whenever that rail is on. That means CM5 software can't record without the LED lighting. The CM5 *requests* mic-on over UART while PTT is active.
-- Prototype limitation: with a USB/I2S mic on the IO board, the mic is always powered, so the guarantee is software-only. It becomes hardware-enforced on the custom PCB [A-16].
+- **Mic power chain (implemented)** [Schematic netlist v3.1]:
+  `+3V3_PERIPH` (only while the CM5 is up) → **U14 TPS22917DBVR** load switch (SOT-23-6, LCSC C2681320) → **`MIC_FEED`** → flex → **SW5 mute** → mics.
+  - **U14 EN = `MIC_PWR_EN` = MCU PA11 (pin 21)**, active high, with an external **100 kΩ pull-down** plus U14's internal EN pull-down. So **the mics are off by default** (MCU reset, brown-out, unprogrammed MCU, floating pin).
+  - U14 has **quick output discharge (QOD)**: turn-on ≈ 100 µs, and MIC_FEED is actively discharged on turn-off, so off is fast and the LED goes dark with the rail.
+- **REC LED D6**: green 0603 Kingbright APTD1608LZGCK with 1.3 kΩ (≈ 1 mA), wired **on MIC_FEED, before SW5**, next to the red mute LED.
+- **Mute switch SW5** (physical DPDT slide, on the flex, downstream of MIC_FEED):
+  - Pole 1 feeds the mics when unmuted, and lights the **red mute LED** when muted.
+  - Pole 2 grounds the mic data line when muted.
+  - Software only reads **`MUTE_STATUS_IO`** (CM5 GPIO17, MCU PA10, high = muted). Neither processor can override SW5.
+- **Guarantees (hardware)**:
+  - **The mics can't be powered unless green is lit.** D6 and the mics share MIC_FEED, and the LED sits upstream of SW5.
+  - It can **over-indicate** (green on while SW5 is muted, if the MCU grants power), but **never under-indicate**.
+  - **Red is lit whenever muted.**
+  - With the CM5 off, +3V3_PERIPH is down, so MIC_FEED and the mics are unpowered regardless of PA11.
+- **Firmware gating (MCU `privacy` module, §12)**:
+  - The MCU accepts **`MIC_ENABLE`** and drives PA11 high **only** if all of these hold:
+    1. it's a CM5 request,
+    2. ACTION (PA1) is currently held, **or** pm-power has declared a confirmed tap-to-talk session (`session_id` from the tap UI, started by an ACTION press the MCU itself saw within the last 1 s),
+    3. PA10 = unmuted.
+  - **Max-session timeout**: `max_s` from the request, capped by the MCU at 120 s, or 600 s for dictation (P5), forces PA11 low.
+  - PA11 is also driven low on ACTION release (hold mode), `MIC_ENABLE{off}`, mute, IWDG reset, **UART link loss** (no frame for > 2 s), the CM5 heartbeat timeout, **CM5 power-down/`SHUTDOWN_READY`/`RUN` reset**, and any MCU reset or brown-out (the pull-downs hold it off).
+- Prototype (IO board + I2S mic breakouts): the same chain is built from breakouts (B3). IO-board 3V3 stands in for +3V3_PERIPH.
 
 ### 8.3 Cloud consent flow
 1. pm-core decides the cloud would help (or the user picks "Use cloud").
@@ -1173,23 +1195,40 @@ Transitions:
  any ─(Power 10 s, MCU, even if Linux hung)─► Ship mode
 ```
 
-### 10.2 Battery facts (v0.3.4) [PM/Enclosure 2026-10-21]
-- **Prototype cell [Enclosure 2026-10-21]**: **LiPol LP755060, 7.5 × 50 × 60 mm (7.8 mm worst case)**, with a foam spacer in the **9.0 mm pocket** (the pocket is sized for a cell up to 8.5 mm).
-  - **Nominal capacity: 3.0 Ah / ~11.1 Wh**, per vendor sheets: Akyga spec sheet https://elektronik.ropla.eu/pdf/stock/aky/aky2747.pdf and iBorn LP755060-3000 https://ibornbattery.com/products/755060-37v-3000mah-lipo-battery-for-monitor. That's **~17 % below the ~3.6 Ah budget**, ≈ 9.2 Wh usable.
-  - Runtime impact (§10.3 per-profile energy):
-    - Profile A ≈ 59–64 % of the cell → **16 h still met**, ~26 h at that usage.
-    - Profile B ≈ 120 % → **≈ 13 h** ⚠, versus ≈ 16 h on 3.6 Ah.
-    - Standby unaffected.
-  - ⚠ **Discharge rating**:
-    - The Akyga variant is rated **max 0.3C (0.9 A ≈ 3.3 W)**, incompatible with the 9 W cap and AI bursts (8–9 W). It's also rated to charge only to 0.3C.
-    - Source a **≥ 1C variant** (e.g. the iBorn sheet: 1C continuous / 2C peak, ≤ 150 mΩ) and set the pm-power cap to the cell's rating × 3.7 V × 0.9 until a 3.6 Ah cell is sourced [A-67].
-- Product cell (budget): **~3.6 Ah / ~13.3 Wh**, 8.5 × 51 × 65.5 mm (EST capacity), in the **v4_22 125 × 75 × 22 mm** body (~233 g EST). This supersedes 2.7 Ah / 51 × 64 mm.
-- Usable at the 5 V rail ≈ **11.0 Wh** [A-42].
-- System power cap stays at **9 W** (§10.5). A 1C rating would allow ~12 W.
+### 10.2 Battery facts (v0.3.8) [PM 2026-10-21, v0.3.8]
+**Cells**:
+- **Prototype: Akyga LP655063**: 3.0 Ah / ~11.1 Wh nominal, **1C** (3 A), with an integrated **10 k NTC**.
+  - Size **6.5 × 50 × 63 mm** (verify against the Akyga sheet). It fits the 51 × 65.5 mm footprint and the **9.0 mm pocket** with **~2.5 mm spare** → use a **2.0 mm foam spacer** (compressed to ~1.5 mm) plus ≥ 0.5 mm swelling allowance.
+  - This replaces the LP755060 (and its 1.0 mm spacer).
+- **Production: custom 2C cell, ~3.2 Ah / ~11.8 Wh, ≤ 8.5 mm thick** (fits the 9.0 mm pocket with ≥ 0.5 mm swelling margin). The ~3.6 Ah figure was an EST and is superseded.
+- **Usable energy** (×0.83: 0.97 DoD × 0.90 converters × 0.95 ageing) [A-42]: prototype ≈ **9.2 Wh**, production ≈ **9.8 Wh**.
+
+**9 W cap vs. 1C** [A-67 resolved]:
+- 9 W at the cell is 2.43 A at 3.7 V and **2.65 A at 3.4 V** (near cutoff), both below 1C = 3.0 A.
+- At 3.2 V it's 2.81 A, still below 3.0 A. At 3.0 V, 9 W = 3.0 A, exactly 1C, so **pm-power scales the cap to `min(9 W, 0.95 × 3.0 A × V_cell)`** below 3.3 V. In practice the battery UVLO/critical thresholds (3 %, ≈ 3.4 V under load) shut down before that.
+- Production 2C (6.4 A) has ample margin; the cap stays 9 W for thermal reasons.
+
+**NTC vs. BQ25895 TS/JEITA**:
+- BQ25895 JEITA thresholds are fixed fractions of REGN: VT1 ≈ 0 °C, VT2 ≈ 10 °C, VT3 ≈ 45 °C, VT5 ≈ 60 °C. The datasheet's RT1/RT2 example values (RT1 ≈ 5.52 kΩ, RT2 ≈ 31.23 kΩ) assume a **103AT-type NTC, β ≈ 3435 K**.
+- **Action**: confirm the LP655063's NTC β from the Akyga sheet [A-76].
+  - If β = 3435 (±1 %), use the datasheet RT1/RT2 as-is.
+  - If β = 3950 (common on hobby cells), recompute RT1/RT2 for the 0/45 °C points. Otherwise the hot threshold shifts by several K: a 3950 NTC on 3435 resistors reads cooler at heat, so it trips later than 45 °C.
+  - The firmware layer (10–40 °C, §12) converts `TSPCT` with the **actual** β and resistor values, so the product spec holds even if the hardware layer is off. M5b verifies the trip points (test JE1).
+- **At 45 °C ambient, expect no charging** (hardware hot cutoff ~45 °C, firmware 40 °C). The UI shows "Too hot to charge".
+
+**Runtime estimates** (per-profile energy from §10.3):
+
+| Profile | Energy/day | **Prototype LP655063** (9.2 Wh usable) | **Production 2C ~3.2 Ah** (9.8 Wh usable) |
+|---|---|---|---|
+| **A light / "all-day typical use"** | 5.4–5.9 Wh | 59–64 % → ✅ **16 h met**, ≈ 25–27 h at that usage | 55–60 % → ✅ **16 h met**, ≈ 27–29 h |
+| **B heavy** | ≈ 11.1 Wh | ≈ 120 % → ⚠ **≈ 13 h** | ≈ 113 % → ⚠ **≈ 14 h** |
+| **Standby (S4)** | ≈ 0.1 Wh/day | ✅ ≥ 24 h easily (≈ 90 days theoretical) | ✅ ≥ 24 h (≈ 95 days theoretical) |
+
+⚠ **Thermal limit**: at ≥ 35 °C ambient, Profile B is limited by the enclosure duty cycle (§10.3b: held 3 W ≈ 61 %, table 35 %, pocket 20 %) before the battery runs out. Heavy users get throttled sessions, not a dead battery. At 45 °C, all profiles are thermally limited (duty ≤ 21 % held).
 
 ### 10.3 Power budget vs. "16 h mixed use + ≥ 24 h standby" (v0.3.4, ~3.6 Ah cell) [PM/Enclosure 2026-10-21]
 
-**Battery**: the v4_22 body takes a **~3.6 Ah / ~13.3 Wh** cell (8.5 × 51 × 65.5 mm, EST 0.47 Wh/cc, from `../mechanical/thermal_v3_ribs.md` §v4). That replaces 2.7 Ah. Usable at the 5 V rail ≈ 13.3 × 0.97 × 0.90 × 0.95 ≈ **11.0 Wh** [A-42]. At 1C (3.6 A), the cell could support ~12 W. The system cap stays at **9 W** (§10.5) as a thermal and margin choice.
+**Battery**: the v4_22 body was sized for a **~3.6 Ah / ~13.3 Wh** cell (EST); **v0.3.8: the actual cells are 3.0 Ah (prototype) / ~3.2 Ah (production), see §10.2 for runtime**. The table below keeps the 3.6 Ah basis for reference (8.5 × 51 × 65.5 mm, EST 0.47 Wh/cc, from `../mechanical/thermal_v3_ribs.md` §v4). That replaces 2.7 Ah. Usable at the 5 V rail ≈ 13.3 × 0.97 × 0.90 × 0.95 ≈ **11.0 Wh** [A-42]. At 1C (3.6 A), the cell could support ~12 W. The system cap stays at **9 W** (§10.5) as a thermal and margin choice.
 
 Per-state power (5 V rail, CM5 4 GB; measured idle from §10.0, EST deltas, §10.8 targets):
 
@@ -1278,14 +1317,14 @@ T_lim(Ta) = 43 °C                     if Ta ≤ 40 °C
 #### 10.4.2 Sensors
 - **Case NTC (skin)**: 10 kΩ NTC bonded to the **inside of the aluminium back plate at (−55.3, −10) mm** (enclosure coordinates, next to the left grip). It's wired by a **2-pin JST SH (1.0 mm) connector on the carrier**.
   - **Read by the STM32U0 ADC** (preferred: it works with the CM5 off and is independent of Linux).
-  - Divider: 10 kΩ 0.1 % to a switched 3.3 V reference GPIO, sampled at 1 Hz in S0–S2 and every 60 s in S4. ADC 12-bit, 16× oversampled, with a β/Steinhart–Hart table in MCU flash.
+  - **Netlist v3** [Schematic netlist v3]: NTC on **ADC PB0 (ADC1_IN17)**, biased from **PA12 through 10 kΩ 1 %**. **PA12 is driven high only while sampling** (set high, wait ≥ 100 µs for settling, convert, set low), so the divider draws nothing between samples. Sampled at 1 Hz in S0–S2 and every 60 s in S4. Ratiometric: VDDA = bias source, so the 1 % resistor and the NTC β dominate error; the M5b two-point calibration trims the offset. ADC 12-bit, 16× oversampled, with a β/Steinhart–Hart table in MCU flash.
   - Reported in `EVT_THERMAL` (§11).
-  - Fallback if the STM32U0 has no free ADC channel: an I2C ADC on the MCU bus, never the CM5 [A-63].
+  - [A-63 resolved: PB0 ADC.]
 - **Load-dependent hot-spot compensation**: the NTC reads **~0.3 K/W below the hot spot** (enclosure estimate; ~75 mm from the SoC zone). The governor uses
   `T_skin,hot = T_NTC + k_hs · P_avg(τ_hs)`, with `k_hs = 0.30 K/W` initial and `P_avg` a first-order filtered device power (τ_hs ≈ 60 s initial).
   `k_hs` and `τ_hs` are calibrated per enclosure revision in M5b (§B4) against thermocouples at the SoC zone and grip, and stored in MCU flash and `/var/lib/pm/thermal_cal.toml`.
   **Stage thresholds below compare `T_skin,hot`** [A-64 **confirmed** by Enclosure 2026-10-21 for the prototype]. The NTC lag is double-counted on purpose, which is conservative. Relax this after M5b calibration: thresholds then move to the raw NTC plus a fitted offset, or the margins are reduced.
-- **Battery (cell) NTC**: goes to the **charger JEITA/TS input** (BQ25895-class). It's also read by the MCU ADC for `charge_ctrl` (§12, charging only within 10–40 °C).
+- **Battery (cell) NTC** [Schematic netlist v3]: wired **only to the BQ25895 TS input** (not to an MCU ADC). The MCU reads cell temperature as **`TSPCT`** (BQ25895 REG10, TS voltage as % of REGN; ADC conversion via `CONV_START`/`CONV_RATE`), converted to °C with the same NTC table and divider (RT1/RT2). Backup: **MAX17055 `Temp` register** (internal die/thermistor-input temperature; it's a fallback for plausibility only, since it doesn't sense the cell directly unless the gauge's TH pin is wired) [A-75]. JEITA is enforced in the charger hardware (§12).
   - **At 45 °C ambient, expect no charging.**
   - UI messaging on screen 15 and the battery icon: "Too hot to charge, charging resumes below 38 °C". When the CM5 is off, the LED shows an amber double-blink.
   - The system stays powered from USB-C.
@@ -1376,7 +1415,7 @@ These are enforced by `pm-power` plus static config. Each lever's saving is EST 
 **Question**: does any Linux sleep state on the CM5 4 GB beat "MCU cuts power + cold boot" for short gaps (seconds to minutes between sessions), on energy and/or latency, without breaking peripherals?
 
 **Setup**:
-- Hardware: CM5 4 GB on the IO Board, our 4.3" DSI panel, I2S mics/amp, Camera Module 3, NUCLEO-U083RC driving `GPIO_WAKE` and `RUN`.
+- Hardware: CM5 4 GB on the IO Board, our 4.3" DSI panel, I2S mics/amp, Camera Module 3, NUCLEO-U031R8 driving `GPIO_WAKE` and `RUN`.
 - Measurement: INA226 at 5 V input sampled at ≥ 1 kHz (or a Joulescope/PPK2-class meter).
 - Images: Pi OS Bookworm, current kernel, and the latest rpi-6.x kernel. Firmware EEPROM at the latest stable.
 
@@ -1456,22 +1495,20 @@ Ranked by expected saving (largest first):
 
 **Physical** [Schematic netlist v3]:
 - **UART**: 115200 8N1, **CM5 UART0 (GPIO14 TXD / GPIO15 RXD, `/dev/ttyAMA0`) ↔ STM32U0 USART2**. There's no console on this UART.
-  - Wake from Stop2: the design doesn't rely on the USART2 peripheral's own wake support [A-68: check the STM32U083 RM for USART2 Stop-mode wake capability]. The **USART2_RX pin is also configured as an EXTI falling-edge wake line** before entering Stop2.
+  - Wake from Stop2: the design doesn't rely on the USART2 peripheral's own wake support [A-68: check the STM32U031K8 RM for USART2 Stop-mode wake capability]. The **USART2_RX pin is also configured as an EXTI falling-edge wake line** before entering Stop2.
   - The CM5 sends a `0x00` preamble byte and waits **2 ms** before each frame. The MCU re-enables USART2 on wake, discards the preamble, and holds the clocks on until 50 ms of link silence.
   - If USART2 turns out to support Stop2 wake natively, the EXTI path is kept anyway as a belt-and-braces measure.
 - **`MCU_IRQ_N`**: MCU open-drain output, active low, to **CM5 GPIO4**, with a 10 k pull-up to CM5 3V3. The MCU asserts it for pending events (low until the CM5 reads `EVT_*`, then released), and as a wake for s2idle.
   - In S4 the CM5 is unpowered, so the MCU **must keep the pin Hi-Z** (no back-powering the CM5 IO). The same applies to USART2_TX: the MCU puts it in analog/Hi-Z while `CM5_PWR_EN` is low.
 - **Power control**: the MCU controls the CM5 5 V load switch / boost enable and the `RUN` line.
-- **+3V3_PERIPH** [Schematic netlist v3] (mics, display, camera): only on while the CM5 is up.
-  - **Which side switches it is not stated in the brief** [A-70]. Either it's derived from the CM5 module's 3V3 output or PMIC, so it follows CM5 power automatically, or it's a load switch enabled by the CM5 or the MCU.
-  - Required sequence:
-    - Power-on: CM5 5 V up, then CM5 3V3, then +3V3_PERIPH, then the display/camera drivers probe.
-    - Power-off: CM5 halts, +3V3_PERIPH goes down with or before the CM5 rails, then the MCU opens the 5 V switch.
-  - MCU pins facing the peripheral domain (`MIC_PWR_EN`, LED nets, if they're powered from it) must be Hi-Z or low while it's down. **No back-powering.**
-- **I2C alternative**: dropped in v0.3.6. The schematic uses UART [A-23 closed].
-- **MCU I2C1 bus (PB6 SCL / PB7 SDA, always-on 3V3, 400 kHz, shared pull-ups 2.2 k)**: BQ25895, MAX17055, STUSB4500 and VEML7700. All are monitored while the CM5 is off.
-- **CM5 I2C1 (GPIO2/3)**: DRV2605L only (DNP).
-
+- **+3V3_PERIPH** [Schematic netlist v3] (mics, display, camera): **its own buck U12 (TLV62585 from VSYS)**. **EN is driven by CM5_3V3 through a 10 k/100 k divider**, so the rail **tracks CM5 power in hardware; no GPIO (CM5 or MCU) controls it** [A-70 resolved].
+  - **Power-on**: MCU closes the CM5 5 V switch → CM5 PMIC brings up CM5_3V3 → U12 EN crosses its threshold (CM5_3V3 × 100/110 ≈ 3.0 V; check against the TLV62585 EN V_IH at layout) → +3V3_PERIPH soft-starts (~1 ms) → the kernel probes the display, camera and I2S mics.
+  - **Power-off**: CM5 halts → MCU opens the 5 V switch (or the PMIC drops) → CM5_3V3 falls → U12 EN low → +3V3_PERIPH off. It falls *with* the CM5 rails, never after.
+  - **Consequences**:
+    - Mics, display and camera are physically unpowered in S4/ship.
+    - pm-power can't power-cycle the display/camera separately; use panel sleep, camera stop and `MIC` mute instead.
+    - **No back-powering**: MCU pins into the peripheral domain (`MUTE_STATUS_IO` PA10 input; `MIC_PWR_EN` PA11 output, which is held low when CM5_3V3 is absent) are inputs, or driven low when CM5_3V3 is absent.
+  - If a CM5_3V3 brown-out glitch toggles EN, the divider's slow edge is acceptable. Check for EN chatter on the scope (test SCH-T4).
 **I2C address map** [Schematic netlist v3]:
 
 | Bus | Device | 7-bit address | Notes |
@@ -1501,7 +1538,7 @@ Every command gets `ACK{seq,status}` within 50 ms. Otherwise the sender retries 
 | 0x11 | CM5→MCU | `HEARTBEAT` | uptime_s, cm5_state |
 | 0x12 | CM5→MCU | `SET_WAKE` | epoch_s (UTC) of next RTC alarm; 0 = clear |
 | 0x13 | CM5→MCU | `SET_TIME` / `GET_TIME` | epoch_s |
-| 0x14 | CM5→MCU | `MIC_ENABLE` | on/off (MCU drives mic power + REC LED) |
+| 0x14 | CM5→MCU | `MIC_ENABLE` | `on` u8, `session_id` u16, `mode` u8 (hold / tap), `max_s` u16 [Schematic netlist v3.1]. **Accepted**: the MCU sets PA11 (`MIC_PWR_EN`) only under the §8.2 conditions, replies `ACK` or `NAK{muted, no_ptt, timeout, cm5_down}`, and reports rail changes with `EVT_MIC_RAIL` (0x2B: `on`, `reason`: request / release / timeout / mute / link_loss / wdt / power_down) |
 | 0x15 | CM5→MCU | `LED` | pattern id (charging, notify, rec, error), brightness |
 | 0x16 | CM5→MCU | `HAPTIC` | pattern id (no-op: LRA is DNP in MVP [PM v0.3]; reserved for later) |
 | 0x17 | CM5→MCU | `SHUTDOWN_READY` | — (MCU starts power-cut timer after CM5 halts) |
@@ -1533,7 +1570,22 @@ Every command gets `ACK{seq,status}` within 50 ms. Otherwise the sender retries 
 
 ## 12. Low-power MCU firmware outline: STM32U0 [PM 2026-10-21]
 
-- **Target MCU: STM32U0 family** (Cortex-M0+, ultra-low-power; e.g., STM32U083 with 256 KB flash and 40 KB RAM [A-25 resolved: family confirmed; exact part TBD by HW]). **Prototype: NUCLEO-U083RC.**
+- **Target MCU: STM32U031K8U6** (UFQFPN-32 5×5 mm, Cortex-M0+ up to 56 MHz, **64 KB flash, 12 KB SRAM**) [Schematic netlist v3]. This is not the U083. **Prototype: NUCLEO-U031R8** (STM32U031R8T6, LQFP-64, same die and memory; ST board MB1932, user manual UM3256). Sources: ST product page https://www.st.com/en/microcontrollers-microprocessors/stm32u031k8.html, datasheet https://www.st.com/resource/en/datasheet/stm32u031k8.pdf, board https://www.st.com/en/evaluation-tools/nucleo-u031r8.html.
+- **Part check (U031K8)**:
+  - **Memory**: 64 KB flash / 12 KB SRAM confirmed.
+  - **Peripherals**: 1× 12-bit ADC (HW oversampling to 16-bit), RTC (LSE), 2× LPTIM, IWDG, **3× I2C (I2C1 has an independent clock and wakes from Stop on address match)**, **4× USART + 2× LPUART**, Stop0/1/2, Standby, Shutdown.
+  - **USART2 is present** (PA2 TX / PA3 RX, AF). The datasheet USART table marks USART1/USART2 as having the independent clock domain for Stop-mode wake. ST's generic text says USART/LPUART wake from "Stop mode", but I couldn't confirm from the text whether that includes **Stop2** for USART2 (LPUARTs are the documented Stop2-capable ports). The EXTI-on-RX design (§11) is kept [A-68]. Note: **LPUART1 is also on PA2/PA3** (alternate AF), so the same pins could fall back to LPUART1 with no board change.
+  - **Pins on QFN-32**: PA0, PA1, PA2, PA3, PA4, PA5, PA10, PA12, PB0, PB6, PB7 are **all present** (STM32duino U031K(4-6-8)U pin map; datasheet pinout to be re-read at layout). PB0 = ADC1_IN17 ✓, PB6/PB7 = I2C1 SCL/SDA ✓.
+  - **Nothing missing.** But the package has only ~25 I/O, so the pin budget is tight (below).
+  - **WKUP**: PA0 = WKUP1 and PA1 = WKUP3 per netlist v3. Not independently re-confirmed: the ST datasheet PDF couldn't be fetched from the box. WKUP pins matter only for Standby/Shutdown; Stop2 wake uses EXTI on any pin [A-71: **resolved per netlist**, datasheet re-check at layout review].
+- **Pin budget (QFN-32)**:
+  - Used: PA0/1/4/5 buttons; PA2/3 USART2; PA10 mute; PA12 NTC bias; PB0 NTC ADC; PB6/7 I2C1; PA13/14 SWD; PC14/15 LSE.
+  - **PA11 (pin 21) = `MIC_PWR_EN`** [Schematic netlist v3.1]. Still to assign from the remaining ~PA6–PA9, PA15, PB1, PB3–PB5: `MCU_IRQ_N`, `CM5_PWR_EN`, `RUN`, BQ25895 INT, MAX17055 ALRT, STUSB4500 ALERT (optional) and the status LED (1–2). That's 7–8 of ~9, with ≤ 1 spare [A-73].
+- **Memory budget (64 KB / 12 KB)**:
+  - Flash: bootloader 8 KB + **slot A 26 KB + slot B 26 KB** + config/calibration 2 KB (1 page) + log 2 KB = 64 KB. The application must fit **≤ 26 KB**, so use LL drivers (not HAL), no printf, and COBS/CRC in < 1 KB [EST, to be measured at M5].
+  - If it doesn't fit: drop the B slot and recover through the ROM bootloader (USART, BOOT0 test pad) [A-74].
+  - SRAM: stack 2 KB, UART RX/TX rings 1.5 KB, event log ring 2 KB, driver state + FSMs ~2 KB, ADC/thermal model 0.5 KB, link frame buffers 1 KB, so ≈ 9 KB with ~3 KB headroom.
+  - `FW_UPDATE_*` streams 256 B chunks to flash (no full-image RAM buffer).
 - **Toolchain**:
   - STM32CubeU0 HAL/LL with a thin `hal_*` layer of our own, so logic is host-testable.
   - Bare-metal event loop. Zephyr is optional later.
@@ -1547,12 +1599,12 @@ Every command gets `ACK{seq,status}` within 50 ms. Otherwise the sender retries 
 | Long-press timing (2 s menu, 10 s hard cut), chord window 80 ms | **LPTIM1/LPTIM2** | runs in Stop2 on LSE |
 | Time / alarms | **RTC** (LSE 32.768 kHz) + Alarm A (wake CM5) + Alarm B (periodic battery/thermal sample) + backup registers (boot reason, boot mode) | **The STM32U0 RTC replaces the external RTC option** [A-24 resolved] |
 | Fuel gauge, charger, PD sink, ALS | **I2C1 PB6/PB7**: MAX17055 0x36, BQ25895 0x6A, STUSB4500 0x28, VEML7700 0x10 [Schematic netlist v3] | gauge ALRT and BQ25895 INT on EXTI; STUSB4500 ALERT on EXTI if routed; VEML7700 polled |
-| Skin NTC, cell NTC, (ambient NTC) | **ADC** + switched divider supply (a GPIO powers the dividers only while sampling) | sample at 1 Hz in S0–S2 and every 60 s in S4 |
-| Mic power + REC LED interlock | GPIO driving the load switch EN. The **LED is driven from the same net in hardware** | firmware also asserts the invariant |
+| Case NTC [Schematic netlist v3] | **ADC1_IN17 on PB0**; bias from **PA12** via 10 kΩ 1 %, high only while sampling | 1 Hz in S0–S2, every 60 s in S4. Cell temp via BQ25895 `TSPCT` over I2C (MAX17055 `Temp` as backup); no ambient NTC fitted |
+| Mute sense; mic power [Schematic netlist v3.1] | **PA10** `MUTE_STATUS_IO` input, EXTI both edges. **PA11 (pin 21) `MIC_PWR_EN`** push-pull output → U14 TPS22917 EN (100 k external + internal pull-down) | PA11 is configured low before anything else at boot; reset state = analog/Hi-Z, held off by the pull-downs |
 | Status LED patterns | **TIM** PWM (Run) / LPTIM PWM (Stop) | |
 | Haptics (optional hook) | **CM5** I2C1 (GPIO2/3) → DRV2605L (DNP) [Schematic netlist v3]; the MCU has no haptics path in v1 **or** TIM PWM to a motor driver | **LRA is DNP on the PCB and not in the MVP UX [PM 2026-10-21, v0.3].** `haptics_drv_t` interface with a `null` driver by default. Haptics are TBD (LRA under evaluation) [PM 2026-10-21] |
 | Watchdog | **IWDG** (LSI), refreshed in the main loop, keeps running in Stop2 | |
-| Firmware storage | flash split into bootloader (16 KB) + slot A/B (2 × ~112 KB) | |
+| Firmware storage | 64 KB flash: bootloader 8 KB + slot A/B 2 × 26 KB + config/cal 2 KB + log 2 KB [Schematic netlist v3] | A/B is optional if the app outgrows 26 KB [A-74] |
 
 - **Low-power modes**:
   - **Run / LP-run** only while handling events.
@@ -1566,22 +1618,22 @@ Every command gets `ACK{seq,status}` within 50 ms. Otherwise the sender retries 
   - `battery`: gauge/charger drivers; thresholds 20/10/3 %; UVLO cut; reports `EVT_BATTERY`; feeds the **power cap fast path** (§10.5).
   - `charge_ctrl` (**JEITA, charging only within 10–40 °C**) [PM 2026-10-21]:
     - **Hardware layer**: cell NTC on the charger TS pin. The charger's JEITA profile is configured (BQ25895-class: TS divider) as an independent backstop at no charge below 0 °C or above 45 °C, with reduced current/voltage in the outer bands.
-    - **Firmware layer (stricter, the product spec)**: the MCU reads the cell NTC every 10 s while USB-C is attached.
+    - **Firmware layer (stricter, the product spec)**: the MCU reads cell temperature as **BQ25895 `TSPCT`** over I2C every 10 s while USB-C is attached (one-shot ADC conversion). It cross-checks against MAX17055 `Temp`; a disagreement > 10 K is treated as a sensor fault → charge disabled.
       - **Disable charging** (charger `CHG_CONFIG=0` over I2C) if the cell is **< 10 °C or > 40 °C**.
       - Re-enable at **≥ 12 °C and ≤ 38 °C** (2 K hysteresis).
       - Charge current is derated to 0.5C above 35 °C [A-47].
       - The power path keeps powering the system while charging is inhibited.
       - Sends `EVT_CHARGE_INHIBIT`. The UI shows "Too hot/cold to charge" on screen 15, and the LED pattern shows it when the CM5 is off.
-    - **Fail-safe**: NTC open/short → charging disabled. If the MCU stops responding, the charger watchdog (I2C watchdog timer) reverts the charger to its default *safe* limits, and the hardware JEITA layer still applies.
+    - **Fail-safe**: NTC open/short (TSPCT at a rail, or the BQ25895 `NTC_FAULT` bits set) → charging disabled. If the MCU stops responding, the charger watchdog (I2C watchdog timer) reverts the charger to its default *safe* limits, and the hardware JEITA layer still applies.
   - `thermal`: samples the skin, cell and ambient NTCs. Sends `EVT_THERMAL`. Blocks CM5 power-on while skin ≥ 43 °C after a T4 shutdown. Can hard-cut if skin > 55 °C and the CM5 doesn't respond [A-48].
   - `rtc_alarm`: time, the next wake (min of reminder and daily-summary pre-generation), drift trimming after NTP sync.
-  - `privacy`: the mic power and REC LED interlock, mute switch sense. This module is tiny and reviewed separately.
+  - `privacy` [Schematic netlist v3.1]: owns PA10 (mute) and PA11 (`MIC_PWR_EN`). Accepts `MIC_ENABLE` only for a CM5 request while ACTION is held, or for a confirmed tap-to-talk session, and only when unmuted. Enforces the max-session timeout (LPTIM, ≤ 120 s / 600 s dictation). Forces PA11 low on release/off/mute/timeout/link loss (> 2 s)/heartbeat loss/CM5 power-down or `RUN` reset. Emits `EVT_MIC_RAIL` and `EVT_MIC_MUTE`. This module is tiny and reviewed separately.
   - `wdt_supervisor`: CM5 heartbeat; reset on a miss of more than 30 s; recovery after 3 resets.
   - `bootloader`: verifies an ed25519 signature on the slot image, A/B with rollback. Updated through `FW_UPDATE_*` from pm-power. The ROM system bootloader (BOOT0 + USART) is the last-resort recovery path through a test pad.
   - `log`: an event ring buffer in SRAM plus backup registers for the boot reason.
 - **Current targets**: S4 MCU average ≤ 5 µA (Stop2 + RTC + LPTIM ≈ 1–2 µA typical [A-44], plus periodic ADC). The whole S4 system is ≤ 1 mA at the cell (§10.3). The Nucleo board's ST-LINK and LEDs must be cut off (IDD jumper measurement) for meaningful numbers.
 - **Safety invariants** (host unit tests plus HIL):
-  - the REC LED is never off while mic power is on;
+  - PA11 is never high without an accepted `MIC_ENABLE` session, or after its timeout, a link loss, or CM5 power-down; it's low after any reset (the green LED / mic-power coupling is guaranteed by wiring);
   - no charging outside 10–40 °C;
   - power is never cut while the CM5 runs, unless Power 10 s / UVLO / skin > 55 °C;
   - critical battery always leads to S5 → S4;
@@ -1659,21 +1711,21 @@ Validate on existing hardware before the custom PCB [PRD strategy]: capture/sear
 | 6 | Raspberry Pi Camera Module 3 (IMX708 AF) + 22-pin CM FFC | OCR/translation | 1 | 25 |
 | 7 | 2× I2S MEMS mic breakout (ICS-43434 / SPH0645 / INMP441) | 2 mics [PRD] | 2 | 10 |
 | 8 | MAX98357A I2S amp + 8 Ω 1–2 W speaker | audio out | 1 | 10 |
-| 9 | **ST NUCLEO-U083RC** (STM32U083, on-board ST-LINK) [PM 2026-10-21] | low-power MCU (replaces the RP2040 Pico) | 2 | 2 × 12 |
+| 9 | **ST NUCLEO-U031R8** (STM32U031K8, on-board ST-LINK) [PM 2026-10-21] | low-power MCU (replaces the RP2040 Pico) | 2 | 2 × 12 |
 | 10 | Charger/power path: **BQ25895 eval/breakout** (TS/JEITA, I2C, ship mode, power path) [Research] + 5 V ≥ 3 A boost (e.g., TPS61088-class module) + load switch for the CM5 5 V rail | power path | 1 | 30 |
 | 11 | Fuel gauge breakout (MAX17055 or MAX17048) | battery monitoring | 1 | 10 |
-| 12 | **LiPol LP755060 7.5 × 50 × 60 mm (7.8 mm max), 3.0 Ah nominal, protected, **≥ 1C variant**, with 10k NTC (or an external NTC taped to the cell), plus a foam spacer for the 9.0 mm pocket** [Enclosure 2026-10-21]. Product target ~3.6 Ah ≤ 8.5 mm, still to source | battery | 2 | 2 × 12 |
+| 12 | **Akyga LP655063, 6.5 × 50 × 63 mm, 3.0 Ah, 1C, protected, integrated 10k NTC**, plus a 2.0 mm foam spacer for the 9.0 mm pocket [PM 2026-10-21, v0.3.8]. Production: custom 2C ~3.2 Ah, ≤ 8.5 mm | battery | 2 | 2 × 12 |
 | 13 | 10k NTC thermistors (2–3: case/skin, ambient, spare) + thermal epoxy/Kapton | skin governor | 5 | 3 |
 | 14 | INA226 breakout (5 V rail) + USB-C power meter | power budget | 1 | 12 |
 | 15 | ~~LRA + DRV2605L~~: dropped, LRA is DNP in MVP [v0.3]. Keep 1 for firmware hook bring-up only | (optional) | 0–1 | 0–10 |
-| 16 | Tactile buttons (large detented Action, Power, Vol±), mic-mute slide switch, red REC LED + status RGB LED, TPS22918 load switch (mic power), resistors, MOSFETs | controls/privacy | kit | 10 |
+| 16 | Tactile buttons (large detented Action, Power, Vol±), mic-mute slide switch, DPDT slide switch (SW5 equivalent), red mute LED, status LED, **TPS22917 breakout (or equivalent) + green 0603 LED (product: Kingbright APTD1608LZGCK) + 1.3 kΩ + 100 kΩ** [Schematic netlist v3.1], resistors, MOSFETs | controls/privacy | kit | 10 |
 | 17 | USB-C PD 5 V 5 A supply (official 27 W), wiring, standoffs, 3D-printed 125×75×20 mock enclosure | bench + thermal test | kit | 30 |
 | 18 | Logic analyzer (8 ch), K-type thermocouples + logger (skin map), access to a 45 °C chamber (or a heated box with a controller) | test | 1 | 60 |
 | | **Total (approx.)** | | | **~$520–580** (incl. 2 GB module and test gear) |
 
 ## B3. Wiring (prototype)
 
-The NUCLEO-U083RC pins below are **proposed** and must be checked against the NUCLEO-U083RC user manual and the STM32U083 AF table before wiring. **PA5 goes to LD2** [A-31].
+The NUCLEO-U031R8 pins below are **proposed** and must be checked against the NUCLEO-U031R8 user manual and the STM32U031K8 AF table before wiring. **PA5 goes to LD2** [A-31].
 
 **Prototype vs. product differences** [Schematic netlist v3]:
 1. **USART2 pins**: on the Nucleo, USART2 PA2/PA3 are wired to the ST-LINK VCP. Either:
@@ -1691,7 +1743,8 @@ The NUCLEO-U083RC pins below are **proposed** and must be checked against the NU
 | CM5 GPIO15 (UART0 RXD, header pin 10) | Nucleo **USART2 TX** (see note) | |
 | CM5 GPIO4 (header pin 7, in, pull-up) | Nucleo GPIO `MCU_IRQ_N` (open-drain out) | active low; IRQ + s2idle wake |
 | CM5 GPIO17 (in, header pin 11) | mute switch `MIC_MUTE` (high = muted), also to Nucleo **PA10** (EXTI, Arduino D2) [Schematic netlist v3] | GPIO17 is used for nothing else (the old gpio-shutdown/IRQ use moved; IRQ is GPIO4) |
-| Nucleo GPIO `MIC_PWR_EN` | TPS22918 EN → Mic1/Mic2 VDD; **same net → REC LED driver** | hardware interlock |
+| DPDT switch (SW5 stand-in) | pole 1: IO-board 3V3 → mic VDD / red mute LED; pole 2: mic SD line → GND when muted; status → CM5 GPIO17 + Nucleo PA10 | matches netlist v3 |
+| Nucleo **PA11** (morpho) `MIC_PWR_EN` [Schematic netlist v3.1] | EN of a **TPS22917 breakout** (or equivalent: TPS22918/TPS22916 breakout, or a P-FET + driver with an output discharge resistor) + 100 kΩ to GND; IN = IO-board 3V3; OUT = MIC_FEED → green LED + 1.3 kΩ to GND → DPDT (SW5 stand-in) → mic VDD | same topology as the product |
 | Nucleo GPIO `CM5_PWR_EN` (via load switch / boost EN) | CM5 IO Board 5 V input (USB-C power-in path) | S4 = CM5 unpowered [A-31: confirm IO Board 5 V input] |
 | Nucleo GPIO (open-drain via MOSFET) | IO Board `RUN` / power-button header | reset/wake |
 | Nucleo I2C1 **PB6 SCL / PB7 SDA** (morpho CN10; same pins as the product [Schematic netlist v3]) | BQ25895 (0x6A), MAX17055 (0x36), STUSB4500 (0x28), VEML7700 (0x10), on breakouts | MCU owns the battery/sensor bus; one set of pull-ups only (remove the extra breakout pull-ups) |
@@ -1700,7 +1753,7 @@ The NUCLEO-U083RC pins below are **proposed** and must be checked against the NU
 | Nucleo PA1 (WKUP3, Arduino A1) | Action/PTT button to GND | active low, pull-up. The on-board B1 (PC13) can stand in only with a `BOARD_NUCLEO` remap |
 | Nucleo PA4 (Arduino A2) | Vol+ to GND | active low, pull-up; EXTI only while awake |
 | Nucleo PA5 (Arduino D13) | Vol− to GND | **⚠ PA5 drives LD2 on the Nucleo**: the LED + resistor to GND fights the pull-up. Open the LD2 solder bridge (per the UM), or the button reads unreliably |
-| Nucleo ADC (moved off PA1/PA4, which are now buttons: e.g., **PC0, PC1, PB0** = Arduino A5/A4/A3; check the AF table) [A-72: the product's NTC ADC pins aren't in this brief] | case NTC (bonded to the inside of the back plate at (−55.3, −10) on the v4_22 body; product: 2-pin JST SH on the carrier → STM32U0 ADC) [PM/Enclosure 2026-10-21], cell NTC (pouch, also to BQ25895 TS via its own divider), ambient NTC | divider supply from a GPIO |
+| Nucleo **PB0** (ADC1_IN17, morpho) + **PA12** (bias, morpho) [Schematic netlist v3] | case NTC: PA12 → 10 kΩ 1 % → PB0 → NTC → GND. Cell NTC → BQ25895 breakout TS pin (with its RT1/RT2 divider), read via `TSPCT` | same pins as product. Check that PA12 isn't tied to anything on the MB1932 (it's a USB pin on some STM32s; U031 has no USB) |
 | BQ25895 INT / gauge ALRT | Nucleo EXTI | |
 | Nucleo 3V3 | from an always-on 3.3 V LDO off VSYS (battery) | remove the ST-LINK power jumper for current measurements (use IDD) |
 | INA226 | in series with the CM5 5 V rail, read by the CM5 over I2C (dev only) | power budget |
@@ -1718,7 +1771,7 @@ The NUCLEO-U083RC pins below are **proposed** and must be checked against the NU
 | **M3 Assistant + RAG** | 2 wk | llama.cpp service, model benchmark (≥ 3 models), hybrid retrieval, source chips, action-item extraction | Answers cite sources; latency targets §14 measured |
 | **M4 OCR + Translation + Vision** | 2.5 wk | Scan flow, PaddleOCR/IndicPhotoOCR, pm-translate (IndicTrans2-dist), overlay, pm-xlit keyboard + cross-script FTS, local VLM trial | PM-X1, PM-K1, PM-S1 pass |
 | **M5b Power reality + suspend decision (v0.3.2–v0.3.4)** | 2 wk (start right after M0; finishes before M5) | **Calibration on hardware (v0.3.4)**: (1) NTC: 2-point bath/chamber check of the case NTC and the cell NTC through the STM32U0 ADC (±0.3 K), store the offset; (2) hot-spot: v4_22 body with thermocouples at the SoC zone, the grip and the NTC site, run 1/2/3/5 W steps at 35 °C held/table/pocket, fit `k_hs` (initial 0.3 K/W) and `τ_hs`, write them with `SET_THERMAL_CAL`; (3) budgets: confirm 1.85/1.08/0.64 W at 35 °C and measure 45 °C (expected lower than the model); (4) trip timing: verify the 3 W/5 W soft/limit times against the §10.3b table (±20 %); (5) stage check: Warn/Soft/Hard/Protect and 1.5 K hysteresis observed; (6) case heuristic: validate display-off ⇒ pocket conservatism; (7) JEITA: charging inhibits at 45 °C, UI message shown. **Run the §10.8 idle-power workplan (ranked levers, cumulative + attribution)**; measure our own CM5 4 GB idle, tuned idle (§10.6 levers one by one), burst, boot energy, S4. Run the §10.7 s2idle/deep/halt/rail-cut test matrix. Fit the thermal duty-cycle model on the mock unibody | PM-P1 + PM-P2 pass; §10.8 targets (S2 ≤ 1.6 W, S0 ≤ 2.0 W) met or gap reported; thickness recommendation (§10.3c) handed to mechanical; S3 adopt/reject recorded per the §10.7 rule; §10.3 table updated with measured values |
-| **M5 Reminders + Power + MCU** | 2.5 wk | pm-remind + daily summary, pm-power + skin governor + 9 W cap, STM32U0 (NUCLEO-U083RC) firmware v0 (USART2 link, buttons, battery, JEITA charge_ctrl, NTCs, RTC alarm, IWDG, mic interlock, Stop2), S0–S5 + ship mode | PM-D1, PM-B2, PWR1, JE1–JE2 pass; reminder fires from S4 |
+| **M5 Reminders + Power + MCU** | 2.5 wk | pm-remind + daily summary, pm-power + skin governor + 9 W cap, STM32U0 (NUCLEO-U031R8) firmware v0 (USART2 link, buttons, battery, JEITA charge_ctrl, NTCs, RTC alarm, IWDG, mic interlock, Stop2), S0–S5 + ship mode | PM-D1, PM-B2, PWR1, JE1–JE2 pass; reminder fires from S4 |
 | **M6 Cloud adapter + privacy hardening** | 1.5 wk | pm-cloud, consent dialog/token, nftables egress, LUKS data, audit log, export/import | Privacy test suite passes; zero egress in local mode (pcap) |
 | **M7 Updates + recovery** | 1.5 wk | RAUC A/B, signed bundles, health check, recovery partition, MCU FW update | Pull-power-during-update test passes 20/20 |
 | **M8 Validation** | 2.5 wk | 25/35/45 °C chamber thermal tests, governor RC-model fit, 16 h battery runs, 1-week dogfooding, custom PCB requirements doc | Report + go/no-go for custom carrier |
@@ -1735,14 +1788,21 @@ The NUCLEO-U083RC pins below are **proposed** and must be checked against the NU
 
 **Privacy (must pass, release-blocking)**
 - PR1: Capture is impossible without a PTT event (fuzz pm-audio D-Bus API, attempt direct ALSA open from other service UIDs → EACCES).
-- PR2: The REC LED is on 100 % of the time the mic is powered (logic analyzer on mic VDD vs LED, 1,000 PTT cycles).
+- PR2 [Schematic netlist v3.1]: **Green D6 is lit whenever the mic rail (MIC_FEED) > 0.1 V.** Logic analyser on MIC_FEED vs LED current (or a photodiode), over 1,000 PTT cycles plus mute toggles: zero samples with the rail > 0.1 V and the LED off. Red is lit 100 % of the time SW5 is muted (CM5 up).
+- PR2a: **PA11 low at reset/brown-out.** Pulse NRST, sweep VDD through the BOR threshold, and power-cycle with a blank MCU: MIC_FEED stays < 0.1 V throughout (scope, 100 runs).
+- PR2b: **No mic power without a PTT request.** With ACTION idle, inject `MIC_ENABLE{on}` without a hold or confirmed tap session, while muted, and fuzz the link: always NAK, and MIC_FEED < 0.1 V. ACTION held without a CM5 request also leaves the rail off.
+- PR2c: **The timeout forces off.** Hold ACTION with `max_s` = 120 (and a request of 900 s): the rail drops at ≤ 120 s / ≤ 600 s dictation ± 1 s. Kill the UART, stop the heartbeat, and pull `RUN`/CM5 power: the rail drops within 2 s / immediately, and `EVT_MIC_RAIL` gives the reason.
 - PR3 [Schematic netlist v3]: With the mute switch on (GPIO17/PA10 high), the PTT session refuses and the UI shows "Mic off (hardware)".
 - PR3a: **No audio frames while muted.**
-  - With the switch muted, press PTT 100× and inject `StartCapture` via D-Bus. The pm-audio frame counter stays at 0, the ALSA capture device is never opened (`/proc/asound/card*/pcm*c/sub0/status` = closed), and an I2S logic-analyser capture shows no WS/BCLK activity on the mic pins. `MIC_PWR_EN` stays low.
+  - With the switch muted, press PTT 100× and inject `StartCapture` via D-Bus. The pm-audio frame counter stays at 0, and the ALSA capture device is never opened (`/proc/asound/card*/pcm*c/sub0/status` = closed). **Hardware check of SW5**: mic VDD < 0.1 V, the red mute LED is lit, and the mic data line is held at GND. Force-open ALSA as root on a test build: every sample = 0.
   - Mid-session mute: capture closes within 20 ms, and no frames after the edge reach ASR (frame timestamps checked).
   - `EVT_MIC_MUTE` arrives within 50 ms of each switch edge.
 - PR3b: Fault injection: hold GPIO17 high but PA10 low (and the reverse) on a test jig. Capture is refused in both cases (muted wins).
-- PR3c: With the CM5 off (S4), +3V3_PERIPH < 0.1 V at the mic VDD pins. An S4 → S0 → S4 cycle shows the rail up only while the CM5 is up.
+- PR3c: With the CM5 off (S4), +3V3_PERIPH < 0.1 V at the mic VDD pins. An S4 → S0 → S4 cycle shows the rail (U12 output) up only while CM5_3V3 is up.
+- PR3d [Schematic netlist v3.1]: `MIC_ENABLE{on}` while muted → NAK `muted`, and the mic VDD after SW5 stays off.
+- SCH-T4 [Schematic netlist v3]: +3V3_PERIPH sequencing. Scope CM5_3V3, U12 EN and +3V3_PERIPH across 50 power cycles: the rail rises after CM5_3V3 and falls with it; no EN chatter; no rail while the CM5 is off.
+- SCH-T5: Case NTC on PB0: PA12 is high only during sampling (scope: pulse ≤ 1 ms per sample). S4 MCU current with sampling ≤ 5 µA average.
+- BAT-T1 [PM 2026-10-21, v0.3.8]: with the LP655063 at 3.4 V (bench supply via the cell input), a 9 W load gives cell current ≤ 2.7 A. Below 3.3 V, the cap scales and current stays ≤ 2.85 A. Measured Profile A/B runtime is recorded for both cells against the §10.2 table.
 - PR4: In Local mode, zero packets leave the device from any pm-* UID except update checks (when enabled) over a 24 h pcap.
 - PR5: Cloud requests without a valid token are rejected. Tokens can't be reused, the payload hash mismatch test passes, and every send has a `consent_log` row.
 - PR6: Delete → item absent from FTS, vec, media, and page-level DB scan (`secure_delete`).
@@ -1841,7 +1901,7 @@ The NUCLEO-U083RC pins below are **proposed** and must be checked against the NU
 | A-18 | No default expiry. Keep until the user sets auto-delete |
 | A-19 | Haptics: LRA DNP, not in the MVP UX (v0.3). Null driver hook only |
 | A-24 | MCU RTC = STM32U0 internal RTC + LSE |
-| A-25 | STM32U0 (prototype NUCLEO-U083RC) |
+| A-25 | STM32U0 (prototype NUCLEO-U031R8) |
 | A-30 / A-34 | Resolved v0.3.4: ~3.6 Ah cell in the 22 mm v4_22 body (capacity EST until the cell is sourced). Target 16 h mixed use + ≥ 24 h standby |
 | A-12 (OCR) | PaddleOCR / IndicPhotoOCR default |
 | A-28 | Latency/thermal targets set by PM (§14) |
@@ -1869,7 +1929,7 @@ The NUCLEO-U083RC pins below are **proposed** and must be checked against the NU
 | A-6 | Recovery button combo |
 | A-8, A-9, A-11, A-13 | memory budgets, model speeds, LLM/VLM choices: to be benchmarked (§6.10) |
 | A-15 | Device tz default from onboarding |
-| A-16 | Hardware mic-power cut on the custom PCB |
+| A-16 | **Resolved [Schematic netlist v3.1]**: SW5 DPDT cuts mic power/grounds data when muted; MCU-switched MIC_FEED (U14, PA11) with the green REC LED is implemented |
 | A-20 | Idle timers: backlight dim 5 s / off 10 s; post-session hold 30 s (v0.3.2) |
 | A-21 | CM5 suspend: decided by the §10.7 test (M5b). Until then, S4 + fast boot |
 | A-54 | CM5 minimum CPU OPP for `arm_freq_min` |
@@ -1881,20 +1941,24 @@ The NUCLEO-U083RC pins below are **proposed** and must be checked against the NU
 | A-60 | Exact DT method to disable HDMI on CM5 KMS (overlay parameter) |
 | A-61 | Amp quiescent current (MAX98357A datasheet) |
 | A-62 | Superseded by the enclosure sweep (thermal_v3_ribs §v4); 22 mm chosen |
-| A-63 | The STM32U0 has a free ADC channel for the case NTC (fallback: I2C ADC on the MCU bus) |
+| A-63 | Resolved [Schematic netlist v3]: case NTC on PB0 ADC |
 | A-64 | **Confirmed [Enclosure 2026-10-21]**: stage thresholds apply to the compensated hot-spot estimate for the prototype; relax after M5b |
 | A-65 | **Resolved [Enclosure 2026-10-21]**: VEML7700 light sensor (no proximity sensor or IMU in v1) + display state for pocket detection (§10.4.3) |
 | A-66 | **Resolved [Schematic netlist v3]**: VEML7700 on STM32U0 I2C1 PB6/PB7 (0x10). CM5-side fallback removed |
-| A-68 | Whether STM32U083 USART2 can wake from Stop2 natively; the design uses an EXTI on the RX pin regardless |
+| A-68 | Whether STM32U031K8 USART2 can wake from **Stop2** natively (the datasheet lists USART1/2 Stop-mode wake; Stop2 scope unconfirmed); the design uses an EXTI on the RX pin regardless; LPUART1 shares PA2/PA3 as a fallback |
 | A-69 | **Address part resolved [Schematic netlist v3]**: STUSB4500 at 0x28; bus map confirmed. Remaining **prototype-only** check: devices on the CM5 IO Board's GPIO2/3 (`i2cdetect -y 1`) vs DRV2605L 0x5A |
-| A-70 | Who switches +3V3_PERIPH (CM5-derived vs a load switch enabled by the CM5 or the MCU) isn't stated; the sequence in §11 is required either way |
-| A-71 | PA1 = WKUP3 per the schematic; verify against the STM32U083 datasheet pin table (Stop2 wake uses EXTI regardless) |
-| A-72 | Product case/cell NTC ADC pins not given in netlist v3 facts; must not use PA0/1/4/5/10 |
-| A-67 | The prototype LP755060 is 3.0 Ah, not 3.6 Ah, and the Akyga variant is 0.3C. A ≥ 1C variant is needed; the pm-power cap follows the cell rating until the product cell is sourced |
+| A-70 | **Resolved [Schematic netlist v3]**: U12 TLV62585 from VSYS, EN = CM5_3V3 via 10 k/100 k; no GPIO control |
+| A-71 | **Resolved per netlist v3**: PA0 = WKUP1, PA1 = WKUP3 (datasheet re-check at layout; the PDF couldn't be fetched from the box) |
+| A-72 | **Resolved [Schematic netlist v3]**: case NTC PB0/PA12; cell NTC → BQ25895 TS |
+| A-73 | QFN-32 pin budget: **PA11 now used for `MIC_PWR_EN`** [Schematic netlist v3.1]; the remaining ~9 free pins cover IRQ, power enables, INT/ALRT and the LED with ≤ 1 spare |
+| A-74 | The application fits a 26 KB A/B slot; otherwise single slot + ROM-bootloader recovery |
+| A-75 | Whether the MAX17055 TH pin senses a thermistor or only reports die temperature (affects how useful the backup is) |
+| A-67 | **Resolved [PM 2026-10-21, v0.3.8]**: prototype Akyga LP655063 3.0 Ah 1C (9 W cap holds to ~3.2 V; scaled below 3.3 V); production custom 2C ~3.2 Ah ≤ 8.5 mm |
+| A-76 | The LP655063 NTC β matches the BQ25895 RT1/RT2 design (103AT β 3435); recompute RT1/RT2 if β = 3950 |
 | A-22 | (superseded by the locked 20/10/3 %) |
 | A-23 | Closed [Schematic netlist v3]: UART0↔USART2 only |
 | A-26 | Gauge/charger parts (BQ25895, MAX17055/48 candidates) |
-| A-31 | IO Board power/RUN headers and NUCLEO-U083RC pinout to verify |
+| A-31 | IO Board power/RUN headers and NUCLEO-U031R8 pinout to verify |
 | A-32 | Milestone durations |
 | A-33 | WER pass bars EN 12 / HI 20 / Hinglish 25 %, and test-set licensing |
 | A-35 | Piper `hi_IN` voice availability and quality |
