@@ -1,4 +1,4 @@
-ERC report (2026-10-21T16:44:05+0000, Encoding UTF8)
+ERC report (2026-10-21T17:31:15+0000, Encoding UTF8)
 
 ***** Sheet /
 
@@ -9,8 +9,8 @@ ERC report (2026-10-21T16:44:05+0000, Encoding UTF8)
 ***** Sheet /Audio/
 [pin_to_pin]: Pins of type Unspecified and Power input are connected
     ; warning
-    @(751.84 mm, 63.50 mm): Symbol U1 Pin 17 [PAD, Unspecified, Line]
-    @(751.84 mm, 63.50 mm): Symbol #PWR091 Pin 1 [Power input, Line]
+    @(124.46 mm, 78.74 mm): Symbol U1 Pin 17 [PAD, Unspecified, Line]
+    @(124.46 mm, 78.74 mm): Symbol #PWR084 Pin 1 [Power input, Line]
 
 ***** Sheet /PowerInput/
 
@@ -19,5 +19,7 @@ ERC report (2026-10-21T16:44:05+0000, Encoding UTF8)
 ***** Sheet /MCU/
 
 ***** Sheet /Sensors/
+
+***** Sheet /SideFlex/
 
  ** ERC messages: 1  Errors 0  Warnings 1
