@@ -1,0 +1,19 @@
+# KiCad
+*.kicad_pcb-bak
+*.kicad_sch-bak
+*-backups/
+*.bak
+*.lck
+fp-info-cache
+_autosave-*
+*-cache.lib
+*.kicad_prl
+# FreeCAD
+*.FCStd1
+*.FCBak
+*.FCStd.bak
+# Fabrication outputs / OS
+gerbers/
+*.zip
+.DS_Store
+__pycache__/
