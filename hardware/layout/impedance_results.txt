@@ -1,0 +1,19 @@
+L1 SE50: w=0.15 s=0 Z=54.2 ohm eeff=3.40
+L1 D100: w=0.12 s=0.15 Z=99.8 ohm eeff=3.18
+L1 D100b: w=0.115 s=0.15 Z=100.6 ohm eeff=3.18
+L1 D90: w=0.15 s=0.15 Z=90.8 ohm eeff=3.18
+L1 D90b: w=0.16 s=0.15 Z=88.4 ohm eeff=3.19
+L3 SE50: w=0.1 s=0 Z=60.5 ohm eeff=4.25
+L3 D100: w=0.1 s=0.15 Z=105.4 ohm eeff=4.30
+L3 D100b: w=0.09 s=0.13 Z=105.9 ohm eeff=4.30
+L3 D90: w=0.12 s=0.15 Z=96.3 ohm eeff=4.29
+L3 D90b: w=0.115 s=0.13 Z=94.0 ohm eeff=4.30
+L1 SE50: w=0.18 s=0 Z=49.8 ohm eeff=3.42
+L3 SE50: w=0.15 s=0 Z=50.7 ohm eeff=4.24
+L3 D100: w=0.11 s=0.15 Z=101.5 ohm eeff=4.30
+L3 D90: w=0.14 s=0.15 Z=90.2 ohm eeff=4.29
+ref: w=0.0975 s=0.15 Z=102.9 ohm eeff=4.30
+a: w=0.1 s=0.16 Z=104.1 ohm eeff=4.30
+b: w=0.1 s=0.17 Z=107.8 ohm eeff=4.30
+c: w=0.1 s=0.18 Z=106.3 ohm eeff=4.29
+d: w=0.1 s=0.2 Z=108.1 ohm eeff=4.29
