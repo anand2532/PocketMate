@@ -1,6 +1,6 @@
-# PocketMate — Software Architecture v0.3.10
+# PocketMate — Software Architecture v0.3.11
 
-Status: final v0.3.10 (baseline) · Owner: software · Source of truth for requirements: `../docs/PRD.md`, plus PM decisions and research (`../research/market.md` §6–7, `../research/bom.md` §7–8)
+Status: final v0.3.11 (baseline) · Owner: software · Source of truth for requirements: `../docs/PRD.md`, plus PM decisions and research (`../research/market.md` §6–7, `../research/bom.md` §7–8)
 Tag conventions:
 - **[PRD]**: stated in the PRD.
 - **[PM 2026-10-21]**: a PM decision or requirement dated 2026-10-21.
@@ -41,6 +41,7 @@ Tag conventions:
 | **v0.3.1** Consent dialog | Consent dialog 12b must show **each provider's retention and training terms** | §8.3, §6.7.1 |
 | **v0.3.1** Sarvam | The adapter defaults to the **training opt-out** wherever the API/account allows it. **Sarvam DPA is a pre-launch action for Anand.** Until then, terms remain unconfirmed | §6.7.1 |
 | **v0.3.2** Compute | **v1 = CM5 4 GB only. The 2 GB SKU is deferred and not part of v1.** Measured CM5 idle 2.4–2.65 W exceeds the ~1.6–1.75 W passive budget, so **the CM5 is OFF by default** and sessions are duty-cycled. Aggressive power policy. s2idle test with a decision rule. Rev-2 Radxa CM5 (RK3588S2, RKNN) portability | §10.0, §10.3, §10.3b, §10.6, §10.7, §17 |
+| **v0.3.11** [Tech Research 2026-10-21, v0.3.11] | A-78 resolved: prototype = Akyga LP655063 (3000 mAh, 1C, ≤ 65.5 × 51 × 7.0 mm, 10k NTC β unstated); production = custom cell per battery-rfq.md Rev C (≥ 3000/3100 mAh, ≥ 2C, 3C/10 s, ≤ 8.5 × 50.5 × 62 mm, 10k B3435). Pocket/spacer fit, runtime table, NTC windows and M5b divider recompute values | §10.2, B2, B4, §16 |
 | **v0.3.10** [Schematic netlist v3.2] [Tech Research 2026-10-21] | Final mic wiring: SW5 → MIC_SW_LIVE → U14 → MIC_FEED → mics + green D6 (green = mics powered, exactly); red D1 from SW5's muted throw; MUTE_STATUS_IO via Q6 inverter, valid only with CM5 power-good; J11 pin 11/15 changes. Charge thresholds + NTC β configurable in MCU config flash; M5b β measurement. Production cell corrected to 3000 mAh (RFQ) | §5, §8, §10.2, §12, B3, B4, B5, §16 |
 | **v0.3.9** [Schematic netlist v3.1] | **REC interlock implemented**: `MIC_PWR_EN` = PA11 → U14 TPS22917 → MIC_FEED → SW5 → mics; green REC LED D6 on MIC_FEED. MIC_ENABLE accepted | §8, §11, §12, B2, B3, B5, §16 |
 | **v0.3.8** [Schematic netlist v3] [PM 2026-10-21, v0.3.8] | +3V3_PERIPH = buck U12 enabled by CM5_3V3 (A-70 resolved). MCU = **STM32U031K8** (QFN-32, 64 KB/12 KB), prototype NUCLEO-U031R8. Case NTC on PB0 with PA12-switched bias (A-72 resolved); cell NTC → BQ25895 TS, read via TSPCT. Mic interlock rewritten around DPDT SW5 (REC LED + MIC_PWR_EN added in v0.3.9). Cells: prototype Akyga LP655063, production custom 2C ~3.2 Ah (A-67 resolved) | §8, §10.2–10.4, §11, §12, B2, B3, B5, §16 |
@@ -1201,24 +1202,30 @@ Transitions:
 ```
 
 ### 10.2 Battery facts (v0.3.8) [PM 2026-10-21, v0.3.8]
-**Cells**:
-- **Prototype: Akyga LP655063**: 3.0 Ah / ~11.1 Wh nominal, **1C** (3 A), with an integrated **10 k NTC**.
-  - Size **6.5 × 50 × 63 mm** (verify against the Akyga sheet). It fits the 51 × 65.5 mm footprint and the **9.0 mm pocket** with **~2.5 mm spare** → use a **2.0 mm foam spacer** (compressed to ~1.5 mm) plus ≥ 0.5 mm swelling allowance.
-  - This replaces the LP755060 (and its 1.0 mm spacer).
-- **Production cell** [Tech Research 2026-10-21]: 3000 mAh, 1C (3 A max), **10 kΩ ±1 % NTC, B25/85 = 3435 K**, pack ≤ 65.5 × 51 × 7 mm. **Correction**: this replaces the v0.3.8 "custom 2C ~3.2 Ah, ≤ 8.5 mm"; capacity is **3000 mAh**.
-  - ⚠ **Discrepancy**: `../research/battery-rfq.md` Rev C (on disk) asks for **≥ 3000 mAh rated (target ≥ 3100)**, **≥ 2C continuous / ≥ 3C peak**, and an envelope of **≤ 8.5 × 50.5 × 62.0 mm**. The 1C / 65.5 × 51 × 7 mm figures come from the Tech Research summary, not that file [A-78].
-  - Capacity agrees, so runtime is unaffected. The **9 W cap is designed to hold at 1C** (worst case), so either rating works.
-- **Usable energy** (×0.83: 0.97 DoD × 0.90 converters × 0.95 ageing) [A-42]: prototype ≈ **9.2 Wh**, production (3000 mAh) ≈ **9.2 Wh**.
+**Cells** [Tech Research 2026-10-21, v0.3.11]:
+- **Prototype: Akyga LP655063** (off-the-shelf): **3000 mAh, 1C (3 A max)**, assembled pack **≤ 65.5 × 51 × 7.0 mm** (bare cell 63 × 50 × 6.5 mm, all "max", no tolerances), **10 kΩ NTC on the yellow wire, β unstated**. Leads are 40 mm AWG24 on a JST ZHR-3 (re-terminate for J7). Datasheet facts: `../research/components.md` (~L424–442).
+- **Production: custom cell per `../research/battery-rfq.md` Rev C**: **≥ 3000 mAh rated, 3100 mAh target**, **≥ 2C continuous (≥ 6 A), 3C (≥ 9 A) for 10 s peak**, pack **≤ 8.5 × 50.5 × 62.0 mm**, NTC **10 kΩ ±1 %, B25/85 = 3435 K ±1 %** (103AT-equivalent), 5-pos Molex Pico-Lock J7.
+- There's no conflict between the two (A-78 resolved): the 1C / 65.5 × 51 × 7 mm figures are the prototype's.
+
+**Pocket fit** (pocket 51.5 × 67 × 9.0 mm per the RFQ):
+
+| | Prototype LP655063 | Production (RFQ Rev C) |
+|---|---|---|
+| Thickness | 7.0 mm max → 2.0 mm free → **1.5 mm foam spacer** (compresses to ~1.0 mm), leaving ≥ 0.5 mm for swelling. Replaces the 2.0 mm spacer from v0.3.8, which assumed a 6.5 mm pack | 8.5 mm max → 0.5 mm swelling allowance (≤ 9.0 mm absolute per RFQ). **No spacer** |
+| Width | 51 in 51.5 → fits, 0.25 mm per side | 50.5 in 51.5 → fits |
+| Length | 65.5 in 67 → **only ~1.5 mm** left for the lead exit/bend. The leads must exit along the edge and fold flat, or be routed over the cell end [A-79: Enclosure to confirm; prototype only] | 62.0 in 67 → ≥ 5 mm reserved for the lead bend ✅ |
+
+- **Usable energy** (×0.83: 0.97 DoD × 0.90 converters × 0.95 ageing) [A-42]: prototype 3000 mAh ≈ **9.2 Wh**; production 3100 mAh target ≈ **9.5 Wh** (≥ 9.2 Wh at the 3000 mAh minimum).
 
 **9 W cap vs. 1C** [A-67 resolved]:
 - 9 W at the cell is 2.43 A at 3.7 V and **2.65 A at 3.4 V** (near cutoff), both below 1C = 3.0 A.
 - At 3.2 V it's 2.81 A, still below 3.0 A. At 3.0 V, 9 W = 3.0 A, exactly 1C, so **pm-power scales the cap to `min(9 W, 0.95 × 3.0 A × V_cell)`** below 3.3 V. In practice the battery UVLO/critical thresholds (3 %, ≈ 3.4 V under load) shut down before that.
-- Production cell: same 1C analysis, so the cap and the < 3.3 V scaling apply unchanged. The **9 W cap is kept**.
+- Production cell: ≥ 2C (≥ 6 A) gives large current headroom (9 W ≈ 2.65 A at 3.4 V is < 0.9C). **The 9 W cap stays for thermal reasons** (§10.3b), not cell limits. The < 3.3 V scaling is a prototype-only necessity, kept harmlessly on production.
 
 **NTC vs. BQ25895 TS/JEITA** [Tech Research 2026-10-21]:
 - The prototype **Akyga LP655063 NTC is 10 kΩ on the yellow wire, β not stated**. The production NTC is B3435.
-- TI's TS divider (**RT1 5.21 kΩ / RT2 29.87 kΩ**, per Tech Research) assumes **B3435** → hardware window **0–45 °C**.
-- If the prototype NTC is **B3950**, the same resistors give a hot cutoff of **≈ 41.9 °C** and a cold cutoff of **≈ 4 °C** (EST). That's still inside the firmware's 10–40 °C window, so it's safe but trips earlier.
+- TI's BQ25895 TS divider for a 103AT (B3435) NTC, 0–45 °C design point: **RT1 = 5.21 kΩ (REGN→TS), RT2 = 29.87 kΩ (TS→GND)** (RTH_COLD 27.28 kΩ, RTH_HOT 4.91 kΩ; datasheet Rev C §8.2.7.5.1, Eq. 2), per `../research/components.md` (~L424–442). Beta-model window with this divider: **B3435 ≈ 1.1–44.6 °C**; **B3950 ≈ 4.0–41.9 °C** (estimates).
+- Both windows contain the firmware's 10–40 °C limits, so they're safe. With B3950 the hardware stops charging early in hot weather (41.9 °C). If B3950 is measured, recompute RT1/RT2 with Eq. 2 using **RTH(0 °C) ≈ 33.6 kΩ** and **RTH(45 °C) ≈ 4.35 kΩ** (beta-model EST), or with the actual R-T table.
 - **Firmware thresholds are configurable until measured** (§12 `charge_ctrl`). A `charge_cfg` record in MCU config flash (CRC-protected, written by `SET_CHARGE_CFG` 0x2C from pm-power, or a factory tool) holds:
   - `ntc_r25`, **`ntc_beta`**, `rt1`, `rt2`;
   - the firmware thresholds: cold-off 10 °C / cold-on 12 °C / hot-on 38 °C / hot-off 40 °C / derate 35 °C;
@@ -1232,17 +1239,19 @@ Transitions:
 
 **Runtime estimates** (per-profile energy from §10.3):
 
-| Profile | Energy/day | **Prototype Akyga LP655063** (3.0 Ah, 1C; ≈ 9.2 Wh usable) | **Production** (3000 mAh, 1C per Tech Research; ≈ 9.2 Wh usable) |
+| Profile | Energy/day | **Prototype Akyga LP655063** (3000 mAh, 1C; ≈ 9.2 Wh usable) | **Production, RFQ Rev C** (3100 mAh target, ≥ 2C; ≈ 9.5 Wh usable) |
 |---|---|---|---|
-| **A light / "all-day typical use"** | 5.4–5.9 Wh | 59–64 % → ✅ **16 h met**, ≈ 25–27 h at that usage | same: ✅ **16 h met**, ≈ 25–27 h |
-| **B heavy** | ≈ 11.1 Wh | ≈ 120 % → ⚠ **≈ 13 h** | ≈ 120 % → ⚠ **≈ 13 h** (was ≈ 14 h with the earlier 3.2 Ah assumption) |
-| **Standby (S4)** | ≈ 0.1 Wh/day | ✅ ≥ 24 h easily (≈ 90 days theoretical) | ✅ ≥ 24 h (≈ 90 days theoretical) |
+| **A light / "all-day typical use"** | 5.4–5.9 Wh | 59–64 % → ✅ **16 h met**, ≈ 25–27 h at that usage | 57–62 % → ✅ **16 h met**, ≈ 26–28 h |
+| **B heavy** | ≈ 11.1 Wh | ≈ 120 % → ⚠ **≈ 13 h** | ≈ 117 % → ⚠ **≈ 13.7 h** (≈ 13 h at the 3000 mAh minimum) |
+| **Standby (S4)** | ≈ 0.1 Wh/day | ✅ ≥ 24 h easily (≈ 90 days theoretical) | ✅ ≥ 24 h (≈ 95 days theoretical) |
+
+The 2C rating doesn't change runtime; it only adds current headroom. The 9 W cap stays.
 
 ⚠ **Thermal limit**: at ≥ 35 °C ambient, Profile B is limited by the enclosure duty cycle (§10.3b: held 3 W ≈ 61 %, table 35 %, pocket 20 %) before the battery runs out. Heavy users get throttled sessions, not a dead battery. At 45 °C, all profiles are thermally limited (duty ≤ 21 % held).
 
 ### 10.3 Power budget vs. "16 h mixed use + ≥ 24 h standby" (v0.3.4, ~3.6 Ah cell) [PM/Enclosure 2026-10-21]
 
-**Battery**: the v4_22 body was sized for a **~3.6 Ah / ~13.3 Wh** cell (EST); **v0.3.10: both cells are 3.0 Ah (prototype LP655063 / production 3000 mAh), see §10.2 for runtime**. The table below keeps the 3.6 Ah basis for reference (8.5 × 51 × 65.5 mm, EST 0.47 Wh/cc, from `../mechanical/thermal_v3_ribs.md` §v4). That replaces 2.7 Ah. Usable at the 5 V rail ≈ 13.3 × 0.97 × 0.90 × 0.95 ≈ **11.0 Wh** [A-42]. At 1C (3.6 A), the cell could support ~12 W. The system cap stays at **9 W** (§10.5) as a thermal and margin choice.
+**Battery**: the v4_22 body was sized for a **~3.6 Ah / ~13.3 Wh** cell (EST); **v0.3.11: prototype LP655063 3000 mAh / production ≥ 3000 mAh (3100 mAh target), see §10.2 for runtime**. The table below keeps the 3.6 Ah basis for reference (8.5 × 51 × 65.5 mm, EST 0.47 Wh/cc, from `../mechanical/thermal_v3_ribs.md` §v4). That replaces 2.7 Ah. Usable at the 5 V rail ≈ 13.3 × 0.97 × 0.90 × 0.95 ≈ **11.0 Wh** [A-42]. At 1C (3.6 A), the cell could support ~12 W. The system cap stays at **9 W** (§10.5) as a thermal and margin choice.
 
 Per-state power (5 V rail, CM5 4 GB; measured idle from §10.0, EST deltas, §10.8 targets):
 
@@ -1730,7 +1739,7 @@ Validate on existing hardware before the custom PCB [PRD strategy]: capture/sear
 | 9 | **ST NUCLEO-U031R8** (STM32U031K8, on-board ST-LINK) [PM 2026-10-21] | low-power MCU (replaces the RP2040 Pico) | 2 | 2 × 12 |
 | 10 | Charger/power path: **BQ25895 eval/breakout** (TS/JEITA, I2C, ship mode, power path) [Research] + 5 V ≥ 3 A boost (e.g., TPS61088-class module) + load switch for the CM5 5 V rail | power path | 1 | 30 |
 | 11 | Fuel gauge breakout (MAX17055 or MAX17048) | battery monitoring | 1 | 10 |
-| 12 | **Akyga LP655063, 6.5 × 50 × 63 mm, 3.0 Ah, 1C, protected, integrated 10k NTC (yellow wire, β unstated)**, plus a 2.0 mm foam spacer for the 9.0 mm pocket [PM 2026-10-21, v0.3.8]. Production: 3000 mAh, 1C, 10k B3435, ≤ 65.5 × 51 × 7 mm (per Tech Research; RFQ Rev C differs, A-78) | battery | 2 | 2 × 12 |
+| 12 | **Akyga LP655063 (prototype), 3000 mAh, 1C (3 A max), pack ≤ 65.5 × 51 × 7.0 mm, protected, 10k NTC (yellow wire, β unstated)**, plus a **1.5 mm foam spacer** for the 9.0 mm pocket [Tech Research 2026-10-21, v0.3.11]. Production: custom cell per `research/battery-rfq.md` Rev C (≥ 3000 mAh / 3100 mAh target, ≥ 2C, 3C/10 s, ≤ 8.5 × 50.5 × 62 mm, 10k B3435 ±1 %) | battery | 2 | 2 × 12 |
 | 13 | 10k NTC thermistors (2–3: case/skin, ambient, spare) + thermal epoxy/Kapton | skin governor | 5 | 3 |
 | 14 | INA226 breakout (5 V rail) + USB-C power meter | power budget | 1 | 12 |
 | 15 | ~~LRA + DRV2605L~~: dropped, LRA is DNP in MVP [v0.3]. Keep 1 for firmware hook bring-up only | (optional) | 0–1 | 0–10 |
@@ -1786,7 +1795,7 @@ The NUCLEO-U031R8 pins below are **proposed** and must be checked against the NU
 | **M2b ASR/OCR/translation benchmark gate** | 1.5 wk (parallel with M2–M4) | §6.10 benchmark on CM5 4G + 2G, EN/HI/Hinglish sets, report | model choice per SKU recorded; ⚠ flags resolved or escalated |
 | **M3 Assistant + RAG** | 2 wk | llama.cpp service, model benchmark (≥ 3 models), hybrid retrieval, source chips, action-item extraction | Answers cite sources; latency targets §14 measured |
 | **M4 OCR + Translation + Vision** | 2.5 wk | Scan flow, PaddleOCR/IndicPhotoOCR, pm-translate (IndicTrans2-dist), overlay, pm-xlit keyboard + cross-script FTS, local VLM trial | PM-X1, PM-K1, PM-S1 pass |
-| **M5b Power reality + suspend decision (v0.3.2–v0.3.4)** | 2 wk (start right after M0; finishes before M5) | **Calibration on hardware (v0.3.4)**: (1) NTC: 2-point bath/chamber check of the case NTC and the cell NTC through the STM32U0 ADC (±0.3 K), store the offset; (2) hot-spot: v4_22 body with thermocouples at the SoC zone, the grip and the NTC site, run 1/2/3/5 W steps at 35 °C held/table/pocket, fit `k_hs` (initial 0.3 K/W) and `τ_hs`, write them with `SET_THERMAL_CAL`; (3) budgets: confirm 1.85/1.08/0.64 W at 35 °C and measure 45 °C (expected lower than the model); (4) trip timing: verify the 3 W/5 W soft/limit times against the §10.3b table (±20 %); (5) stage check: Warn/Soft/Hard/Protect and 1.5 K hysteresis observed; (6) case heuristic: validate display-off ⇒ pocket conservatism; (7) JEITA: charging inhibits at 45 °C, UI message shown; **(8) cell NTC β [Tech Research 2026-10-21]**: measure the LP655063 yellow-wire NTC at 25 °C and 50 °C (and 0 °C if possible) in a water bath or the chamber, against a reference thermometer. Compute β (B25/50), write it with `SET_CHARGE_CFG` (`beta_measured` = 1), recompute RT1/RT2 if β ≠ 3435 ±2 %, and re-verify the charger's hardware cold/hot trip points (expected 0/45 °C with B3435; ≈ 4/41.9 °C with B3950) **Run the §10.8 idle-power workplan (ranked levers, cumulative + attribution)**; measure our own CM5 4 GB idle, tuned idle (§10.6 levers one by one), burst, boot energy, S4. Run the §10.7 s2idle/deep/halt/rail-cut test matrix. Fit the thermal duty-cycle model on the mock unibody | PM-P1 + PM-P2 pass; §10.8 targets (S2 ≤ 1.6 W, S0 ≤ 2.0 W) met or gap reported; thickness recommendation (§10.3c) handed to mechanical; S3 adopt/reject recorded per the §10.7 rule; §10.3 table updated with measured values |
+| **M5b Power reality + suspend decision (v0.3.2–v0.3.4)** | 2 wk (start right after M0; finishes before M5) | **Calibration on hardware (v0.3.4)**: (1) NTC: 2-point bath/chamber check of the case NTC and the cell NTC through the STM32U0 ADC (±0.3 K), store the offset; (2) hot-spot: v4_22 body with thermocouples at the SoC zone, the grip and the NTC site, run 1/2/3/5 W steps at 35 °C held/table/pocket, fit `k_hs` (initial 0.3 K/W) and `τ_hs`, write them with `SET_THERMAL_CAL`; (3) budgets: confirm 1.85/1.08/0.64 W at 35 °C and measure 45 °C (expected lower than the model); (4) trip timing: verify the 3 W/5 W soft/limit times against the §10.3b table (±20 %); (5) stage check: Warn/Soft/Hard/Protect and 1.5 K hysteresis observed; (6) case heuristic: validate display-off ⇒ pocket conservatism; (7) JEITA: charging inhibits at 45 °C, UI message shown; **(8) cell NTC β [Tech Research 2026-10-21]**: measure the LP655063 yellow-wire NTC at 25 °C and 50 °C (and 0 °C if possible) in a water bath or the chamber, against a reference thermometer. Compute β (B25/50), write it with `SET_CHARGE_CFG` (`beta_measured` = 1), recompute RT1/RT2 if β ≠ 3435 ±2 %, and re-verify the charger's hardware cold/hot trip points (beta-model expectation with RT1 5.21 kΩ / RT2 29.87 kΩ: **≈ 1.1–44.6 °C for B3435, ≈ 4.0–41.9 °C for B3950**, per `../research/components.md` (~L424–442)). **If B3950 (or β ≠ 3435 ±2 %): recompute RT1/RT2 with TI Eq. 2 using RTH(0 °C) ≈ 33.6 kΩ and RTH(45 °C) ≈ 4.35 kΩ** (or the measured R-T values), refit the prototype carrier/breakout, and re-verify the trip points **Run the §10.8 idle-power workplan (ranked levers, cumulative + attribution)**; measure our own CM5 4 GB idle, tuned idle (§10.6 levers one by one), burst, boot energy, S4. Run the §10.7 s2idle/deep/halt/rail-cut test matrix. Fit the thermal duty-cycle model on the mock unibody | PM-P1 + PM-P2 pass; §10.8 targets (S2 ≤ 1.6 W, S0 ≤ 2.0 W) met or gap reported; thickness recommendation (§10.3c) handed to mechanical; S3 adopt/reject recorded per the §10.7 rule; §10.3 table updated with measured values |
 | **M5 Reminders + Power + MCU** | 2.5 wk | pm-remind + daily summary, pm-power + skin governor + 9 W cap, STM32U0 (NUCLEO-U031R8) firmware v0 (USART2 link, buttons, battery, JEITA charge_ctrl, NTCs, RTC alarm, IWDG, mic interlock, Stop2), S0–S5 + ship mode | PM-D1, PM-B2, PWR1, JE1–JE2 pass; reminder fires from S4 |
 | **M6 Cloud adapter + privacy hardening** | 1.5 wk | pm-cloud, consent dialog/token, nftables egress, LUKS data, audit log, export/import | Privacy test suite passes; zero egress in local mode (pcap) |
 | **M7 Updates + recovery** | 1.5 wk | RAUC A/B, signed bundles, health check, recovery partition, MCU FW update | Pull-power-during-update test passes 20/20 |
@@ -1970,10 +1979,11 @@ The NUCLEO-U031R8 pins below are **proposed** and must be checked against the NU
 | A-73 | QFN-32 pin budget: **PA11 now used for `MIC_PWR_EN`** [Schematic netlist v3.1]; the remaining ~9 free pins cover IRQ, power enables, INT/ALRT and the LED with ≤ 1 spare |
 | A-74 | The application fits a 26 KB A/B slot; otherwise single slot + ROM-bootloader recovery |
 | A-75 | Whether the MAX17055 TH pin senses a thermistor or only reports die temperature (affects how useful the backup is) |
-| A-67 | **Resolved**: prototype Akyga LP655063 3.0 Ah 1C; production 3000 mAh 1C B3435 [Tech Research 2026-10-21] (supersedes ~3.2 Ah 2C). 9 W cap holds to ~3.2 V and scales below 3.3 V |
+| A-67 | **Resolved**: prototype Akyga LP655063 3000 mAh 1C; production per battery-rfq.md Rev C (≥ 3000/3100 mAh, ≥ 2C). 9 W cap kept (thermal); it holds on the 1C prototype to ~3.2 V and scales below 3.3 V |
 | A-76 | Prototype LP655063 NTC β unknown: firmware uses configurable thresholds and a worst-of-two-β conversion until the M5b measurement |
 | A-77 | Whether SW5 pole 2 still grounds the mic data line in netlist v3.2 |
-| A-78 | Production cell C-rate and envelope: Tech Research says 1C, 65.5 × 51 × 7 mm; RFQ Rev C asks ≥ 2C, ≤ 8.5 × 50.5 × 62 mm. Capacity (3000 mAh) agrees. Resolve with Tech Research / the vendor quote |
+| A-78 | **Resolved [Tech Research 2026-10-21, v0.3.11]**: no conflict. Prototype = LP655063 (1C, ≤ 65.5 × 51 × 7.0 mm); production = RFQ Rev C (≥ 2C, ≤ 8.5 × 50.5 × 62 mm, ≥ 3000/3100 mAh, B3435) |
+| A-79 | Prototype LP655063 length (65.5 mm) leaves ~1.5 mm in the 67 mm pocket for the lead exit; Enclosure to confirm routing (prototype only) |
 | A-22 | (superseded by the locked 20/10/3 %) |
 | A-23 | Closed [Schematic netlist v3]: UART0↔USART2 only |
 | A-26 | Gauge/charger parts (BQ25895, MAX17055/48 candidates) |
