@@ -44,7 +44,7 @@ def screens(theme):
   add("02-ptt-listening",status("live")+orb(C["LIS"],"Listening","“Remind me to call the supplier at 4…”")+btn(300,368,200,"Cancel",h=48)+hints("Vol ±: speaker","Release: Send",back=False))
   add("03-processing",status()+orb(C["PROC"],"Thinking","Searching memory · on-device model")+R(250,360,300,8,C["SURF2"],4)+R(250,360,180,8,C["PROC"],4)+btn(300,376,200,"Cancel",h=44)+hints("","Action: interrupt + new ask",back=False))
   add("04-response",status()+title("Answer")+R(16,108,768,180)+T(32,144,"Reminder set: Call supplier",22,None,"700")+T(32,176,"Today 16:00 · from your voice request",18,C["TX2"])+T(32,216,"You mentioned this supplier in a note on Oct 18.",18)+R(32,232,300,40,C["SURF2"],20)+T(48,258,"Source: Voice note · Oct 18 ›",16,C["ACC"],"600")+btn(16,300,240,"Undo")+btn(272,300,240,"Edit")+pri(528,300,256,"Done")+hints("Vol ±: scroll","Action: Follow-up"))
-  add("05-capture",status()+title("Capture")+btn(16,112,372,"Voice note",C["SURF"],None,140)+btn(412,112,372,"Photo (describe)",C["SURF"],None,140)+btn(16,268,372,"Typed note",C["SURF"],None,140)+btn(412,268,372,"Scan text (OCR)",C["SURF"],None,140)+hints("Vol ±: move focus","Action hold: Voice note"))
+  add("05-capture",status()+title("Capture")+"".join(btn(16+(i%3)*260,112+(i//3)*148,248,t,C["SURF"],None,136) for i,t in enumerate(["Voice note","Photo (describe)","Typed note","Scan text (OCR)","Translate"]))+hints("Vol ±: move focus","Action hold: Voice note"))
   b=status()+title("Memory")+R(88,104,696,48,C["SURF2"],24)+T(108,136,"supplier invoice",18)+R(16,164,768,72)+T(32,192,"Answer: Invoice #4471 is due Oct 30 (₹42,000).",18,None,"600")+T(32,220,"Based on 2 sources ↓",15,C["TX2"])
   for i,(t,s) in enumerate([("Scan · Invoice #4471","Oct 18 · OCR"),("Voice note · supplier call","Oct 18 · 0:42"),("Typed note · vendors","Oct 02")]):
     y=248+i*58;b+=R(16,y,768,50,C["SURF"],12,C["ACC"] if i==0 else None)+T(32,y+31,t,18)+T(768,y+31,s+"  ›",15,C["TX2"],"400","end")
@@ -160,8 +160,8 @@ def screens(theme):
     x=16+(i%2)*388;y=188+(i//2)*72;b+=R(x,y,380,64)+T(x+16,y+40,l,17)+T(x+364,y+40,v+" ›",16,None,"600","end")
   add("16e-settings-display",b+hints("Vol ±: adjust · chord: next","Action: Ask"))
   b=status()+title("About")
-  for i,(l,v) in enumerate([("Software","PocketMate 0.3.1 · build 2026.10.18"),("Device","CM5 4 GB · serial PM-0042"),("Storage","12.4 of 32 GB · A/B slots ~6 GB each*"),("Battery health","96% · 41 cycles"),("Legal & licenses","›")]):b+=R(16,104+i*52,768,46)+T(32,133+i*52,l,17,C["TX2"])+T(768,133+i*52,v,16,None,"600","end")
-  add("16f-settings-about",b+T(16,378,"* slot size pending Software confirmation",14,C["TX2"])+hints("","Action: Ask"))
+  for i,(l,v) in enumerate([("Software","PocketMate 0.3.1 · build 2026.10.18"),("Device","CM5 4 GB · serial PM-0042"),("Storage","12.4 of 32 GB · A/B slots ~8.25 GiB each"),("Battery health","96% · 41 cycles"),("Legal & licenses","›")]):b+=R(16,104+i*52,768,46)+T(32,133+i*52,l,17,C["TX2"])+T(768,133+i*52,v,16,None,"600","end")
+  add("16f-settings-about",b+T(16,378,"A/B slot: ~8.25 GiB each (4 GB RAM variant) · ~5.25 GiB (2 GB variant)",14,C["TX2"])+hints("","Action: Ask"))
   add("03b-processing-cloud",status(cloud=True)+orb(C["PROC"],"Thinking","Asking <provider> cloud…")+R(250,360,300,8,C["SURF2"],4)+R(250,360,140,8,C["PROC"],4)+T(400,394,"Slow network · on-device answer in 2 s if no reply",15,C["PROC"],"600","middle")+hints("","Action: interrupt + new ask",back=False))
   b=status()+R(16,48,768,44,C["SURF"],10,C["PROC"])+T(32,77,"Device warm (71 °C) · may slow down soon",16,C["PROC"],"600")+R(16,100,768,44,C["SURF"],10,C["PROC"])+T(32,129,"Storage 90% full · Free up space ›",16,C["PROC"],"600")
   for i,t in enumerate(["Ask","Capture","Memory","Scan text","Tasks","Privacy"]):
@@ -192,6 +192,17 @@ def screens(theme):
   b=status()+title("What's new in 0.4.0")
   for i,(l,v) in enumerate([("Hindi phonetic keyboard","Type “kal”, pick कल from suggestions"),("Faster memory search","~2× quicker on large libraries"),("Earbuds","Pair Bluetooth earbuds for private answers"),("Cloud log","See every request and deletion")]):b+=R(16,104+i*62,768,54)+T(32,128+i*62,l,18,None,"700")+T(32,150+i*62,v,15,C["TX2"])
   add("18d-whats-new",b+pri(528,360,256,"Got it",48)+hints("Vol ±: scroll","Action: Ask"))
+  b=status()+title("Today's recap · Oct 21")
+  for i,(k,t,src,col) in enumerate([("NOTE","Supplier: invoice 4471 due Oct 30","Voice note 09:12 ›",C["ACC"]),("TASK ✓","Submitted expense report","Task · done 14:05 ›",C["LIS"]),("TASK","Review PCB rev B — tomorrow","Typed note 11:40 ›",C["PROC"]),("REMIND","Call supplier · 16:00 (missed)","Voice request 09:41 ›",C["ERR"]),("SCAN","Receipt ₹1,240 · Cafe Coffee","OCR scan 13:20 ›",C["ACC"])]):
+    y=104+i*58;b+=R(16,y,768,50)+R(28,y+13,92,24,col,12)+T(74,y+30,k,13,C["ON"],"700","middle")+T(136,y+32,t,17)+T(768,y+32,src,15,C["ACC"],"600","end")
+  add("22-daily-summary",b+T(16,410,"5 of 9 items · tap a source to open it",14,C["TX2"])+hints("Vol ±: scroll · chord: open source","Action: Ask follow-up"))
+  b=status(cloud=False)+R(0,40,800,384,"#000000",0)+T(400,90,"[ live camera: menu board ]",16,"#A8AEB4","400","middle")
+  for i,(src,tr) in enumerate([("चाय","Tea"),("समोसा","Samosa"),("ताज़ा जूस","Fresh juice")]):
+    y=120+i*70;b+=R(80,y,380,56,"#FFFFFF",8).replace('/>',' opacity="0.92"/>')+T(96,y+37,tr,24,"#0B0D10","700")+T(444,y+37,src,18,"#3C434B","400","end")
+  b+=R(16,52,180,40,C["SURF"],20)+T(106,78,"‹ Back",17,None,"600","middle")+R(500,104,284,56,C["SURF"],12)+T(642,140,"हिंदी to English · swap",18,None,"700","middle")
+  b+=R(500,172,284,40,C["SURF2"],20)+T(642,198,"On-device · LOCAL",15,C["LIS"],"700","middle")+T(642,234,"(CLOUD badge if cloud",14,"#A8AEB4","400","middle")+T(642,254,"translate is granted)",14,"#A8AEB4","400","middle")
+  b+=pri(500,280,136,"Freeze",64)+btn(648,280,136,"Save",h=64)
+  add("09c-camera-translate",b+hints("Vol ±: zoom","Action: freeze / ask"))
   return S
 LIGHT={"01-home","06-memory-search","04-response","12-privacy","16-settings"}
 allpng=[]
