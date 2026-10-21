@@ -1,6 +1,6 @@
-# PocketMate — Software Architecture v0.3.4
+# PocketMate — Software Architecture v0.3.5
 
-Status: final v0.3.4 (baseline) · Owner: software · Source of truth for requirements: `../docs/PRD.md`, plus PM decisions and research (`../research/market.md` §6–7, `../research/bom.md` §7–8)
+Status: final v0.3.5 (baseline) · Owner: software · Source of truth for requirements: `../docs/PRD.md`, plus PM decisions and research (`../research/market.md` §6–7, `../research/bom.md` §7–8)
 Tag conventions:
 - **[PRD]**: stated in the PRD.
 - **[PM 2026-10-21]**: a PM decision or requirement dated 2026-10-21.
@@ -41,6 +41,7 @@ Tag conventions:
 | **v0.3.1** Consent dialog | Consent dialog 12b must show **each provider's retention and training terms** | §8.3, §6.7.1 |
 | **v0.3.1** Sarvam | The adapter defaults to the **training opt-out** wherever the API/account allows it. **Sarvam DPA is a pre-launch action for Anand.** Until then, terms remain unconfirmed | §6.7.1 |
 | **v0.3.2** Compute | **v1 = CM5 4 GB only. The 2 GB SKU is deferred and not part of v1.** Measured CM5 idle 2.4–2.65 W exceeds the ~1.6–1.75 W passive budget, so **the CM5 is OFF by default** and sessions are duty-cycled. Aggressive power policy. s2idle test with a decision rule. Rev-2 Radxa CM5 (RK3588S2, RKNN) portability | §10.0, §10.3, §10.3b, §10.6, §10.7, §17 |
+| **v0.3.5** [Enclosure 2026-10-21] | A-64 confirmed for the prototype (thresholds on the compensated hot spot, intentionally double-counting lag; relax after M5b). Prototype cell LP755060 (3.0 Ah nominal, below the 3.6 Ah budget; runtime impact flagged). VEML7700 light sensor: pocket detection + auto-brightness; A-65 resolved, no proximity sensor in v1 | §10.2–10.4, B2, B5, §16 |
 | **v0.3.4** Baseline [PM/Enclosure 2026-10-21] | **Passive, fan-free 22 mm aluminium enclosure v4_22** (the micro blower is not baseline; only an unused fan hook remains). **~3.6 Ah cell.** **CM5-off-by-default is the core strategy.** **Radxa rev 2 is unfunded until after M5b.** Frozen governor limits and stages, case NTC on the STM32U0, battery NTC to charger JEITA, case detection heuristic, external Wi-Fi FPC antenna (`dtparam=ant2`) | §3, §10.3–10.4, §11, §17, B4 |
 | **v0.3.3** Compute decision [Anand 2026-10-21] | **Stay on Raspberry Pi CM5 (4 GB) for v1.** The body may grow to **22–26 mm** for cooling. **Keep driving idle power down**, because every watt saved keeps the body thinner. Radxa CM5 stays a rev-2 option only (§17) | §10.0, §10.3c, §10.8 |
 | **v0.3.1** Keys | No emergency key designee for now | §2.2.1 |
@@ -1164,7 +1165,16 @@ Transitions:
 ```
 
 ### 10.2 Battery facts (v0.3.4) [PM/Enclosure 2026-10-21]
-- Cell: **~3.6 Ah / ~13.3 Wh**, 8.5 × 51 × 65.5 mm (EST capacity), in the **v4_22 125 × 75 × 22 mm** body (~233 g EST). This supersedes 2.7 Ah / 51 × 64 mm.
+- **Prototype cell [Enclosure 2026-10-21]**: **LiPol LP755060, 7.5 × 50 × 60 mm (7.8 mm worst case)**, with a foam spacer in the **9.0 mm pocket** (the pocket is sized for a cell up to 8.5 mm).
+  - **Nominal capacity: 3.0 Ah / ~11.1 Wh**, per vendor sheets: Akyga spec sheet https://elektronik.ropla.eu/pdf/stock/aky/aky2747.pdf and iBorn LP755060-3000 https://ibornbattery.com/products/755060-37v-3000mah-lipo-battery-for-monitor. That's **~17 % below the ~3.6 Ah budget**, ≈ 9.2 Wh usable.
+  - Runtime impact (§10.3 per-profile energy):
+    - Profile A ≈ 59–64 % of the cell → **16 h still met**, ~26 h at that usage.
+    - Profile B ≈ 120 % → **≈ 13 h** ⚠, versus ≈ 16 h on 3.6 Ah.
+    - Standby unaffected.
+  - ⚠ **Discharge rating**:
+    - The Akyga variant is rated **max 0.3C (0.9 A ≈ 3.3 W)**, incompatible with the 9 W cap and AI bursts (8–9 W). It's also rated to charge only to 0.3C.
+    - Source a **≥ 1C variant** (e.g. the iBorn sheet: 1C continuous / 2C peak, ≤ 150 mΩ) and set the pm-power cap to the cell's rating × 3.7 V × 0.9 until a 3.6 Ah cell is sourced [A-67].
+- Product cell (budget): **~3.6 Ah / ~13.3 Wh**, 8.5 × 51 × 65.5 mm (EST capacity), in the **v4_22 125 × 75 × 22 mm** body (~233 g EST). This supersedes 2.7 Ah / 51 × 64 mm.
 - Usable at the 5 V rail ≈ **11.0 Wh** [A-42].
 - System power cap stays at **9 W** (§10.5). A 1C rating would allow ~12 W.
 
@@ -1265,7 +1275,7 @@ T_lim(Ta) = 43 °C                     if Ta ≤ 40 °C
 - **Load-dependent hot-spot compensation**: the NTC reads **~0.3 K/W below the hot spot** (enclosure estimate; ~75 mm from the SoC zone). The governor uses
   `T_skin,hot = T_NTC + k_hs · P_avg(τ_hs)`, with `k_hs = 0.30 K/W` initial and `P_avg` a first-order filtered device power (τ_hs ≈ 60 s initial).
   `k_hs` and `τ_hs` are calibrated per enclosure revision in M5b (§B4) against thermocouples at the SoC zone and grip, and stored in MCU flash and `/var/lib/pm/thermal_cal.toml`.
-  **Stage thresholds below compare `T_skin,hot`** [A-64: thresholds are stated "on the case NTC"; compensation is applied on top, so it's conservative].
+  **Stage thresholds below compare `T_skin,hot`** [A-64 **confirmed** by Enclosure 2026-10-21 for the prototype]. The NTC lag is double-counted on purpose, which is conservative. Relax this after M5b calibration: thresholds then move to the raw NTC plus a fitted offset, or the margins are reduced.
 - **Battery (cell) NTC**: goes to the **charger JEITA/TS input** (BQ25895-class). It's also read by the MCU ADC for `charge_ctrl` (§12, charging only within 10–40 °C).
   - **At 45 °C ambient, expect no charging.**
   - UI messaging on screen 15 and the battery icon: "Too hot to charge, charging resumes below 38 °C". When the CM5 is off, the LED shows an amber double-blink.
@@ -1274,16 +1284,42 @@ T_lim(Ta) = 43 °C                     if Ta ≤ 40 °C
 - **Ambient estimate**: the case NTC after ≥ 30 min in S4 (equilibrium), tracked by an RC model. Needed for T_lim when Ta > 40 °C.
 - **System power**: fuel gauge (1 Hz), plus INA226 on the prototype.
 
-#### 10.4.3 Case (held / table / pocket) detection heuristic
-The budget and τ depend on the case, so pm-power picks the **most conservative plausible case**:
-1. If an **ALS/proximity sensor** is present [A-65: not in the current BOM; recommended for the custom carrier], dark plus near means **pocket**.
-2. If the IMU is present [A-65], a stationary, face-up, near-level device means **table**. Motion or tilt means **held**.
-3. **No sensors (v1 default)**:
-   - Display off → **pocket** (conservative).
-   - Display on with touch or button input in the last 30 s → **held**.
-   - Display on without input for > 30 s → **table**.
-4. A thermal back-check: if the measured NTC rise rate for the given P exceeds the held model by > 30 %, step down one case (held → table → pocket).
-5. The detected case is logged with the stage (`consent_log` `thermal_stage` detail, no user content).
+#### 10.4.3 Case (held / table / pocket) detection and auto-brightness: VEML7700 [Enclosure 2026-10-21]
+
+**Hardware**:
+- **VEML7700** ambient light sensor on the side-key flex, behind a **2.5 mm window in the front bezel at (−58, 20)**.
+- On **I2C1 via flex J11 pins 9/10** (SCL/SDA), 7-bit address 0x10.
+- **No interrupt line**, so it's polled. There's no proximity sensor or IMU in v1.
+- [A-66: "I2C1" is taken to be the **STM32U0 I2C1** (the same bus as the charger and fuel gauge, §12), so the MCU can sense light with the CM5 off. If the flex actually routes to CM5 `i2c1`, see the DT note.]
+
+**DT/I2C note**:
+- On the MCU bus, there's no CM5 device-tree node. pm-power gets lux from the MCU in `EVT_THERMAL` (new field `lux` u16, saturating) and `EVT_LIGHT` (0x28, on case change only).
+- If the sensor is wired to CM5 I2C instead: `dtparam=i2c_arm=on` (already set). Bind the sensor with an iio driver if the target kernel has one; otherwise read it from user space through `i2c-dev` in pm-power [A-66]. Lux is then only available with the CM5 on.
+- The bezel window attenuates light, so lux needs a window gain factor calibrated in M5b (`lux_gain` in `SET_THERMAL_CAL`).
+
+**Low-power polling**:
+- The sensor is put into shutdown (`ALS_SD=1`, ~0.5 µA) between single readings at gain ×2, IT 100 ms (~45 µA for ~110 ms).
+- **S0**: 1 Hz for auto-brightness (power-save mode PSM 2).
+- **S1/S2 (display off)**: every 5 s.
+- **S4 (CM5 off)**: every 30 s, only while the case NTC is above Warn − 3 K or when the cooldown gate is evaluating a wake. Otherwise not at all.
+- Average sensor current is < 1 µA in S4 and ~5 µA in S0, negligible against the budget [EST].
+
+**Pocket heuristic** (pm-power, mirrored in the MCU):
+- **Dark** = lux < 3 lx (enter) / > 10 lx (exit): **hysteresis**, 5 s debounce.
+- **Pocket** = dark **and** (display off **or** no touch/key input for ≥ 30 s).
+- **Dark-room guard**: a dark reading during active use is not pocket. While the display is on and input happened in the last 30 s, it's held (or table), even at night. The guard combines:
+  1. **Display state and input**: active interaction overrides darkness.
+  2. **Time of day (local RTC)**: between 21:00 and 07:00, dark plus display off is classed as **table** (likely a nightstand), *unless* check 3 trips.
+  3. **Heat-rise check**: if the NTC rise rate for the measured P exceeds the table model by > 30 %, step down to **pocket** regardless.
+- **Held vs table** with the display on: input in the last 30 s → held, otherwise table. Light doesn't help here.
+- **Display off without a valid lux reading** (sensor fault or NACK): fall back to **pocket** (the v0.3.4 conservative default).
+- Lux is used only on the device as a case signal. It is never stored except as the case label in the thermal-stage log.
+
+**Auto-brightness**:
+- Backlight % = clamp(a·log10(lux_corr) + b, 10 %, user max), smoothed (τ 2 s up / 5 s down).
+- A user override offsets the curve.
+- Governor stage caps (Soft −30 %, Hard floor 10 %) always win.
+- The default is on, with a toggle in Settings → Display.
 
 #### 10.4.4 Throttle stages (frozen) and actions
 
@@ -1415,6 +1451,7 @@ Ranked by expected saving (largest first):
 - **`MCU_IRQ`**: a GPIO from the MCU to the CM5 for attention and wake.
 - **Power control**: the MCU controls the CM5 5 V load switch / boost enable and the `RUN` line.
 - **I2C alternative**: kept as an alternative, with the MCU as an I2C target at 0x42 and I2C wakeup from Stop [A-23].
+- **MCU I2C1 bus**: also carries the **VEML7700 light sensor (0x10)** via side-key flex J11 pins 9/10, polled with no interrupt line (§10.4.3) [A-66].
 - **MCU I2C1 bus**: the fuel gauge and charger sit on the MCU's own I2C bus, so they're monitored while the CM5 is off.
 
 **Framing** (COBS-encoded, `0x00` delimiter):
@@ -1445,7 +1482,8 @@ Every command gets `ACK{seq,status}` within 50 ms. Otherwise the sender retries 
 | 0x24 | MCU→CM5 | `EVT_RTC_ALARM` | epoch_s |
 | 0x25 | MCU→CM5 | `EVT_SHUTDOWN_REQ` | reason (long-press, critical battery, thermal) and deadline_s |
 | 0x26 | MCU→CM5 | `EVT_THERMAL` | v0.3.4 payload: `case_ntc_dC` (i16, raw case NTC at back plate (−55.3,−10), STM32U0 ADC), `cell_dC` (i16), `ambient_dC_est` (i16), `stage` (u8: 0 Normal / 1 Warn / 2 Soft / 3 Hard / 4 Protect, MCU's own view), `adc_fault` (u8 bit flags: open/short). 1 Hz in S0–S2. Hot-spot compensation (§10.4.2) is applied by pm-power and mirrored in the MCU with the calibrated `k_hs` |
-| 0x27 | CM5→MCU | `SET_THERMAL_CAL` | `k_hs_mK_per_W` (u16), `tau_hs_s` (u16), `ntc_offset_dC` (i8), `p_avg_mW` (u16, sent at 1 Hz so the MCU can enforce Protect independently). Stored in MCU flash, acknowledged with `ACK` |
+| 0x27 | CM5→MCU | `SET_THERMAL_CAL` | `k_hs_mK_per_W` (u16), `tau_hs_s` (u16), `ntc_offset_dC` (i8), `lux_gain_q8` (u16, v0.3.5 window gain), `p_avg_mW` (u16, sent at 1 Hz so the MCU can enforce Protect independently). Stored in MCU flash, acknowledged with `ACK` |
+| 0x28 | MCU→CM5 | `EVT_LIGHT` | v0.3.5: `case` (u8: 0 held / 1 table / 2 pocket), `lux` (u16, saturating), `valid` (u8). Sent on a case change, plus a 1 Hz `lux` field appended to `EVT_THERMAL` |
 | 0x27 | MCU→CM5 | `EVT_CHARGE_INHIBIT` | reason (cell < 10 °C / > 40 °C / charger fault), cell_dC |
 | 0x28 | MCU→CM5 | `EVT_OVERCURRENT` | cell_mA, duration_ms (§10.5) |
 | 0x1B | CM5→MCU | `HAPTIC_CFG` | driver present?, effect library id. Ignored, since there's no haptic driver in MVP (LRA DNP) |
@@ -1591,7 +1629,7 @@ Validate on existing hardware before the custom PCB [PRD strategy]: capture/sear
 | 9 | **ST NUCLEO-U083RC** (STM32U083, on-board ST-LINK) [PM 2026-10-21] | low-power MCU (replaces the RP2040 Pico) | 2 | 2 × 12 |
 | 10 | Charger/power path: **BQ25895 eval/breakout** (TS/JEITA, I2C, ship mode, power path) [Research] + 5 V ≥ 3 A boost (e.g., TPS61088-class module) + load switch for the CM5 5 V rail | power path | 1 | 30 |
 | 11 | Fuel gauge breakout (MAX17055 or MAX17048) | battery monitoring | 1 | 10 |
-| 12 | **Li-ion pouch ~3.6 Ah, 8.5 × 51 × 65.5 mm, protected, 1C, with 10k NTC** [PM/Enclosure 2026-10-21] | battery | 2 | 2 × 12 |
+| 12 | **LiPol LP755060 7.5 × 50 × 60 mm (7.8 mm max), 3.0 Ah nominal, protected, **≥ 1C variant**, with 10k NTC (or an external NTC taped to the cell), plus a foam spacer for the 9.0 mm pocket** [Enclosure 2026-10-21]. Product target ~3.6 Ah ≤ 8.5 mm, still to source | battery | 2 | 2 × 12 |
 | 13 | 10k NTC thermistors (2–3: case/skin, ambient, spare) + thermal epoxy/Kapton | skin governor | 5 | 3 |
 | 14 | INA226 breakout (5 V rail) + USB-C power meter | power budget | 1 | 12 |
 | 15 | ~~LRA + DRV2605L~~: dropped, LRA is DNP in MVP [v0.3]. Keep 1 for firmware hook bring-up only | (optional) | 0–1 | 0–10 |
@@ -1713,6 +1751,15 @@ The NUCLEO-U083RC pins below are **proposed** and must be checked against the NU
 - PM/Enc-T2: The SoC is forced to 80 °C (heat gun or stress at Hard disabled in a test build), and Protect powers off to S4 within 5 s. The MCU blocks power-on until the NTC drops below Warn − 1.5 K.
 - PM/Enc-T3: The case NTC is disconnected (open) or shorted. The MCU flags `adc_fault`, and pm-power falls back to SoC temperature − 25 K with the Warn stage forced and local AI disabled.
 - PM/Enc-T4: Charging at 45 °C ambient → no charge current (charger JEITA), the UI shows "Too hot to charge", and charging resumes below 38 °C.
+- PM/Enc-T6 (VEML7700): the sensor is detected at 0x10 on I2C1 (J11 9/10).
+  - Lux, after window gain calibration, is within ±20 % of a reference lux meter at 10/100/1000 lx.
+  - In a jeans pocket and in a bag, with the display off, pocket is classed within 10 s.
+  - A dark room with active touch input stays held.
+  - On a nightstand between 21:00 and 07:00 with the display off, it's classed as table unless the heat-rise check trips.
+  - In a lux sweep, hysteresis shows no flapping.
+  - Auto-brightness tracks 10 → 1000 lx within 5 s without visible flicker.
+  - With the sensor unplugged, the system falls back to pocket with the display off.
+  - The sensor's average current is < 1 µA in S4 (measured on the MCU rail delta).
 - PM/Enc-T5: Wi-Fi antenna: with `dtparam=ant2`, the external FPC antenna is in use. RSSI at 3 m / 10 m from a reference AP is within 3 dB of a reference CM5 + Raspberry Pi antenna kit, and is ≥ 10 dB better than with the FPC disconnected (this proves the external path is selected). `iw dev wlan0 link` throughput is ≥ 20 Mb/s at 10 m.
 - PM-P4: Radios: the Wi-Fi/BT rfkill state is blocked ≥ 95 % of the time over a 16 h Profile A run, with radios up only during logged leases.
 
@@ -1782,8 +1829,10 @@ The NUCLEO-U083RC pins below are **proposed** and must be checked against the NU
 | A-61 | Amp quiescent current (MAX98357A datasheet) |
 | A-62 | Superseded by the enclosure sweep (thermal_v3_ribs §v4); 22 mm chosen |
 | A-63 | The STM32U0 has a free ADC channel for the case NTC (fallback: I2C ADC on the MCU bus) |
-| A-64 | Stage thresholds apply to the hot-spot-compensated NTC value (conservative reading of "on the case NTC") |
-| A-65 | No ALS/proximity/IMU in the v1 BOM. The case heuristic defaults to display-off ⇒ pocket. Adding an ALS/prox sensor to the custom carrier is recommended |
+| A-64 | **Confirmed [Enclosure 2026-10-21]**: stage thresholds apply to the compensated hot-spot estimate for the prototype; relax after M5b |
+| A-65 | **Resolved [Enclosure 2026-10-21]**: VEML7700 light sensor (no proximity sensor or IMU in v1) + display state for pocket detection (§10.4.3) |
+| A-66 | The VEML7700 "I2C1" is the STM32U0 I2C1 (shared with the charger and fuel gauge); confirm with Electronics |
+| A-67 | The prototype LP755060 is 3.0 Ah, not 3.6 Ah, and the Akyga variant is 0.3C. A ≥ 1C variant is needed; the pm-power cap follows the cell rating until the product cell is sourced |
 | A-22 | (superseded by the locked 20/10/3 %) |
 | A-23 | UART primary, I2C alternate |
 | A-26 | Gauge/charger parts (BQ25895, MAX17055/48 candidates) |
