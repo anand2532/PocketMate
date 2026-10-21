@@ -53,6 +53,8 @@ flowchart TD
   E -->|mic/camera| DG[21 Diagnostics]
   AB --> LG[16k Legal]
   UD --> WN[18d What's new]
+  H -.evening / Memory.-> DS2[22 Daily summary] -->|source| MD
+  C -->|Translate| TR[09c Camera translate]
   ERR((any failure)) -.-> E[20a–h Error states]
 ```
 
@@ -72,7 +74,9 @@ flowchart TD
 13. **Export passphrase**: generated 4-word passphrase (↻ New regenerates) or Choose… (13d, min 12 chars / 4 words, confirm). Never stored.
 14. **PIN lockout**: 5 failures → 30 s, then 1 m, 5 m, 15 m, 1 h (13c); no wipe; lockout ladder resets after a successful download or a new PIN.
 15. **Errors** (20a–h): icon + title + plain cause + safe fallback (left) + fix (right). No network, cloud unreachable (4 s timeout, cue at 1.85 s, on-device fallback), mic, camera, storage full (90% warn banner, 97% full → 20j Free up space), OCR no text, update rolled back, thermal (warm 70 °C, throttle 75 °C, shutdown 85 °C, target <65 °C).
-16. **Updates**: A/B slots ~6 GB each, **pending Software confirmation**.
+16. **Updates**: A/B slots ~8.25 GiB each (4 GB RAM variant), ~5.25 GiB (2 GB variant). Confirmed.
 17. **Bluetooth (MVP = earbuds audio only; keyboards v2)**: Settings › Bluetooth › Pair → 16h scan (audio devices only) → 16i confirm code → 16j connected, audio routed; PocketMate mics stay in use.
 18. **Free up space** (20j): suggested categories with sizes, Export first, Delete selected (hold-confirm via 14 pattern).
 19. **Diagnostics** (21): mic L/R, speaker, camera, touch, battery, storage; local report without personal data.
+20. **Daily summary** (22, CR1): evening recap (default 20:00, also from Memory) of notes, tasks, reminders and scans; each item links to its source (07/10/09); Action asks a follow-up; missed reminders flagged red.
+21. **Camera translate** (09c, CR1): live overlay Devanagari ↔ English, direction toggle, Freeze (pauses frame) → Save to Memory as scan + translation; LOCAL on-device by default, CLOUD badge only if the translate feature is granted (consent 12b).

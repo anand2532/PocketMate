@@ -1,4 +1,4 @@
-# PocketMate UX — FROZEN for prototype (2026-10-21)
+# PocketMate UX — FROZEN for prototype (2026-10-21, re-frozen after CR1)
 UX is frozen for the prototype build. Changes after this point go through PM change request. Regenerate with `python3 gen.py` (needs cairosvg, Pillow, DejaVu Sans, Noto Sans Devanagari).
 
 ## Docs
@@ -7,7 +7,7 @@ UX is frozen for the prototype build. Changes after this point go through PM cha
 - `controls.md`: Action / Power / Vol± / chord / mic-mute switch mapping per screen, force-off (MCU + ship mode), battery thresholds
 - `overview.png`: contact sheet; `svg/` + `png/`: 800×480 per screen
 
-## Screens (68)
+## Screens (70)
 - 00a-ob-welcome
 - 00b-ob-language
 - 00c-ob-wifi
@@ -29,6 +29,7 @@ UX is frozen for the prototype build. Changes after this point go through PM cha
 - 08-ocr-capture
 - 09-ocr-result
 - 09b-photo-result
+- 09c-camera-translate
 - 10-tasks-list
 - 11-task-create
 - 11b-keyboard
@@ -76,11 +77,17 @@ UX is frozen for the prototype build. Changes after this point go through PM cha
 - 20i-warn-banners
 - 20j-free-up-space
 - 21-diagnostics
+- 22-daily-summary
 
 ## Locked parameters
 Battery 20/10/3% · thermal 70/75/85 °C (target <65 °C) · storage 90/97% · cloud timeout 4 s, cue 1.85 s · PIN lockout 5 tries then 30 s→1 m→5 m→15 m→1 h (resets on download/new PIN, no wipe) · provider delete retry 7 days · cloud log ≥30 days · BT earbuds MVP, keyboards v2.
 
+## Resolved
+- A/B update slots: ~8.25 GiB each (4 GB RAM variant), ~5.25 GiB (2 GB variant), shown on 16f About.
+
 ## Pending (not blocking prototype)
-1. A/B update slot size (~6 GB each): **pending Software confirmation** (shown on 16f About).
-2. Hindi phonetic transliteration engine: choice, footprint, and candidate quality for the suggestion bar.
-3. `<provider>` cloud provider name and its deletion-API support.
+1. Hindi phonetic transliteration engine: choice, footprint, and candidate quality for the suggestion bar.
+2. `<provider>` cloud provider name and its deletion-API support.
+
+## Change log
+- **CR1 2026-10-21**: added 22-daily-summary and 09c-camera-translate; 16f About shows the A/B slot sizes (resolved); flows/controls updated; 05-capture regridded to 3×2 (248×136 tiles) with a 5th Translate tile, the entry to 09c; focus order updated in controls.md; UX re-frozen.

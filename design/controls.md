@@ -22,7 +22,7 @@ Volume keys stay speaker volume during listening/response audio playback and whe
 | 02 Listening | release/tap: send | speaker | Cancel button (discards audio) |
 | 03 Processing | press: interrupt, new ask | speaker | Cancel button |
 | 04 Response | follow-up | scroll | ‹ / swipe → Home |
-| 05 Capture | hold: voice note | move focus | ‹ / swipe |
+| 05 Capture | hold: voice note | move focus (order: Voice note › Photo › Typed note › Scan text › Translate) · chord: open | ‹ / swipe |
 | 06 Memory search | voice query | select result · both: open | ‹ / swipe |
 | 07 Memory detail | ask about this | seek ±5 s | ‹ / swipe |
 | 08 OCR / photo capture | shutter | zoom | ‹ / swipe (cancel) |
@@ -60,3 +60,5 @@ Volume keys stay speaker volume during listening/response audio playback and whe
 | 16h–16j BT pairing | — | select · chord: pair; on 16j Vol = earbud volume | |
 | 20j Free up space | — | select · chord: toggle | delete uses hold-confirm |
 | 21 Diagnostics | press: mic test | select | |
+| 22 Daily summary (CR1) | ask follow-up about recap | scroll · chord: open source | |
+| 09c Camera translate (CR1) | press: freeze/unfreeze · hold: ask about frame | zoom | swap direction on-screen |
