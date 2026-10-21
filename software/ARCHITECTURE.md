@@ -1,6 +1,6 @@
-# PocketMate — Software Architecture v0.3.12
+# PocketMate — Software Architecture v0.3.13
 
-Status: final v0.3.12 (baseline) · Owner: software · Source of truth for requirements: `../docs/PRD.md`, plus PM decisions and research (`../research/market.md` §6–7, `../research/bom.md` §7–8)
+Status: final v0.3.13 (baseline) · Owner: software · Source of truth for requirements: `../docs/PRD.md`, plus PM decisions and research (`../research/market.md` §6–7, `../research/bom.md` §7–8)
 Tag conventions:
 - **[PRD]**: stated in the PRD.
 - **[PM 2026-10-21]**: a PM decision or requirement dated 2026-10-21.
@@ -1055,7 +1055,7 @@ SELECT ts, event, scope, provider, bytes_sent FROM consent_log ORDER BY id DESC 
   - **`MIC_FEED`** (U14 output) powers the mics **and** the **green REC LED D6** (Kingbright APTD1608LZGCK, 0603, 1.3 kΩ, ≈ 1 mA).
   - **`MUTE_STATUS_IO`** = **Q6 inverter on MIC_SW_LIVE**: high when muted (MIC_SW_LIVE absent) **and the CM5 is up** (Q6 is pulled up from the CM5-side rail). It's **independent of PA11**.
   - **Flex J11**: **pin 11 = MIC_SW_LIVE**, **pin 15 = +3V3_PERIPH** (pins 9/10 remain the VEML7700 I2C).
-  - SW5 pole 2: the data-line grounding from netlist v3 is not restated in v3.2 [A-77: confirm whether pole 2 still grounds the mic data line or is now unused].
+  - SW5 pole 2 [Schematic netlist v3.3]: common = MIC_DATA_GATED; live throw = MIC_SD (shared mic data), muted throw = GND, so CM5 I2S DIN reads solid zeros when muted. Pole 1 cuts the mic supply at the same time, before U14 [A-77 resolved].
 - **Guarantees (hardware)**:
   - **Green shows exactly when the mics are powered.** D6 and the mics share MIC_FEED, downstream of SW5 and U14, so it no longer over-indicates when muted.
   - The mics can only be powered if SW5 is unmuted **and** PA11 is high **and** the CM5 is up.
@@ -1820,7 +1820,7 @@ The NUCLEO-U031R8 pins below are **proposed** and must be checked against the NU
 - PR2c: **The timeout forces off.** Hold ACTION with `max_s` = 120 (and a request of 900 s): the rail drops at ≤ 120 s / ≤ 600 s dictation ± 1 s. Kill the UART, stop the heartbeat, and pull `RUN`/CM5 power: the rail drops within 2 s / immediately, and `EVT_MIC_RAIL` gives the reason.
 - PR3 [Schematic netlist v3]: With the mute switch on (GPIO17/PA10 high), the PTT session refuses and the UI shows "Mic off (hardware)".
 - PR3a: **No audio frames while muted.**
-  - With the switch muted, press PTT 100× and inject `StartCapture` via D-Bus. The pm-audio frame counter stays at 0, and the ALSA capture device is never opened (`/proc/asound/card*/pcm*c/sub0/status` = closed). **Hardware check of SW5**: MIC_SW_LIVE and mic VDD < 0.1 V even with PA11 forced high, and the red D1 is lit (data-line grounding checked only if pole 2 still does it, A-77). Force-open ALSA as root on a test build: every sample = 0.
+  - With the switch muted, press PTT 100× and inject `StartCapture` via D-Bus. The pm-audio frame counter stays at 0, and the ALSA capture device is never opened (`/proc/asound/card*/pcm*c/sub0/status` = closed). **Hardware check of SW5**: MIC_SW_LIVE and mic VDD < 0.1 V even with PA11 forced high, and the red D1 is lit and MIC_DATA_GATED is held at GND (SW5 pole 2). Force-open ALSA as root on a test build: every sample = 0.
   - Mid-session mute: capture closes within 20 ms, and no frames after the edge reach ASR (frame timestamps checked).
   - `EVT_MIC_MUTE` arrives within 50 ms of each switch edge.
 - PR3b: Fault injection: hold GPIO17 high but PA10 low (and the reverse) on a test jig. Capture is refused in both cases (muted wins).
@@ -1981,7 +1981,7 @@ The NUCLEO-U031R8 pins below are **proposed** and must be checked against the NU
 | A-75 | Whether the MAX17055 TH pin senses a thermistor or only reports die temperature (affects how useful the backup is) |
 | A-67 | **Resolved**: prototype Akyga LP655063 3000 mAh 1C; production per battery-rfq.md Rev C (≥ 3000/3100 mAh, ≥ 2C). 9 W cap kept (thermal); it holds on the 1C prototype to ~3.2 V and scales below 3.3 V |
 | A-76 | Prototype LP655063 NTC β unknown: firmware uses configurable thresholds and a worst-of-two-β conversion until the M5b measurement |
-| A-77 | Whether SW5 pole 2 still grounds the mic data line in netlist v3.2 |
+| A-77 | **Resolved (netlist v3.3):** SW5 pole 2 grounds MIC_DATA_GATED when muted; pole 1 cuts mic supply before U14. |
 | A-78 | **Resolved [Tech Research 2026-10-21, v0.3.11]**: no conflict. Prototype = LP655063 (1C, ≤ 65.5 × 51 × 7.0 mm); production = RFQ Rev C (≥ 2C, ≤ 8.5 × 50.5 × 62 mm, ≥ 3000/3100 mAh, B3435) |
 | A-79 | **Resolved (Enclosure v4_22b):** prototype LP655063 fits with ~3.5 mm real end space and a lead U-turn over the cell face; no notch. |
 | A-22 | (superseded by the locked 20/10/3 %) |
