@@ -1,4 +1,4 @@
-# PocketMate — Software Architecture (v0.3.2 draft)
+# PocketMate — Software Architecture v0.3.3
 
 Status: draft for review · Owner: software · Source of truth for requirements: `../PRD.md`, plus PM decisions and research (`../research/market.md` §6–7, `../research/bom.md` §7–8)
 Tag conventions:
@@ -41,6 +41,7 @@ Tag conventions:
 | **v0.3.1** Consent dialog | Consent dialog 12b must show **each provider's retention and training terms** | §8.3, §6.7.1 |
 | **v0.3.1** Sarvam | The adapter defaults to the **training opt-out** wherever the API/account allows it. **Sarvam DPA is a pre-launch action for Anand.** Until then, terms remain unconfirmed | §6.7.1 |
 | **v0.3.2** Compute | **v1 = CM5 4 GB only. The 2 GB SKU is deferred and not part of v1.** Measured CM5 idle 2.4–2.65 W exceeds the ~1.6–1.75 W passive budget, so **the CM5 is OFF by default** and sessions are duty-cycled. Aggressive power policy. s2idle test with a decision rule. Rev-2 Radxa CM5 (RK3588S2, RKNN) portability | §10.0, §10.3, §10.3b, §10.6, §10.7, §17 |
+| **v0.3.3** Compute decision [Anand 2026-10-21] | **Stay on Raspberry Pi CM5 (4 GB) for v1.** The body may grow to **22–26 mm** for cooling. **Keep driving idle power down**, because every watt saved keeps the body thinner. Radxa CM5 stays a rev-2 option only (§17) | §10.0, §10.3c, §10.8 |
 | **v0.3.1** Keys | No emergency key designee for now | §2.2.1 |
 | **v0.3** Audio | Audio is not stored by default, only transcripts. Audio saving is opt-in | §8.1 P6, §7 |
 
@@ -1101,7 +1102,7 @@ Pipeline:
 
 ### 10.0 Compute decision and measured idle power (v0.3.2)
 
-**v1 compute = Raspberry Pi CM5 4 GB (CM5104032) only.** The 2 GB SKU (CM5102032) is **deferred and not part of v1**. Every `cm5-2g` reference in this doc is kept for later and is not a v1 deliverable (§6.11). Rev-2 candidate: Radxa CM5 (RK3588S2), §17. Source: `../research/compute-options.md` recommendation table.
+**Decision (v0.3.3, Anand 2026-10-21): stay on Pi CM5; the body may grow to 22–26 mm; idle-power reduction continues (§10.8, §10.3c).** **v1 compute = Raspberry Pi CM5 4 GB (CM5104032) only.** The 2 GB SKU (CM5102032) is **deferred and not part of v1**. Every `cm5-2g` reference in this doc is kept for later and is not a v1 deliverable (§6.11). Rev-2 candidate: Radxa CM5 (RK3588S2), §17. Source: `../research/compute-options.md` recommendation table.
 
 **Measured idle (sourced, not our own measurement yet)**:
 
@@ -1225,6 +1226,29 @@ These are a first-order lumped model (EST). The skin hot spot runs ahead of the 
 - **45 °C** (limited use, as rated): sessions of a few minutes, about one local AI request per few minutes. Long tasks are offered to the cloud.
 - **The device can't idle with the CM5 on at any ambient ≥ 30 °C** [EST]. This confirms CM5-off-by-default.
 
+### 10.3c Thermal budget vs. body thickness: 20 / 22 / 26 mm (v0.3.3, estimate)
+
+**Decision context** [Anand 2026-10-21]: the body may grow to **22–26 mm** for cooling.
+
+**Method (estimate)**: thermal_v3's lumped model (natural convection plus radiation from the Al unibody, held) is rescaled by **exposed surface area**, at a fixed footprint of 125 × 75 mm. `A(t) = 2·125·75 + 2·(125+75)·t` mm². Conductance G scales with A (same h and emissivity), and thermal mass C scales with the shell's metal mass (∝ A).
+- Not modelled: hand contact, internal spreading improvements (thicker graphite/vapour chamber), internal air-gap effects, and the hot-spot offset (kept at thermal_v3's +0.9–1.5 K).
+- **Estimate only**: validate in the 35/45 °C chamber (TH1–TH5) on printed or machined 22 and 26 mm mock bodies.
+
+| Thickness | Area A | vs 20 mm | Sustained budget, held, 35 °C (≤ 43 °C) | Held, 45 °C (≤ 48 °C) | Flat on back, 35 °C | Thermal mass C | Continuous screen-on at 35 °C (S0 2.0 W tuned / 2.6 W) |
+|---|---|---|---|---|---|---|---|
+| 20 mm (thermal_v3) | 26,750 mm² | — | **1.75 W** | 0.60 W | 1.00 W | 140 J/K | unlimited (2.0 W ≈ budget) / ≈ 22 min |
+| 22 mm | 27,550 mm² | +3.0 % | **≈ 1.80 W** | ≈ 0.62 W | ≈ 1.03 W | ≈ 144 J/K | ≈ 1.6 h / ≈ 24 min |
+| 26 mm | 29,150 mm² | +9.0 % | **≈ 1.91 W** | ≈ 0.65 W | ≈ 1.09 W | ≈ 153 J/K | unlimited / ≈ 30 min |
+| 26 mm + internal spreader/PCM option [EST] | same | +9 % area; spreading may cut the hot-spot offset ~0.5 K, and ~10 g paraffin PCM (~200 J/g latent, melting near 40 °C) adds a ~2 kJ burst buffer | ≈ 2.0–2.1 W effective | ≈ 0.7 W | ≈ 1.15 W | 153 J/K + ~2 kJ latent | — |
+
+(Continuous screen-on time = C·8 K / (P − P_ss), from ambient equilibrium. "Unlimited" means P ≤ P_ss.)
+
+**Takeaways**:
+- **Thickness is area-limited.** Going from 20 to 26 mm adds only **≈ +0.16 W** sustained at 35 °C, and ≈ +0.05 W at 45 °C. That's about the same as **one** mid-ranked idle lever (Wi-Fi off ≈ 0.18 W). Idle reduction (§10.8) has the most leverage. A 26 mm body mainly buys **room for a spreader or PCM and a bigger thermal mass for bursts**, not steady-state capacity.
+- If §10.8 reaches **S0 ≤ 2.0 W**, a **22 mm** body roughly sustains screen-on use at 35 °C, held. Above that, sessions stay duty-cycled (§10.3b).
+- At 45 °C (limited use), no thickness in range makes CM5-on idle sustainable (0.62–0.7 W vs ≥ 1.4 W). CM5-off-by-default stays mandatory.
+- Recommendation to mechanical: **choose thickness after the M5b idle measurements**. Default to **22 mm** if tuned S0 ≤ 2.0 W, otherwise 24–26 mm with a spreader/PCM.
+
 ### 10.4 Skin-temperature power governor (in pm-power) [PM 2026-10-21]
 
 **Rated operating range: 0–40 °C; limited use at 45 °C** [PM 2026-10-21, v0.3]. Above 40 °C the governor starts at ≥ T2, and the UI shows "limited use when hot".
@@ -1339,6 +1363,51 @@ These are enforced by `pm-power` plus static config. Each lever's saving is EST 
 4. If 0.6 W < P_sleep ≤ 1.2 W and (b)–(d) pass: use S3 **only** as a ≤ 30 s post-session hold, replacing the 2.2 W S2 hold. Otherwise use S4.
 5. If P_sleep > 1.2 W, or any of (b)–(d) fails: **reject**. S3 stays unused, and v1 ships S2 (≤ 30 s) plus S4. Optimise cold boot instead (target ≤ 10 s).
 6. The same test runs again on Radxa CM5 in rev 2 (RK3588 SoM suspend is reported at 0.59 W).
+
+### 10.8 Idle-power reduction workplan, CM5 4 GB (v0.3.3)
+
+**Why**: every watt of idle saved is thermal budget the body doesn't have to supply. Thickness buys only about +0.05–0.16 W of sustained budget (§10.3c), while a single lever below can save 0.1–0.7 W. **Goal**: on our prototype, measured at the 5 V input, after all levers:
+- tuned S2 (CPU idle, display off) **≤ 1.6 W** (stretch 1.4 W);
+- S0 interactive at 40 % backlight **≤ 2.0 W** (stretch 1.8 W).
+Start point: measured 2.4–2.65 W (§10.0).
+
+**Method for every lever**:
+- Prototype on the IO Board, at 25 °C, 5 V input measured with INA226 or a USB power meter at ≥ 10 Hz, as a 5-minute mean after 2 minutes of settling.
+- `vcgencmd pmic_read_adc` for per-rail deltas. It omits the 5 V rail, so it isn't a substitute for input power [forum].
+- One lever at a time, in the order below, **cumulative**, then each lever removed individually for attribution.
+- Results go in `software/bench/idle_power.csv` and update §10.3.
+
+Ranked by expected saving (largest first):
+
+| Rank | Lever | Config / mechanism | Expected saving | Source / basis | Measurement step | Target / pass |
+|---|---|---|---|---|---|---|
+| 1 | **CM5 off between sessions** (S4) + `POWER_OFF_ON_HALT=1` | EEPROM `POWER_OFF_ON_HALT=1` (default `1` on CM5 per docs), `WAKE_ON_GPIO` is not relevant on CM5 (the power button/`GLOBAL_EN` wakes). The MCU also cuts the 5 V rail | Off-state **~1–1.4 W → ~0.01 W** at halt. ~0 W with the MCU rail cut | RPi docs `power-supplies.adoc` ("around 1 W to 1.4 W … drop … to around 0.01 W") and `eeprom-bootloader.adoc`; Geerling "Reducing Raspberry Pi 5's power consumption by 140x" | P(halt) with and without the setting; P(S4) at the cell | halt ≤ 0.02 W; S4 ≤ 4 mW at the cell |
+| 2 | **Idle clock floor** | `config.txt`: `arm_freq_min=500`, `gpu_freq_min=500`. Governor `schedutil`/`powersave` in idle | **~0.4–0.7 W** (a single user report on Pi 5 Lite: 2.7 → 2.0 W) | RPi forum t=384340 (Pi 5 default idle clock is 1500 MHz); LinuxLinks note via research | idle P at the 1500 vs 500 MHz floor; check `time_in_state` | ≥ 0.4 W saved; no UI jank (frame time p95 ≤ 20 ms) |
+| 3 | **Wi-Fi/BT off** | Runtime `rfkill block` (default). Build variant: `dtoverlay=disable-wifi,disable-bt` if a product variant needs no radio. `iw … power_save on` when up | **~0.18 W** (3V7_WL_SW rail ~183 mW → 0 with the overlays). rfkill may leave part of this on [EST] | RPi forum t=363330 | P with radio up/idle, rfkill-blocked, overlay-disabled | rfkill ≥ 0.12 W saved; if < 0.1 W, power-gate the module by DT/regulator |
+| 4 | **Backlight / panel** | Default 40 %; dim at 5 s, off at 10 s; panel rail off in S2 (§10.6) | up to **0.4 W** at full brightness; ~0.15–0.25 W at 40 % [EST] | Lida 4.3" LCD ≤ 120 mA @ 3.3 V (via research/compute-options.md) | P vs PWM 0/20/40/70/100 %; panel rail off | 40 % ≤ 0.2 W; rail-off = 0 |
+| 5 | **CPU frequency cap during UI** | `scaling_max_freq` 1.5 GHz for UI; 2.4 GHz only for admitted bursts | **~0.2 W** on VDD_CORE when active (722 mW at 1.5 GHz vs 930 mW at 2.4 GHz). Little at true idle | RPi forum t=363330 | P during scripted UI interaction at 1.5 vs 2.4 GHz | ≥ 0.15 W saved in S0 |
+| 6 | **Ethernet PHY off** (the CM5 has an on-module GbE PHY) | DT: disable `genet`/PHY (`ethernet` node `status="disabled"`), or `ip link set eth0 down`, plus PHY power-down via MDIO | **~0.05–0.3 W** [EST, unsourced] | Research: the Pi 5 paper reports 11.2 % idle reduction for "disabling … WiFi and Ethernet" (DOI 10.1109/compsystech65493.2025.11136932) | P with link down vs node disabled | ≥ 0.05 W; keep if any saving is measurable |
+| 7 | **HDMI off** | No HDMI on the custom carrier. On the prototype: no HDMI cable at boot, and disable HDMI in DT (`hdmi` nodes disabled / `vc4-kms-v3d,nohdmi` [A-60]) | **~0.1 W** (≈ 96 mW by booting without a display; only ~10 mW from blanking alone) | RPi forum t=363330 | P with HDMI cable present at boot vs absent vs DT-disabled | ≥ 0.08 W |
+| 8 | **Camera fully off when unused** | Close libcamera; sensor regulator/enable GPIO off; CSI lanes idle | **Avoids +1.7 W** seen with a camera active (HQ cam report). Idle saving is small if already closed | RPi forum t=384340 | P with the camera pipeline open, closed, and powered off | closed + powered off = baseline ± 0.02 W |
+| 9 | **PCIe / USB off** | `dtparam=pciex1=off` (the external x1 port only; RP1's internal link must stay). USB: no host ports on the carrier; `usbcore.autosuspend=1`; on the prototype `uhubctl` port power off | **~0.05–0.15 W** [EST] | — (to measure) | P with each disabled | ≥ 0.03 W each, otherwise drop |
+| 10 | **Unused cores** | Runtime hotplug (`cpuN/online=0`) for cores 2–3 in idle (preferred). Static `maxcpus=2` (kernel cmdline) is **only** an experiment: it blocks 4-core bursts | **~0.02–0.15 W** [EST]. Idle A76 cores already sit in WFI, so the gain may be small | — (to measure) | P with 4/2/1 cores online at idle; burst latency impact | keep only if ≥ 0.05 W and no L2/L5 regression |
+| 11 | **Minimal systemd / wakeups** | Yocto minimal image; no avahi/cups/bluetoothd (unless leased)/ModemManager/triggerhappy; timers coalesced; `powertop` wakeups/s budget | **~0.02–0.1 W** [EST] | — | wakeups/s (`powertop --csv`) and P before/after | ≤ 50 wakeups/s at idle; ≥ 0.02 W |
+| 12 | **Audio path idle** | ALSA device closed when silent (no PipeWire keep-alive; `suspend-timeout-seconds=1`); I2S clocks stopped; amp `SD` low; mics unpowered by the MCU outside PTT | **~0.01–0.05 W** [EST] (class-D amp quiescent is a few mA at 5 V [A-61]) | amp datasheet to cite | P with the stream open-silent vs closed vs amp SD low | ≥ 0.01 W; no pop on resume |
+| 13 | **LEDs off, misc DT** | `dtparam=act_led_trigger=none`, power LED off; disable unused I2C/SPI/UART instances | **< 0.01–0.02 W** [EST] | — | P delta | any |
+| 14 | **Negative `over_voltage_delta`** (undervolt) | `over_voltage_delta=-10000…-25000` µV with `arm_freq` unchanged | **~0 W at idle** (DVFS already lowers idle voltage; Geerling measured identical idle across deltas). Some saving under load, with an **instability risk** | Geerling "Overclocking and Underclocking the Raspberry Pi 5" | P idle/burst at 0/−10/−25 mV; 24 h stress + `vcgencmd get_throttled` | **last resort**. Adopt only if ≥ 0.2 W saved in burst with zero errors over 24 h × 3 units; never in v1 by default |
+| — | Lower `arm_freq` ceiling (e.g., 2.0 GHz) | `arm_freq=2000` | lower burst power, no idle change; longer tasks (energy per task may not improve) | Geerling (idle identical) | J per ASR/LLM task at 2.0 vs 2.4 GHz | adopt only if J/task falls |
+
+**Expected cumulative result** [EST]:
+- 2.4–2.65 W, minus ranks 2–3 and 6–13 (≈ 0.6–1.2 W), gives ≈ **1.4–1.9 W** tuned S2 idle.
+- Backlight at 40 % adds ~0.2 W, so S0 ≈ **1.6–2.1 W**.
+- This is the M5b deliverable (PM-P1). §10.3 uses 2.2 W (S2) / 2.6 W (S0) until the measurements replace them.
+
+**Order of work** (M5b, ~1.5 wk):
+1. Day 1–2: rig and baseline.
+2. Day 3–4: ranks 1–5.
+3. Day 5–6: ranks 6–13.
+4. Day 7: rank 14 experiment (optional).
+5. Day 8: write up, update §10.3/§10.3b/§10.3c, hand to mechanical for the final thickness decision.
 
 ---
 
@@ -1568,7 +1637,7 @@ The NUCLEO-U083RC pins below are **proposed** and must be checked against the NU
 | **M2b ASR/OCR/translation benchmark gate** | 1.5 wk (parallel with M2–M4) | §6.10 benchmark on CM5 4G + 2G, EN/HI/Hinglish sets, report | model choice per SKU recorded; ⚠ flags resolved or escalated |
 | **M3 Assistant + RAG** | 2 wk | llama.cpp service, model benchmark (≥ 3 models), hybrid retrieval, source chips, action-item extraction | Answers cite sources; latency targets §14 measured |
 | **M4 OCR + Translation + Vision** | 2.5 wk | Scan flow, PaddleOCR/IndicPhotoOCR, pm-translate (IndicTrans2-dist), overlay, pm-xlit keyboard + cross-script FTS, local VLM trial | PM-X1, PM-K1, PM-S1 pass |
-| **M5b Power reality + suspend decision (v0.3.2)** | 1.5 wk (start right after M0; finishes before M5) | Measure our own CM5 4 GB idle, tuned idle (§10.6 levers one by one), burst, boot energy, S4. Run the §10.7 s2idle/deep/halt/rail-cut test matrix. Fit the thermal duty-cycle model on the mock unibody | PM-P1 + PM-P2 pass; S3 adopt/reject recorded per the §10.7 rule; §10.3 table updated with measured values |
+| **M5b Power reality + suspend decision (v0.3.2/v0.3.3)** | 1.5 wk (start right after M0; finishes before M5) | **Run the §10.8 idle-power workplan (ranked levers, cumulative + attribution)**; measure our own CM5 4 GB idle, tuned idle (§10.6 levers one by one), burst, boot energy, S4. Run the §10.7 s2idle/deep/halt/rail-cut test matrix. Fit the thermal duty-cycle model on the mock unibody | PM-P1 + PM-P2 pass; §10.8 targets (S2 ≤ 1.6 W, S0 ≤ 2.0 W) met or gap reported; thickness recommendation (§10.3c) handed to mechanical; S3 adopt/reject recorded per the §10.7 rule; §10.3 table updated with measured values |
 | **M5 Reminders + Power + MCU** | 2.5 wk | pm-remind + daily summary, pm-power + skin governor + 9 W cap, STM32U0 (NUCLEO-U083RC) firmware v0 (LPUART link, buttons, battery, JEITA charge_ctrl, NTCs, RTC alarm, IWDG, mic interlock, Stop2), S0–S5 + ship mode | PM-D1, PM-B2, PWR1, JE1–JE2 pass; reminder fires from S4 |
 | **M6 Cloud adapter + privacy hardening** | 1.5 wk | pm-cloud, consent dialog/token, nftables egress, LUKS data, audit log, export/import | Privacy test suite passes; zero egress in local mode (pcap) |
 | **M7 Updates + recovery** | 1.5 wk | RAUC A/B, signed bundles, health check, recovery partition, MCU FW update | Pull-power-during-update test passes 20/20 |
@@ -1706,6 +1775,9 @@ The NUCLEO-U083RC pins below are **proposed** and must be checked against the NU
 | A-57 | No RKNN path for IndicTrans2 (CPU CT2 on Radxa) |
 | A-58 | RKLLM multimodal availability |
 | A-59 | Rockchip secure-boot chain for RAUC/LUKS |
+| A-60 | Exact DT method to disable HDMI on CM5 KMS (overlay parameter) |
+| A-61 | Amp quiescent current (MAX98357A datasheet) |
+| A-62 | Thickness rescale assumes G ∝ area, same h/ε, hot-spot offset unchanged (estimate) |
 | A-22 | (superseded by the locked 20/10/3 %) |
 | A-23 | UART primary, I2C alternate |
 | A-26 | Gauge/charger parts (BQ25895, MAX17055/48 candidates) |
@@ -1731,14 +1803,14 @@ The NUCLEO-U083RC pins below are **proposed** and must be checked against the NU
 
 ### Open questions / pre-launch actions (v0.3.1)
 1. **Pre-launch action (Anand)**: sign a Sarvam DPA. Have it confirm default retention (docs and privacy policy disagree), whether a per-request deletion API exists, and the training opt-out for API customers. Until then, Sarvam terms are marked unconfirmed.
-2. Compute (v0.3.2): M5b measurements and the §10.7 suspend decision gate the 16 h claim. Funding and timing for the rev-2 Radxa CM5 carrier spin and port (§17) still need a PM decision.
+2. Compute (v0.3.3): staying on Pi CM5 is decided. M5b (the §10.8 idle levers plus the §10.7 suspend test) gates the 16 h claim and the final body thickness (22 vs 24–26 mm, §10.3c). The rev-2 Radxa option is parked.
 3. Benchmarks (§6.10) still gate the final ASR/OCR/translation model choices and the "all-day typical use" claim.
 
 ---
 
 ## 17. Rev-2 portability: Radxa CM5 (RK3588S2, RKNN NPU) (v0.3.2)
 
-**Status**: not v1. A rev-2 evaluation runs in parallel on a second carrier spin (research/compute-options.md recommendation). Rationale [Research]:
+**Status**: not v1. **Anand decided on 2026-10-21 to stay on Pi CM5.** This section is kept as a portability guardrail and an option for later. A rev-2 evaluation runs in parallel on a second carrier spin (research/compute-options.md recommendation). Rationale [Research]:
 - idle **1.2 W vs 2.4 W**, which fits about a 2 W budget;
 - a 6 TOPS NPU for LLM/ASR/OCR offload;
 - India module price ≈ ₹7,732 + GST vs ₹15,000.
