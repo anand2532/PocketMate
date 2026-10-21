@@ -1,0 +1,23 @@
+ERC report (2026-10-21T16:44:05+0000, Encoding UTF8)
+
+***** Sheet /
+
+***** Sheet /CM5/
+
+***** Sheet /DisplayCamera/
+
+***** Sheet /Audio/
+[pin_to_pin]: Pins of type Unspecified and Power input are connected
+    ; warning
+    @(751.84 mm, 63.50 mm): Symbol U1 Pin 17 [PAD, Unspecified, Line]
+    @(751.84 mm, 63.50 mm): Symbol #PWR091 Pin 1 [Power input, Line]
+
+***** Sheet /PowerInput/
+
+***** Sheet /Regulators/
+
+***** Sheet /MCU/
+
+***** Sheet /Sensors/
+
+ ** ERC messages: 1  Errors 0  Warnings 1
