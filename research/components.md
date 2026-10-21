@@ -270,3 +270,174 @@ Requirements: 1S LiPo, about 2.6–2.8 Ah, 1–2 C continuous, PCM, pigtail/conn
 **Conclusion:**
 - **No verified IS 16046-2 registration was found for any 50 × 63 × 6.5 mm, 2.7–3 Ah cell.** None of the 2–3 qualifying makers requested could be confirmed.
 - Practical path: ask THOR (production) for a BIS R-number, or make a new cell plus battery registration a contract deliverable. Alternatively, ask Nova or YJ Power to quote a 655060/655063 cell **and** to file a BIS model inclusion under their existing licence (after confirming the licence is still valid).
+
+**PM AGREED (2026-10-21): the BIS IS 16046-2 R-number (cell + battery registration) is a THOR contract deliverable for the production cell.**
+
+## Akyga LP655063: datasheet check (2026-10-21) ⚠ DOES NOT FIT
+Source: AKYGA "Specification Approval Sheet" LP655063, Release 1, 2024-08-29 ([aky2210.pdf](https://www.elektronik.ropla.eu/pdf/stock/aky/aky2210.pdf)), §3.1, §3.2 and §6 drawing.
+- **The 63 mm figure is the bare cell only:** 63 × 50 × 6.5 mm max, "not including tabs" (§3.1).
+- **Assembled pack, including PCM, Kapton tape and the folded tab/PCM end: L 65.5 × W 51 × T 7 mm max** (§3.2, drawing §6). These are maximums measured at 300 gf, "not including battery drawing line" (that is, the wires).
+- **Lead exit:** the red, black and yellow (NTC) AWG24 wires exit **axially from the PCM end**, the short 51 mm edge, at the bottom of the 65.5 mm length. In the drawing they come out of the face of the PCM end, offset toward the centre. Wire length is **40 mm** to a **JST ZHR-3** (1.5 mm pitch) connector. The pocket also needs wire-bend clearance beyond 65.5 mm at that end.
+- **Against the pocket** (50 × 63 × 6.5 nominal + 0.5 mm per side, so 51 × 64 × 7.5 mm max):
+
+| Dimension | Pack | Pocket max | Result |
+|---|---|---|---|
+| L | 65.5 | 64 | ❌ 1.5 mm over, plus wire exit |
+| W | 51 | 51 | 🟨 zero margin |
+| T | 7.0 | 7.5 | ✅ |
+
+- **Implication for the PM decision:** the prototype choice of Akyga LP655063 **does not fit the current pocket**. Options:
+  - (a) lengthen the pocket to at least 66 mm plus about 3–5 mm wire-bend space at the PCM end. That needs an Enclosure check of the 125 mm budget.
+  - (b) prototype with **THOR-655060** instead (vendor states 62 mm with PCM, 6.5 × 50).
+  - (c) a cell with a 60 mm body (for example 655060-class from another vendor) plus a PCM of 3 mm or less.
+- Electrical figures confirmed: 3000 mAh at 0.2 C, 1 C max charge and discharge, 3.0 V cut-off, PCM + 10 kΩ NTC, charge 0–45 °C.
+
+## Battery cell options, rev for the 22 mm body (2026-10-21)
+**Pocket:** 51.5 × 67 × 9.0 mm. **Cell envelope limit, including PCM and tape:** ≤ 8.5 T × 51 W × 65.5 L mm. Wires must exit on the 51 mm edge.
+
+**How LiPol labels sizes (from its own datasheets).** LiPol's drawings dimension the finished pack, with the PCM folded onto the end and Kapton tape applied, to the model number:
+- LP605060: 6.0 ± 0.3 × 50 ± 0.5 × 60 ± 1.0 mm ([datasheet](https://www.lipolbattery.com/LiPo-Battery-Datahseet/LiPo_Battery_LP605060_3.7V_2800mAh.pdf)).
+- LP855055: 8.5 ± 0.3 × 50 ± 0.5 × 55 ± 1.0 mm ([datasheet](https://li-polymer-battery.com/wp-content/uploads/2024/04/LiPo_Battery_LP855055_3.7V_2500mAh.pdf)).
+
+Both drawings show the red/black wires leaving from the PCM end, on the 50 mm edge. The model number therefore gives pack size **including the PCM**, with a worst case of +0.3 T / +0.5 W / +1.0 L. This is unlike Akyga and THOR, which quote the bare cell and add +2 to +2.5 mm for the PCM.
+
+**Standard discharge rating.** LiPol's standard packs are rated **1C continuous**: LP605060 is 2800 mA max continuous, with PCM over-current trip at 3–4.5 A. That falls short of the ≥ 2C / 3–5 A target. **A high-rate cell plus a 5–6 A PCM must be requested** on every option below.
+
+| Option | Pack T × W × L (incl. PCM) | Worst case with tolerance | Capacity / Wh | Discharge | NTC | Connector / wire exit | Price / MOQ | Datasheet | Fits ≤ 8.5 × 51 × 65.5? | BIS |
+|---|---|---|---|---|---|---|---|---|---|---|
+| **LiPol LP755060** ⭐ | 7.5 × 50 × 60 | 7.8 × 50.5 × 61 | **3500 mAh / 12.95 Wh** (catalogue) | Standard is 1C; request 2C + 10k NTC | Option (vendor offers NTC on any pack) | Wires on the 50 mm PCM edge (LiPol standard). Connector to order (e.g. JST PHR-3 / ZHR-3) | MOQ **5 pcs** stocked. 6–7 wk mass production. Price on request | Model-specific datasheet not public. Catalogue listing at [lithium-polymer-battery.net 3000mAh+ table](https://www.lithium-polymer-battery.net/iec-62133-certified-lithium-polymer-battery-lp805060-3-7v-3000mah-11-1wh-with-pcm-wires-jst-achr-02v-s/) | ✅ yes, with 0.7 T / 0.5 W / 4.5 L margin | Needs vendor R-number |
+| **LiPol LP834964** | 8.3 × 49 × 64 | 8.6 × 49.5 × 65 | 3500 mAh / 12.95 Wh (catalogue) | as above | option | as above | as above | catalogue (same table) | 🟨 L and W fit. T is 8.6 worst case (> 8.5, < 9.0 pocket) | Needs vendor R-number |
+| **LiPol LP845053** | 8.4 × 50 × 53 | 8.7 × 50.5 × 54 | 3500 mAh / 12.95 Wh (catalogue) | as above | option | as above | as above | catalogue | 🟨 T is 8.7 worst case. Frees about 11 mm of length | Needs vendor R-number |
+| LiPol LP745060 | 7.4 × 50 × 60 | 7.7 × 50.5 × 61 | 3250 mAh / 12.0 Wh EST (3.7 V × 3.25 Ah) | as above | option | as above | as above | catalogue | ✅ yes | Needs vendor R-number |
+| LiPol LP755066 | 7.5 × 50 × 66 | 7.8 × 50.5 × 67 | 3750 mAh | – | – | – | – | catalogue | ❌ L 66 > 65.5 | – |
+| LiPol LP805060 | 8 × 50 × 60 | 8.3 × 50.5 × 61 | 3000 mAh / 11.1 Wh. IEC 62133 claimed | 1C | **No** (as listed) | JST ACHR-02V-S | MOQ 5 | [listing](https://www.lithium-polymer-battery.net/iec-62133-certified-lithium-polymer-battery-lp805060-3-7v-3000mah-11-1wh-with-pcm-wires-jst-achr-02v-s/) | ✅ fits, but only 3.0 Ah | Needs vendor R-number |
+| EEMB LP805065-PCM-LD | ≤ 8.3 × 50.5 × 66 (H ≤ 67 on the drawing) | – | 2800 mAh | 1C-class | No (2 wires, UL1007 AWG24) | wires | – | [EEMB spec](https://macrogroup.ru/upload/iblock/9cf/v8j1xd6s7wwio8oc79k4npeifqqe2yf7/LP805065.pdf) | ❌ L 66–67 | – |
+| THOR-804864 | 8.0 × 48 × **66** with PCM | – | 3000 mAh / 11.1 Wh | per THOR standard | Optional | PH2.0 / Molex 1.25 | MOQ 10 samples | [THOR](https://thorbattery.com/product/thor-804864/) | ❌ L 66 | Needs vendor R-number |
+| THOR-755068 | 7.5 × 50 × **70** with PCM | – | 3000 mAh | – | Optional | – | MOQ 10 | [THOR](https://thorbattery.com/product/thor-755068/) | ❌ L 70 | – |
+| Akyga LP905060 | 9.0 × 50 × 60 (cell) | – | 3000 mAh. 1C | 1C | – | wires 100 mm | – | [Ropla AKY1785](https://www.elektronik.ropla.eu/en/magazyn/magazyn/?ic=AKY1785) | ❌ T 9.0 | – |
+| THOR-105060 (reference) | 10 × 50 × 62 with PCM | – | 3500 mAh / 12.95 Wh. 1C (3.5 A) standard. "Higher discharge-rate designs available" | 1C | Optional | PH2.0 / Molex 1.25 | MOQ 10 | [THOR](https://thorbattery.com/product/thor-105060/) | ❌ T 10 | – |
+
+**THOR catalogue check.** THOR's model list ([models](https://thorbattery.com/products/lipo-battery-models/)) has no 805060, 855060, 805065 or 855065 entry. Its nearest parts fail on length once the PCM is added. Staying with THOR, the contract vendor, therefore means a **custom 80–85 × 50 × ≤ 63 mm (bare) 2C cell**, which ends at ≤ 65.5 mm with the PCM. THOR's pages state custom size, capacity, PCM, NTC and connector are available. The **BIS R-number remains a THOR contract deliverable**.
+
+**Recommendation**
+1. **Production: custom THOR 2C cell, about 8.0 × 50 × 62 mm bare (≤ 65 mm with PCM).**
+   - Specify ≥ 3.3–3.5 Ah, 2C (≥ 7 A) continuous, a 6 A PCM, a 10 kΩ B3435 NTC, 3 wires exiting the 50 mm PCM edge, and JST ZHR-3/PHR-3.
+   - Ask THOR for a drawing that dimensions the finished pack.
+   - THOR also supplies the BIS R-number under the contract.
+2. **Prototype / second source: LiPol LP755060 (3500 mAh, 7.5 × 50 × 60 mm including PCM).**
+   - Order it with the 2C/high-rate option, a 10k NTC and a JST 3-pin connector.
+   - Request the model-specific datasheet and confirm the drawing before ordering.
+   - It leaves about 1.2 mm of thickness and about 6 mm of length in the pocket for the wire bend.
+   - If LiPol cannot do 2C, keep the 9 W firmware power cap from the Akyga decision.
+3. No catalogue part was verified with both ≥ 2C and a 10k NTC in this envelope. Every option needs vendor confirmation, and the BIS status of every option is **"needs vendor R-number"**.
+
+## Battery correction and re-source (2026-10-21, 22:44 IST) ⚠ supersedes the LP755060 recommendation above
+### 0. LP755060 reconciliation: the "3500 mAh" figure was wrong to rely on
+| Source | Type | Capacity | Discharge (continuous) | Size | URL status |
+|---|---|---|---|---|---|
+| LiPol catalogue table (lithium-polymer-battery.net, 3000mAh+ list) | Sales table, **not a datasheet** | **3500** (table row "LP755060 3500 60 50 7.5"; rated vs typical not given) | not stated | 7.5 × 50 × 60 | 200, [page](https://www.lithium-polymer-battery.net/iec-62133-certified-lithium-polymer-battery-lp805060-3-7v-3000mah-11-1wh-with-pcm-wires-jst-achr-02v-s/) |
+| Akyga LP755060 spec sheet (Release 1, 2025-11-25) | **Datasheet** | **3000 mAh rated @ 0.1C** | **0.3C max (≈ 0.9 A)**; charge 0.3C | Cell 7.5 × 50 × 60.5. **Pack 8 × 51 × 62.5 max** | 200, [aky2747.pdf](https://elektronik.ropla.eu/pdf/stock/aky/aky2747.pdf), [Ropla AKY2747](https://www.elektronik.ropla.eu/en/magazyn/magazyn/?ic=AKY2747) (in stock) |
+| iBorn LP755060-3000 | Vendor spec table | 3000 mAh nominal @ 0.2C | **1C continuous**, 2C peak | **7.5 × 50.5 × 62 max** | 200, [iBorn](https://ibornbattery.com/products/755060-37v-3000mah-lipo-battery-for-monitor) |
+| BZ / UFX 755060 | Vendor spec table | 3000 mAh typical and minimum @ 0.2C | 1C continuous | 7.5 × 50 × 62 max | 200, [BZ](https://www.bzbattery.com/china-most-popular-battery-for-bluetooth-speaker-ufx-755060-3000mah-3-7v-rechargeable-li-polymer-battery.html) |
+| FP Battery 755060 | Vendor page | ≥ 3000 mAh @ 0.2C | "1C (not continuous)" | – | 200, [FP](https://www.fpbattery.com/product/3-7v-3000mah-755060-lithium-polymer-battery/) |
+| Crazell 755060 | Vendor page | 3000 mAh | 1C max | 7.0 × 50 × 60 | 200, [Crazell](https://www.crazell.com/product/755060-lipo-battery/) |
+
+**Correction.**
+- Every datasheet or vendor spec says a **755060 is a 3.0 Ah cell**. The 3500 mAh came from one LiPol sales-table row with no datasheet behind it, and it should not have been reported as the cell's capacity.
+- I also applied LiPol's "model number = pack incl. PCM" rule to the LiPol catalogue rows. That rule is only shown on two LiPol datasheets (LP605060, LP855055) and is unverified for the others.
+- The Akyga version is rated 0.3C and its pack is 8 × 51 × 62.5 mm, so it is **not usable**.
+- **The LiPol LP755060 / LP834964 / LP845053 / LP745060 "3500 mAh" rows above are withdrawn.**
+
+### 1. Prototype: 755060-class (≤ 7.8 × 50.5 × 61 incl. PCM), in stock, ≥ 1C
+| Part | Datasheet capacity / discharge | Size | NTC | Price / stock | Verdict |
+|---|---|---|---|---|---|
+| **PKCELL LP785060 (2023 rev, AC307046)** | **2500 mAh typ / 2375 min. Max continuous 2500 mA (1C)**. PCM over-current 4–9 A ([datasheet](https://www.batterypkcell.com/uploads/LP785060-2500mAh-3.7V-AC307046-20230717.pdf), 200) | ≈ 60.5 × 50 × 7.8 (BerryBase listing). Datasheet appendix drawing not text-extractable, so **VERIFY whether it includes the PCM** | **No** (none in datasheet) | Welectron **€7.70** incl. VAT, "Orderable, 6–7 weeks" ([Welectron](https://www.welectron.com/PKCell-LP785060-LiPo-2500-mAh-PH-Connector), 200). BerryBase: **sold out** ([BerryBase](https://www.berrybase.de/en/lp-785060-lithium-polymer-lipo-battery-3.7v-2500mah-with-2-pin-jst-connector), 200). Tinytronics listing 403 from the box | ✅ best electrical match. ❌ not in stock today |
+| Adafruit #328 (PKCELL LP785060, 2019 sheet) | 2500 typ / 2375 min. **Max continuous 1500 mA (0.6C)**. PCM over-current 2–5 A ([datasheet](https://cdn-shop.adafruit.com/product-files/328/LP785060+2500mAh+3.7V+20190510.pdf), 200) | 50 × 60 × 7.3 | **No** (Adafruit: "do not have thermistors") | **$14.95, in stock** ([Adafruit](https://www.adafruit.com/product/328), 200) | ❌ below 1C (bench use only) |
+| iBorn LP755060-3000 | 3000 mAh @ 0.2C, **1C continuous**, 2C peak | 7.5 × 50.5 × **62** max | not listed (customisable) | Price not published. Sample lead time 14–15 days | 🟨 1 mm over the 61 limit, but fits the 67 mm pocket. Not stock |
+| BZ/UFX 755060 | 3000 mAh, 1C continuous | 7.5 × 50 × 62 max | no | "$3.60, In stock". FOB $1.2–1.5/Ah, MOQ 1000 Ah | 🟨 62 mm. Factory "in stock" claim, not a retail shelf |
+| Akyga LP755060 | 3000 mAh, **0.3C** | 8 × 51 × 62.5 | no | in stock at Ropla | ❌ |
+| **Akyga LP655063** (fallback) | 3000 mAh, **1C**, PCM + **10k NTC** ([aky2210.pdf](https://www.elektronik.ropla.eu/pdf/stock/aky/aky2210.pdf)) | **7 × 51 × 65.5** max pack | **Yes, 10k** | Ropla: **2 pcs on stock** ([AKY2210](https://www.elektronik.ropla.eu/en/magazyn/magazyn/?ic=AKY2210)) | ✅ fits the new 51.5 × 67 × 9 pocket (not the 61 mm class) |
+| Robu.in (India) | 1S range tops out at 2200 mAh (RC packs) ([Robu](https://robu.in/product-category/1-cell-lipo-3-7v-4-2v/)) | – | – | – | ❌ no 3 Ah 1C pouch found |
+
+**Prototype recommendation.**
+- Use the **Akyga LP655063**: in stock, 1C, 10k NTC, and it fits the 22 mm-body pocket. Keep the **9 W cap** (1C ≈ 3 A).
+- If the 61 mm class is mandatory, order the **PKCELL LP785060 (2023 rev)** from Welectron (6–7 weeks) and add an external NTC on the cell face.
+
+### 2. Production: about 3.5 Ah, ≤ 8.5 × 51 × 65.5 incl. PCM, 2C continuous
+**Catalogue search result: none found.**
+
+| Maker | Closest catalogue part | Why it fails | Source (status) |
+|---|---|---|---|
+| Grepow 1C list | **GRP8652065**: 3650 mAh, 3.65 A (1C), 8.2 × 52 × 66 | 1C only. W 52 > 51. L 66 > 65.5 | [Grepow 1C](https://www.grepow.com/lipo-battery/1c-discharge-rate-rechargeable-battery-cell.html) (search index OK; box curl timed out) |
+| Grepow 3C list | No part with 50 mm width and ≤ 66 mm length. All 3C parts of 3 Ah or more are 85–98 mm long | size | [Grepow 3C](https://www.grepow.com/high-discharge-rate-battery/3c-high-discharge-lipo-cell.html) (522 from box; indexed) |
+| Grepow 5C / 30C | All long and narrow (e.g. 3500 mAh 5C = 5.3 × 41.5 × 126.5) | size | [5C](https://www.grepow.com/high-discharge-rate-battery/5c-high-discharge-lipo-cell.html) (indexed) |
+| EEMB LiPo catalogue | No 50 × 60–65 entry (closest LP505464, LP604765) | size | [EEMB](https://www.eemb.com/products-55) (200) |
+| BZ 756060-2C | 3500 mAh 2C, but 60 mm wide | W | [BZ](https://www.bzbattery.com/chinese-lipo-cell-factory-professional-customize-bz-756060-2c-3-7v-3500mah-battery-for-3c-digital-product.html) |
+| THOR | No 80–85 × 50 × 60–65 model (see above) | – | THOR models page |
+| Great Power, AMP/Ufine | No public model table found in this pass | – | – |
+
+**Realistic capacity (EST).** Grepow's 1C GRP8652065 reaches 3650 mAh in 8.2 × 52 × 66 mm. Trimming to 50 × ~62 mm bare and adding a 2C (stacked, lower density) design puts a realistic custom target at **about 3.0–3.3 Ah**. 3.5 Ah at 2C in this envelope is unlikely without going to 9 mm. This is an estimate, not a vendor figure.
+
+**Production recommendation.** Issue a custom-cell RFQ with this spec:
+- ≤ 8.5 × 50.5 × 65.5 mm including PCM and tape
+- ≥ 3.2 Ah rated
+- 2C (≥ 6.5 A) continuous
+- 6–8 A PCM
+- 10k B3435 NTC
+- 3 wires exiting the 50 mm edge, JST ZHR-3
+
+Send it to:
+- **Grepow**, stacked high-rate. MOQ not published.
+- **THOR** (MOQ 10 samples; production quoted per project). The BIS R-number is a THOR deliverable.
+- **iBorn** (sample lead time 14–15 days, bulk 30–35 days).
+
+BIS status of every option: **needs vendor R-number**.
+
+## PM decision, battery (2026-10-21, 22:50 IST)
+- **Prototype: Akyga LP655063.** 3000 mAh, 1C, PCM + 10k NTC, pack 7 × 51 × 65.5 mm max. Fits the 51.5 × 67 × 9 pocket. **9 W firmware cap.**
+- **Production: custom cell ≥ 3.2 Ah, ≤ 8.5 mm (accepted)**, 2C. RFQ in `research/battery-rfq.md`.
+- **Termination change:** Molex Pico-Lock 504051-0301 + terminal 504052-0098 (AWG24–28).
+  - Per Molex PS-504051-001, a 3-circuit housing at AWG24 is rated **3.0 A/pin**. That is **under-rated for 6.5 A continuous**.
+  - Options (paired-pin 5-pos, 2.00 mm Pico-Lock 205341/205342, or solder power) are flagged for a J7 decision.
+
+## J7 battery connector, PM decision (2026-10-21, 22:52 IST): Molex Pico-Lock 2.00 mm, 5-pos
+- **Housing:** 205341-0205 (5-ckt receptacle). **Terminal:** 205342-5028 (AWG 20–22). **Carrier header:** 205338-0005 (right-angle SMT, mated height 2.60 mm). **No vertical header** in the 205338 series (Molex series chart).
+- **Pinout (schematic master, Rev C):** 1 VBAT, 2 VBAT, 3 GND, 4 GND, 5 NTC. AWG20.
+- **Rating:** 5.0 A per pin at AWG20 in a 5-ckt housing (Molex 987650-9061, ≤ 30 °C rise). 2 pins per rail gives **about 10 A, which is ≥ 6.5 A ✅**.
+- **Size:** housing about 14.55 × 9.1 × 2.54 mm (Arrow), which fits the 50 mm edge and is far below the 9 mm pocket.
+- ⚠ **Fit issue:** a pack of up to 65.5 mm in the 67 mm pocket leaves ≤ 1.5 mm for an AWG20 bend. Options: a pack ≤ 61–62 mm, a straight exit through a wall slot, or a pre-formed flat fold. See battery-rfq.md §4c.
+- **Prototype Akyga LP655063 must be re-terminated.**
+  - Its stock leads are AWG24 UL1571, 40 mm, to a JST ZHR-3 (aky2210.pdf). The ZH contact is rated well below the 2.0 A system need (JST ZH is a 1 A-class contact; VERIFY on JST's datasheet).
+  - Per Molex, AWG24 in a 2.00 mm Pico-Lock is only 3.5 A per pin (5-ckt).
+  - **Recommendation:** replace the leads with 4 × AWG20 (2 + 2) plus the NTC wire, crimped into 205341-0205 / 205342-5028, soldered to the PCM pads by someone qualified for Li-po rework.
+  - **Alternative:** keep the AWG24 leads paired 2 + 2 (3.5 A per pin, about 7 A per rail) **and keep the 9 W firmware cap**. Note that the cell itself is only rated 1C (3 A), so **cap the system at ≤ 3 A from the battery regardless of wiring**.
+  - The LP655063 is 65.5 mm long, so it has the same pocket-length issue for wire exit.
+
+## Battery Rev C decisions (2026-10-21, 22:54 IST)
+- **Production pack:** ≤ 8.5 × 50.5 × **62.0 mm incl. PCM and tape**, leaving ≥ 5 mm of bend room in the 67 mm pocket. **≥ 3.0 Ah rated (target ≥ 3.1 Ah) at 0.2C**, 2C. Supersedes ≥ 3.2 Ah / 65.5 mm.
+- **J7 pinout (schematic is master):** 1 VBAT, 2 VBAT, 3 GND, 4 GND, 5 NTC. Supersedes the earlier 1V/2V/3NTC/4G/5G order.
+
+### Akyga LP655063 (prototype): datasheet facts (aky2210.pdf, Release 1, 2024-08-29)
+| Item | Datasheet says |
+|---|---|
+| NTC resistance | **"PCM+NTC 10kR"** (§3.1 item 16). That is the only NTC statement |
+| NTC beta (B25/50 or B25/85) | **Not stated.** Neither 3435 nor 3950 appears, and no temperature pair is given |
+| NTC tolerance | **Not stated** |
+| NTC wire colour | **Yellow** (drawing §6.1: "wire yellow", with red (+) and black (−)) |
+| Bare cell | **L 63 × W 50 × T 6.5 mm, all "Max"**, at 300 gf, 25 °C, not including tabs. **No ± tolerances given** |
+| Assembled with PCM | **L 65.5 × W 51 × T 7 mm, all "Max"**, not including lead wires. **No ± tolerances** |
+| Leads | **40 mm** (drawing, no tolerance). AWG24 UL1571 (AWG22–26 option). JST ZHR-3, 1.5 mm, 3 pins |
+
+**Actions:**
+- Ask Akyga/Ropla for the NTC part number and its B value, or measure R at 0/25/45 °C on a sample.
+- Re-terminate the AWG24 leads (see above).
+
+### BQ25895 TS divider (TI BQ25895 datasheet Rev C, §8.2.7.5.1, Eq. 2, Fig. 8-6)
+- **TI's design point for a 103AT (10k, B25/85 = 3435) NTC, 0–45 °C window:** RTH_COLD = 27.28 kΩ, RTH_HOT = 4.91 kΩ, giving **RT1 = 5.21 kΩ (REGN→TS) and RT2 = 29.87 kΩ (TS→GND)**.
+- **Thresholds used** (datasheet typical): VT1 = V(LTF) = 73.25% REGN, VT5 = V(TCO) = 44.75% REGN.
+- I re-ran Eq. 2 with these values and got 5.206 kΩ / 29.86 kΩ, matching TI's figures.
+- **If the cell's NTC were B = 3950 instead (EST, simple beta model, same divider):** the window shifts to about **4.0 °C to 41.9 °C** (vs about 1.1 °C to 44.6 °C with B = 3435 in the same model). Charging would stop early in an Indian summer.
+- **So:** confirm B before freezing RT1/RT2.
+  - Production RFQ specifies 10k ±1%, B25/85 = 3435 ±1% (103AT-equivalent).
+  - For the Akyga prototype, measure the NTC first. If it is B3950, recompute RT1/RT2 with Eq. 2 using RTH(0 °C) ≈ 33.6 kΩ and RTH(45 °C) ≈ 4.35 kΩ (beta-model EST), or use the actual R-T table.
+- **The pinout change does not affect this:** the NTC returns to pack − (GND, pins 3–4), and TS reads pin 5.
