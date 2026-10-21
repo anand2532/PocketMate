@@ -5,7 +5,7 @@
 | Option | Price found | Source |
 |---|---|---|
 | CM5104032 (4GB/32GB eMMC/Wi-Fi), **India** | **₹15,000** (in stock) | [Silverline Electronics](https://www.silverlineelectronics.in/collections/raspberry-pi-compute-module-5) |
-| CM5104032, US/EU | $129 (DFRobot). €148.20 at 250+ (Welectron, incl. VAT) | see components.md |
+| CM5104032, US/EU | **$140 official list** ([RPi product brief RP-008181-DS-11, Sept 2026](https://pip-assets.raspberrypi.com/categories/944-raspberry-pi-compute-module-5/documents/RP-008181-DS-11-cm5-product-brief.pdf)). Resellers: $129 DFRobot, $134.99 Central Computer ([listing](https://www.centralcomputer.com/raspberry-pi-cm5104032-compute-module-cm5-4gb-ram-32gb-emmc-wireless.html)), €152 incl. VAT / €148.20 at 250+ ([Welectron](https://www.welectron.com/Raspberry-Pi-Compute-Module-CM5104032-32GB-4-GB-RAM-WiFi)) | see §0 price note |
 | CM5102032 (2GB/32GB/Wi-Fi), India | ₹9,690 | Silverline |
 | CM5102000 (2GB Lite/Wi-Fi), India | ₹7,145 | Silverline |
 | CM5104016 (4GB/16GB/Wi-Fi) | listed at Silverline, price not captured | Silverline |
@@ -28,9 +28,11 @@
 | Gauge | BQ27441 (DigiKey 0) | **MAX17055** (LCSC 5,890, $0.99 at 1k) or **BQ27220** (LCSC 23,096, $0.34 at 1k) | same section |
 
 ## 3. Volume BOM (~1k)
+**CM5 price note (resolved 2026-10-21).** The $70 figure was the Nov 2024 launch-era price; launch list ran $45 (no wireless/2GB/Lite) to $95 (wireless/8GB/64GB), per RPi staff on the [launch post](https://www.raspberrypi.com/news/compute-module-5-on-sale-now/). The current official brief (Sept 2026) lists **CM5104032 $140, CM5104016 $130, CM5104000 (Lite) $105, CM5004032 (no wireless) $135, CM5102032 $107.50, CM5102000 $72.50**. This BOM uses the current list.
+
 | Item | ~1k USD | Basis |
 |---|---|---|
-| CM5104032 | **129.00** (US list). India: ₹15,000 ≈ $170 EST FX, qty 1 | no published volume price, quote via path above |
+| CM5104032 | **140.00** (official list, Sept 2026 brief). India: ₹15,000 ≈ $170 EST FX, qty 1 | no published volume price, quote via path above |
 | 2× Amphenol 10164227-1001A1RLF | 1.90 | Findchips 5k |
 | Display, Ronbo MPI4303 | 17.50 | 1k price |
 | Camera, OV5647 AF | 3.00 | top of $2.5–3 range |
@@ -48,12 +50,12 @@
 | PCB + assembly | **EST 12** | estimate. JLCPCB 4L $91/m² fab rate ([JLCPCB](https://jlcpcb.com/v)) |
 | Enclosure (injection moulded, tooling not amortized) | **EST 9** | estimate |
 | Thermal pad + spreader | **EST 2** | estimate |
-| **Total, excluding battery and LRA** | **≈ $197** | |
+| **Total, excluding battery and LRA** | **≈ $208** (was $197 at $129) | |
 
-**Against the $120–150 target: missed by about $47–77.** The CM5 alone ($129) is 86–108% of the target. Everything else costs about $68.
-- **Using CM5102032 (2GB/32GB/Wi-Fi, ₹9,690 ≈ $110 EST FX, qty 1 India price)** would cut about $19. Total ≈ $178. But 2 GB rules out gemma-1b plus STT plus UI headroom (gemma3:1b alone is about 1.4 GB).
+**Against the $120–150 target: missed by about $58–88.** The CM5 alone ($140) is 93–117% of the target. Everything else costs about $68.
+- **Using CM5102032 (2GB/32GB/Wi-Fi, $107.50 official list; ₹9,690 India)** would cut $32.50. Total ≈ $175. CM5104016 (4GB/16GB/Wi-Fi, $130) saves $10 if 16 GB eMMC is enough. But 2 GB rules out gemma-1b plus STT plus UI headroom (gemma3:1b alone is about 1.4 GB).
 - **Hitting about $150 needs a CM5 4GB at about $82 or less.** Only a Raspberry Pi OEM quote can confirm whether that is possible. Otherwise move to $150–200 and price at the top of the ₹30k band.
-- **Retail check:** ₹30,000 including 18% GST is ₹25,424 ex-GST ≈ $289 EST FX. A $197 BOM is **68%** of net retail, which leaves no channel or warranty margin. A typical BOM of about 30–40% of net retail would be $87–116.
+- **Retail check:** ₹30,000 including 18% GST is ₹25,424 ex-GST ≈ $289 EST FX. A $208 BOM is **72%** of net retail, which leaves no channel or warranty margin. A typical BOM of about 30–40% of net retail would be $87–116.
 
 ## 4. India import duty + GST (estimates, confirm with a customs broker or CA)
 | Goods | HS | BCD | SWS | IGST | Source |
@@ -80,7 +82,7 @@
 | **Import finished units** | **PM market input: 40–50% total duty on finished devices.** If the device can be classified as a portable ADP machine (HS 8471 30 10), the published rate is **0% BCD + 18% IGST** ([TariffCheck](https://www.tariffcheck.in/hs/84713010)). Classifying it as an AI/voice device under 8517/8543 is where higher BCD would apply. **Conflict between the two figures: get a classification ruling (CAAR) before deciding** | PM / TariffCheck |
 | **Local assembly in India** | Imported ICs: 0% BCD + 18% IGST, creditable ([Cybex](https://www.cybex.in/indian-custom-duty/electronic-integrated-circuits-microassemblies-hs-code-8542)). Li-ion cell: 15–20% BCD + SWS ([TradePrep](https://tradeprep.in/hs/85076000)) | §4 |
 
-**Worked example** on the §3 BOM of ≈ $197, 18% IGST creditable in both cases. Factory and EMS costs are not included:
+**Worked example** on the §3 BOM of ≈ $197 (computed at the old $129 CM5; at the $140 list the BOM is ≈ $208 and duty figures scale by about +6%), 18% IGST creditable in both cases. Factory and EMS costs are not included:
 - Import finished at 40%: about +$79 per unit. At 50%: about +$99. Duty is on the CIF value of the finished unit, so real-world it is higher than this.
 - Local assembly: about 1–3% ≈ +$2–6 (EST), plus Indian EMS labour (not priced).
 
@@ -144,6 +146,6 @@
 | MAX17048 instead of MAX17055 | ≈ $0.99 → (MAX17048 has no 1k LCSC price; DigiKey is $1.79 at 10k, so no saving) | Loses mAh and time-to-empty readings | – |
 | Cloud-first models | $0 | Needs network; weaker offline/privacy story | – |
 
-- **Lower-SKU BOM (EST):** §3 ≈ $197 − CM5 saving (₹5,310–7,855 ≈ $60–89 EST FX) − haptics ≈ **$107–137**, battery excluded.
+- **Lower-SKU BOM (EST):** §3 ≈ $208 − CM5 saving (₹5,310–7,855 ≈ $60–89 EST FX) − haptics ≈ **$118–148**, battery excluded.
 - At ₹17,999–24,999 including GST, net retail is ₹15,253–21,186, about $173–241 (EST FX). That puts BOM at roughly 57–62% of net retail at either end of the range: still thin, but closer.
 - **Recommendation:** use the 2GB/32GB eMMC module for the lower SKU. Market it as "cloud-assisted", with offline notes, search, OCR and tiny-model voice. Keep the 4GB SKU at ₹29,999.
