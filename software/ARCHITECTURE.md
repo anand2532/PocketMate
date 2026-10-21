@@ -1,6 +1,6 @@
-# PocketMate — Software Architecture v0.3.11
+# PocketMate — Software Architecture v0.3.12
 
-Status: final v0.3.11 (baseline) · Owner: software · Source of truth for requirements: `../docs/PRD.md`, plus PM decisions and research (`../research/market.md` §6–7, `../research/bom.md` §7–8)
+Status: final v0.3.12 (baseline) · Owner: software · Source of truth for requirements: `../docs/PRD.md`, plus PM decisions and research (`../research/market.md` §6–7, `../research/bom.md` §7–8)
 Tag conventions:
 - **[PRD]**: stated in the PRD.
 - **[PM 2026-10-21]**: a PM decision or requirement dated 2026-10-21.
@@ -1213,7 +1213,7 @@ Transitions:
 |---|---|---|
 | Thickness | 7.0 mm max → 2.0 mm free → **1.5 mm foam spacer** (compresses to ~1.0 mm), leaving ≥ 0.5 mm for swelling. Replaces the 2.0 mm spacer from v0.3.8, which assumed a 6.5 mm pack | 8.5 mm max → 0.5 mm swelling allowance (≤ 9.0 mm absolute per RFQ). **No spacer** |
 | Width | 51 in 51.5 → fits, 0.25 mm per side | 50.5 in 51.5 → fits |
-| Length | 65.5 in 67 → **only ~1.5 mm** left for the lead exit/bend. The leads must exit along the edge and fold flat, or be routed over the cell end [A-79: Enclosure to confirm; prototype only] | 62.0 in 67 → ≥ 5 mm reserved for the lead bend ✅ |
+| Length | 65.5 in 67 → fits: the 1.5 mm is only the pocket wall; below Z 11.5 the floor opens to the inner wall, giving ~3.5 mm of real end space. Leads exit at Y 32.0, U-turn (R 2.15, 0.55 mm to the wall) and run back over the cell face under Kapton into J7; re-terminated with staggered lengths 24.7/27.0/29.4/31.8/34.2 mm; no notch needed (Enclosure v4_22b, keepouts_v4_22b.md) [A-79 resolved] | 62.0 in 67 → ≥ 5 mm reserved for the lead bend ✅ |
 
 - **Usable energy** (×0.83: 0.97 DoD × 0.90 converters × 0.95 ageing) [A-42]: prototype 3000 mAh ≈ **9.2 Wh**; production 3100 mAh target ≈ **9.5 Wh** (≥ 9.2 Wh at the 3000 mAh minimum).
 
@@ -1983,7 +1983,7 @@ The NUCLEO-U031R8 pins below are **proposed** and must be checked against the NU
 | A-76 | Prototype LP655063 NTC β unknown: firmware uses configurable thresholds and a worst-of-two-β conversion until the M5b measurement |
 | A-77 | Whether SW5 pole 2 still grounds the mic data line in netlist v3.2 |
 | A-78 | **Resolved [Tech Research 2026-10-21, v0.3.11]**: no conflict. Prototype = LP655063 (1C, ≤ 65.5 × 51 × 7.0 mm); production = RFQ Rev C (≥ 2C, ≤ 8.5 × 50.5 × 62 mm, ≥ 3000/3100 mAh, B3435) |
-| A-79 | Prototype LP655063 length (65.5 mm) leaves ~1.5 mm in the 67 mm pocket for the lead exit; Enclosure to confirm routing (prototype only) |
+| A-79 | **Resolved (Enclosure v4_22b):** prototype LP655063 fits with ~3.5 mm real end space and a lead U-turn over the cell face; no notch. |
 | A-22 | (superseded by the locked 20/10/3 %) |
 | A-23 | Closed [Schematic netlist v3]: UART0↔USART2 only |
 | A-26 | Gauge/charger parts (BQ25895, MAX17055/48 candidates) |
