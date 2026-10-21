@@ -9,5 +9,6 @@ See [docs/PRD.md](docs/PRD.md) for the full product brief.
 - `hardware/kicad/` – schematics and carrier PCB (KiCad)
 - `mechanical/freecad/` – enclosure CAD (FreeCAD)
 - `software/` – Linux services, Qt/QML UI, firmware
+- `design/` – frozen UX spec, 68 screens, gen.py
 - `docs/` – PRD and project documentation
 - `research/` – notes, datasheets, experiments
