@@ -1,0 +1,369 @@
+{
+ "GND": [
+  "Audio",
+  "CM5",
+  "DisplayCamera",
+  "MCU",
+  "PowerInput",
+  "Regulators",
+  "Sensors"
+ ],
+ "I2S_DOUT": [
+  "Audio",
+  "CM5"
+ ],
+ "I2S_LRCLK": [
+  "Audio",
+  "CM5"
+ ],
+ "I2S_DIN": [
+  "Audio",
+  "CM5"
+ ],
+ "DSI_I2C_SCL": [
+  "CM5",
+  "DisplayCamera"
+ ],
+ "DSI_I2C_SDA": [
+  "CM5",
+  "DisplayCamera"
+ ],
+ "HAPTIC_EN": [
+  "CM5",
+  "Sensors"
+ ],
+ "CM5_ALIVE": [
+  "CM5",
+  "MCU"
+ ],
+ "AMP_SD_MODE": [
+  "Audio",
+  "CM5"
+ ],
+ "I2S_BCLK": [
+  "Audio",
+  "CM5"
+ ],
+ "MIC_MUTE_STATUS": [
+  "Audio",
+  "CM5",
+  "MCU"
+ ],
+ "UART0_RX": [
+  "CM5",
+  "MCU"
+ ],
+ "MCU_IRQ_N": [
+  "CM5",
+  "MCU"
+ ],
+ "UART0_TX": [
+  "CM5",
+  "MCU"
+ ],
+ "I2C1_SCL": [
+  "CM5",
+  "Sensors"
+ ],
+ "I2C1_SDA": [
+  "CM5",
+  "Sensors"
+ ],
+ "+5V_CM5": [
+  "Audio",
+  "CM5",
+  "Regulators"
+ ],
+ "CM5_3V3": [
+  "Audio",
+  "CM5",
+  "DisplayCamera",
+  "MCU",
+  "Sensors"
+ ],
+ "CAM_I2C_SCL": [
+  "CM5",
+  "DisplayCamera"
+ ],
+ "CAM_I2C_SDA": [
+  "CM5",
+  "DisplayCamera"
+ ],
+ "CM5_1V8": [
+  "CM5"
+ ],
+ "CM5_PWR_BUTTON": [
+  "CM5",
+  "MCU"
+ ],
+ "CM5_NRPIBOOT": [
+  "CM5"
+ ],
+ "CAM_GPIO0": [
+  "CM5",
+  "DisplayCamera"
+ ],
+ "CM5_PMIC_EN": [
+  "CM5",
+  "MCU"
+ ],
+ "CAM_GPIO1": [
+  "CM5",
+  "DisplayCamera"
+ ],
+ "USB_DM": [
+  "CM5",
+  "PowerInput"
+ ],
+ "USB_DP": [
+  "CM5",
+  "PowerInput"
+ ],
+ "CSI_D0_N": [
+  "CM5",
+  "DisplayCamera"
+ ],
+ "CSI_D0_P": [
+  "CM5",
+  "DisplayCamera"
+ ],
+ "CSI_D1_N": [
+  "CM5",
+  "DisplayCamera"
+ ],
+ "CSI_D1_P": [
+  "CM5",
+  "DisplayCamera"
+ ],
+ "CSI_C_N": [
+  "CM5",
+  "DisplayCamera"
+ ],
+ "CSI_C_P": [
+  "CM5",
+  "DisplayCamera"
+ ],
+ "DSI_D0_N": [
+  "CM5",
+  "DisplayCamera"
+ ],
+ "DSI_D0_P": [
+  "CM5",
+  "DisplayCamera"
+ ],
+ "DSI_D1_N": [
+  "CM5",
+  "DisplayCamera"
+ ],
+ "DSI_D1_P": [
+  "CM5",
+  "DisplayCamera"
+ ],
+ "DSI_C_N": [
+  "CM5",
+  "DisplayCamera"
+ ],
+ "DSI_C_P": [
+  "CM5",
+  "DisplayCamera"
+ ],
+ "MIC_VDD": [
+  "Audio"
+ ],
+ "MIC_SD_L": [
+  "Audio"
+ ],
+ "MIC_SD_R": [
+  "Audio"
+ ],
+ "MIC_SD": [
+  "Audio"
+ ],
+ "MUTE_LED_PWR": [
+  "Audio"
+ ],
+ "MUTE_LED_A": [
+  "Audio"
+ ],
+ "SPK_P": [
+  "Audio"
+ ],
+ "SPK_N": [
+  "Audio"
+ ],
+ "VBUS_C": [
+  "PowerInput"
+ ],
+ "USB_CC1": [
+  "PowerInput"
+ ],
+ "USB_CC2": [
+  "PowerInput"
+ ],
+ "+3V3_AON": [
+  "MCU",
+  "PowerInput",
+  "Regulators"
+ ],
+ "PMIC_SCL": [
+  "MCU",
+  "PowerInput"
+ ],
+ "PMIC_SDA": [
+  "MCU",
+  "PowerInput"
+ ],
+ "PD_ALERT_N": [
+  "MCU",
+  "PowerInput"
+ ],
+ "PD_VREG_1V2": [
+  "PowerInput"
+ ],
+ "PD_VREG_2V7": [
+  "PowerInput"
+ ],
+ "VBUS_EN_SNK": [
+  "PowerInput"
+ ],
+ "PD_DISCH": [
+  "PowerInput"
+ ],
+ "VBUS_CHG": [
+  "PowerInput"
+ ],
+ "CHG_ILIM": [
+  "PowerInput"
+ ],
+ "CHG_STAT": [
+  "PowerInput"
+ ],
+ "CHG_INT_N": [
+  "MCU",
+  "PowerInput"
+ ],
+ "BQ_QON_N": [
+  "PowerInput"
+ ],
+ "CHG_PMID": [
+  "PowerInput"
+ ],
+ "CHG_SW": [
+  "PowerInput"
+ ],
+ "CHG_BTST": [
+  "PowerInput"
+ ],
+ "VSYS": [
+  "PowerInput",
+  "Regulators",
+  "Sensors"
+ ],
+ "VBAT": [
+  "PowerInput",
+  "Regulators"
+ ],
+ "CHG_REGN": [
+  "PowerInput"
+ ],
+ "CHG_TS": [
+  "PowerInput"
+ ],
+ "CHG_STAT_LED_A": [
+  "PowerInput"
+ ],
+ "BTN_PWR_N": [
+  "MCU",
+  "PowerInput"
+ ],
+ "BAT_N": [
+  "PowerInput"
+ ],
+ "GAUGE_REG": [
+  "PowerInput"
+ ],
+ "GAUGE_ALRT_N": [
+  "MCU",
+  "PowerInput"
+ ],
+ "BOOST_EN": [
+  "MCU",
+  "Regulators"
+ ],
+ "BST_SS": [
+  "Regulators"
+ ],
+ "BST_FSW": [
+  "Regulators"
+ ],
+ "BST_ILIM": [
+  "Regulators"
+ ],
+ "BST_VCC": [
+  "Regulators"
+ ],
+ "BST_SW": [
+  "Regulators"
+ ],
+ "BST_BOOT": [
+  "Regulators"
+ ],
+ "+5V_BOOST": [
+  "Regulators"
+ ],
+ "BST_FB": [
+  "Regulators"
+ ],
+ "BST_COMP": [
+  "Regulators"
+ ],
+ "BST_COMP_RC": [
+  "Regulators"
+ ],
+ "LSW_GATE": [
+  "Regulators"
+ ],
+ "CM5_5V_EN": [
+  "MCU",
+  "Regulators"
+ ],
+ "MCU_NRST": [
+  "MCU"
+ ],
+ "SWDIO": [
+  "MCU"
+ ],
+ "SWCLK": [
+  "MCU"
+ ],
+ "BTN_ACTION_N": [
+  "MCU"
+ ],
+ "BTN_VOLUP_N": [
+  "MCU"
+ ],
+ "BTN_VOLDN_N": [
+  "MCU"
+ ],
+ "MCU_TX": [
+  "MCU"
+ ],
+ "MCU_RX": [
+  "MCU"
+ ],
+ "CM5_PWRBTN_DRV": [
+  "MCU"
+ ],
+ "CM5_PMIC_OFF_DRV": [
+  "MCU"
+ ],
+ "LRA_P": [
+  "Sensors"
+ ],
+ "LRA_N": [
+  "Sensors"
+ ],
+ "HAPTIC_REG": [
+  "Sensors"
+ ]
+}
