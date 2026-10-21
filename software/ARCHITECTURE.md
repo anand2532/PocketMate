@@ -1,6 +1,6 @@
 # PocketMate — Software Architecture v0.3.3
 
-Status: draft for review · Owner: software · Source of truth for requirements: `../PRD.md`, plus PM decisions and research (`../research/market.md` §6–7, `../research/bom.md` §7–8)
+Status: final v0.3.3 (baseline) · Owner: software · Source of truth for requirements: `../docs/PRD.md`, plus PM decisions and research (`../research/market.md` §6–7, `../research/bom.md` §7–8)
 Tag conventions:
 - **[PRD]**: stated in the PRD.
 - **[PM 2026-10-21]**: a PM decision or requirement dated 2026-10-21.
