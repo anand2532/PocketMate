@@ -6,7 +6,14 @@
   "MCU",
   "PowerInput",
   "Regulators",
-  "Sensors"
+  "Sensors",
+  "SideFlex"
+ ],
+ "FAN_TACH": [
+  "CM5"
+ ],
+ "FAN_PWM": [
+  "CM5"
  ],
  "I2S_DOUT": [
   "Audio",
@@ -14,7 +21,9 @@
  ],
  "I2S_LRCLK": [
   "Audio",
-  "CM5"
+  "CM5",
+  "MCU",
+  "SideFlex"
  ],
  "I2S_DIN": [
   "Audio",
@@ -42,9 +51,11 @@
  ],
  "I2S_BCLK": [
   "Audio",
-  "CM5"
+  "CM5",
+  "MCU",
+  "SideFlex"
  ],
- "MIC_MUTE_STATUS": [
+ "MUTE_STATUS_IO": [
   "Audio",
   "CM5",
   "MCU"
@@ -79,6 +90,7 @@
   "CM5",
   "DisplayCamera",
   "MCU",
+  "Regulators",
   "Sensors"
  ],
  "CAM_I2C_SCL": [
@@ -143,6 +155,22 @@
   "CM5",
   "DisplayCamera"
  ],
+ "CSI_D2_N": [
+  "CM5",
+  "DisplayCamera"
+ ],
+ "CSI_D2_P": [
+  "CM5",
+  "DisplayCamera"
+ ],
+ "CSI_D3_N": [
+  "CM5",
+  "DisplayCamera"
+ ],
+ "CSI_D3_P": [
+  "CM5",
+  "DisplayCamera"
+ ],
  "DSI_D0_N": [
   "CM5",
   "DisplayCamera"
@@ -167,23 +195,40 @@
   "CM5",
   "DisplayCamera"
  ],
- "MIC_VDD": [
-  "Audio"
+ "DSI_D2_N": [
+  "CM5",
+  "DisplayCamera"
  ],
- "MIC_SD_L": [
-  "Audio"
+ "DSI_D3_N": [
+  "CM5",
+  "DisplayCamera"
  ],
- "MIC_SD_R": [
-  "Audio"
+ "DSI_D2_P": [
+  "CM5",
+  "DisplayCamera"
  ],
- "MIC_SD": [
-  "Audio"
+ "DSI_D3_P": [
+  "CM5",
+  "DisplayCamera"
  ],
- "MUTE_LED_PWR": [
-  "Audio"
+ "+3V3_PERIPH": [
+  "DisplayCamera",
+  "MCU",
+  "Regulators",
+  "SideFlex"
  ],
- "MUTE_LED_A": [
-  "Audio"
+ "DSI_PIN17": [
+  "DisplayCamera"
+ ],
+ "MIC_DATA_GATED": [
+  "Audio",
+  "MCU",
+  "SideFlex"
+ ],
+ "MIC_SW_LIVE": [
+  "Audio",
+  "MCU",
+  "SideFlex"
  ],
  "SPK_P": [
   "Audio"
@@ -203,15 +248,21 @@
  "+3V3_AON": [
   "MCU",
   "PowerInput",
-  "Regulators"
+  "Regulators",
+  "SideFlex"
  ],
- "PMIC_SCL": [
-  "MCU",
+ "PD_VBUS_VS": [
   "PowerInput"
  ],
- "PMIC_SDA": [
+ "MCU_I2C_SCL": [
   "MCU",
-  "PowerInput"
+  "PowerInput",
+  "SideFlex"
+ ],
+ "MCU_I2C_SDA": [
+  "MCU",
+  "PowerInput",
+  "SideFlex"
  ],
  "PD_ALERT_N": [
   "MCU",
@@ -274,7 +325,8 @@
  ],
  "BTN_PWR_N": [
   "MCU",
-  "PowerInput"
+  "PowerInput",
+  "SideFlex"
  ],
  "BAT_N": [
   "PowerInput"
@@ -320,6 +372,15 @@
  "BST_COMP_RC": [
   "Regulators"
  ],
+ "BUCK3V3_EN": [
+  "Regulators"
+ ],
+ "BUCK3V3_SW": [
+  "Regulators"
+ ],
+ "BUCK3V3_FB": [
+  "Regulators"
+ ],
  "LSW_GATE": [
   "Regulators"
  ],
@@ -337,13 +398,16 @@
   "MCU"
  ],
  "BTN_ACTION_N": [
-  "MCU"
+  "MCU",
+  "SideFlex"
  ],
  "BTN_VOLUP_N": [
-  "MCU"
+  "MCU",
+  "SideFlex"
  ],
  "BTN_VOLDN_N": [
-  "MCU"
+  "MCU",
+  "SideFlex"
  ],
  "MCU_TX": [
   "MCU"
@@ -357,6 +421,25 @@
  "CM5_PMIC_OFF_DRV": [
   "MCU"
  ],
+ "NTC_ADC": [
+  "MCU"
+ ],
+ "NTC_BIAS": [
+  "MCU"
+ ],
+ "MCU_BOOT0": [
+  "MCU"
+ ],
+ "MIC_PWR_EN": [
+  "MCU"
+ ],
+ "MIC_FEED": [
+  "MCU",
+  "SideFlex"
+ ],
+ "MICSW_QOD": [
+  "MCU"
+ ],
  "LRA_P": [
   "Sensors"
  ],
@@ -365,5 +448,23 @@
  ],
  "HAPTIC_REG": [
   "Sensors"
+ ],
+ "MIC_SD_L": [
+  "SideFlex"
+ ],
+ "MIC_SD_R": [
+  "SideFlex"
+ ],
+ "MIC_SD": [
+  "SideFlex"
+ ],
+ "MUTE_LED_PWR": [
+  "SideFlex"
+ ],
+ "MUTE_LED_A": [
+  "SideFlex"
+ ],
+ "REC_LED_A": [
+  "SideFlex"
  ]
 }
