@@ -55,3 +55,8 @@ flowchart TD
 | Hard force-off | Power held 10 s (MCU only, no CM5 dependence) | off (BATFET_DIS) and/or on | off / on | on | forced low | power removed | as in Ship mode |
 
 Mic mute: SW1 (DPDT slide). Pole 1 moves CM5_3V3 from MIC_VDD to MUTE_LED_PWR, which lights the red LED D1 and drives MIC_MUTE_STATUS high. Pole 2 grounds I2S_DIN, so the mics are cut in hardware twice and no software sits in the path.
+
+## v0.2 additions (2026-10-21)
+- Skin NTC: the 10 k B3435 bead/0402 sits on the back plate and connects through J10 (JST SH SM02B-SRSS-TB). Divider: PA12 (NTC_BIAS, driven high only while sampling) → 10 k 1 % → PB0/ADC1_IN17 (NTC_ADC, 100 nF to GND) → NTC → GND. It draws no current between samples.
+- STM32U031K8U6 pin map (checked against ST STM32_open_pin_data `STM32U031K8Ux.xml`):
+  PA0 = BTN_PWR (WKUP1) · PA1 = BTN_ACTION (WKUP3) · PA4/PA5 = VOL+/VOL− (EXTI wake from Stop 2; no WKUP on these pins) · PA2/PA3 = USART2 TX/RX (AF) to CM5 UART0 · PB6/PB7 = I2C1 SCL/SDA (PMIC bus) · PB0 = ADC1_IN17 skin NTC · PA12 = NTC bias · PA15 = BOOST_EN · PB1 = CM5_5V_EN · PA6/PA7 = CM5 PWR_Button / PMIC_Enable drivers · PB3 = MCU_IRQ_N · PB4 = CM5_ALIVE · PB5 = CHG_INT · PA8 = GAUGE_ALRT · PA9 = PD_ALERT · PA10 = MIC_MUTE_STATUS · PA13/PA14 = SWDIO/SWCLK · PF2 = NRST · PF3-BOOT0 = 10 k to GND.
