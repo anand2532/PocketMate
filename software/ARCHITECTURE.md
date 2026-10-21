@@ -1,6 +1,6 @@
-# PocketMate — Software Architecture v0.3.3
+# PocketMate — Software Architecture v0.3.4
 
-Status: final v0.3.3 (baseline) · Owner: software · Source of truth for requirements: `../docs/PRD.md`, plus PM decisions and research (`../research/market.md` §6–7, `../research/bom.md` §7–8)
+Status: final v0.3.4 (baseline) · Owner: software · Source of truth for requirements: `../docs/PRD.md`, plus PM decisions and research (`../research/market.md` §6–7, `../research/bom.md` §7–8)
 Tag conventions:
 - **[PRD]**: stated in the PRD.
 - **[PM 2026-10-21]**: a PM decision or requirement dated 2026-10-21.
@@ -12,7 +12,7 @@ Tag conventions:
 | Topic | Decision | Where |
 |---|---|---|
 | Display | 4.3" 800×480, landscape | §3, §4 |
-| Battery | **~2.7 Ah cell (51×64 mm) in a 125×75×20 mm body**. This supersedes "~3000 mAh 7 mm". Target: 16 h mixed use + ≥ 24 h standby with the CM5 fully off and the MCU holding. ~9 W system cap for the 1C prototype cell | §10.2–10.5 |
+| Battery | **~3.6 Ah cell (8.5×51×65.5 mm) in the 125×75×22 mm passive v4_22 body** [PM/Enclosure 2026-10-21]. This supersedes 2.7 Ah / 20 mm. Target: 16 h mixed use + ≥ 24 h standby with the CM5 fully off and the MCU holding. ~9 W system cap for the 1C prototype cell | §10.2–10.5 |
 | Low-power MCU | **STM32U0** confirmed. Prototype uses NUCLEO-U083RC | §11, §12, B2, B3 |
 | Languages | English + Hindi at launch. Hinglish (code-mixed) is a known risk | §6.2, §6.4, §6.5, §6.9 |
 | ASR | Default is IndicWhisper or a Hinglish Whisper fine-tune on-device. Sarvam is the opt-in cloud ASR adapter | §6.2, §6.7, §6.10 |
@@ -41,6 +41,7 @@ Tag conventions:
 | **v0.3.1** Consent dialog | Consent dialog 12b must show **each provider's retention and training terms** | §8.3, §6.7.1 |
 | **v0.3.1** Sarvam | The adapter defaults to the **training opt-out** wherever the API/account allows it. **Sarvam DPA is a pre-launch action for Anand.** Until then, terms remain unconfirmed | §6.7.1 |
 | **v0.3.2** Compute | **v1 = CM5 4 GB only. The 2 GB SKU is deferred and not part of v1.** Measured CM5 idle 2.4–2.65 W exceeds the ~1.6–1.75 W passive budget, so **the CM5 is OFF by default** and sessions are duty-cycled. Aggressive power policy. s2idle test with a decision rule. Rev-2 Radxa CM5 (RK3588S2, RKNN) portability | §10.0, §10.3, §10.3b, §10.6, §10.7, §17 |
+| **v0.3.4** Baseline [PM/Enclosure 2026-10-21] | **Passive, fan-free 22 mm aluminium enclosure v4_22** (the micro blower is not baseline; only an unused fan hook remains). **~3.6 Ah cell.** **CM5-off-by-default is the core strategy.** **Radxa rev 2 is unfunded until after M5b.** Frozen governor limits and stages, case NTC on the STM32U0, battery NTC to charger JEITA, case detection heuristic, external Wi-Fi FPC antenna (`dtparam=ant2`) | §3, §10.3–10.4, §11, §17, B4 |
 | **v0.3.3** Compute decision [Anand 2026-10-21] | **Stay on Raspberry Pi CM5 (4 GB) for v1.** The body may grow to **22–26 mm** for cooling. **Keep driving idle power down**, because every watt saved keeps the body thinner. Radxa CM5 stays a rev-2 option only (§17) | §10.0, §10.3c, §10.8 |
 | **v0.3.1** Keys | No emergency key designee for now | §2.2.1 |
 | **v0.3** Audio | Audio is not stored by default, only transcripts. Audio saving is opt-in | §8.1 P6, §7 |
@@ -197,6 +198,8 @@ dtoverlay=uart2-pi5
 dtparam=i2c_arm=on
 # Wake / power-button line from MCU
 dtoverlay=gpio-shutdown,gpio_pin=17,active_low=1
+# Wi-Fi/BT: external FPC antenna on the CM5 U.FL connector [PM/Enclosure 2026-10-21]
+dtparam=ant2
 # Hardware watchdog
 dtparam=watchdog=on
 # RTC: CM5 has an on-board RTC (needs backup battery on VBAT); MCU RTC is secondary
@@ -1160,148 +1163,142 @@ Transitions:
  any ─(Power 10 s, MCU, even if Linux hung)─► Ship mode
 ```
 
-### 10.2 Battery facts [PM 2026-10-21]
-- Cell: **~2.7 Ah Li-ion pouch, 51 × 64 mm**, in a **125 × 75 × 20 mm** body (this supersedes the earlier "~3000 mAh 7 mm" figure).
-- Energy: 2.7 Ah × 3.7 V ≈ **10.0 Wh** nominal.
-- Usable at the 5 V rail ≈ 10.0 × 0.97 (3 % cutoff) × 0.90 (boost efficiency) × 0.95 (ageing/temperature margin) ≈ **8.3 Wh** [A-42].
-- Prototype cell is rated **1C** (2.7 A) → **system power cap ≈ 9 W** at the cell (§10.5).
+### 10.2 Battery facts (v0.3.4) [PM/Enclosure 2026-10-21]
+- Cell: **~3.6 Ah / ~13.3 Wh**, 8.5 × 51 × 65.5 mm (EST capacity), in the **v4_22 125 × 75 × 22 mm** body (~233 g EST). This supersedes 2.7 Ah / 51 × 64 mm.
+- Usable at the 5 V rail ≈ **11.0 Wh** [A-42].
+- System power cap stays at **9 W** (§10.5). A 1C rating would allow ~12 W.
 
-### 10.3 Power budget vs. "16 h mixed use + ≥ 24 h standby" (redone with measured idle, v0.3.2)
+### 10.3 Power budget vs. "16 h mixed use + ≥ 24 h standby" (v0.3.4, ~3.6 Ah cell) [PM/Enclosure 2026-10-21]
 
-Per-state power (5 V rail, CM5 4 GB). Values are the measured idle from §10.0 plus EST deltas; ours are to be measured in M5/M5b:
+**Battery**: the v4_22 body takes a **~3.6 Ah / ~13.3 Wh** cell (8.5 × 51 × 65.5 mm, EST 0.47 Wh/cc, from `../mechanical/thermal_v3_ribs.md` §v4). That replaces 2.7 Ah. Usable at the 5 V rail ≈ 13.3 × 0.97 × 0.90 × 0.95 ≈ **11.0 Wh** [A-42]. At 1C (3.6 A), the cell could support ~12 W. The system cap stays at **9 W** (§10.5) as a thermal and margin choice.
 
-| State | v0.3.1 estimate | **v0.3.2 figure** | Basis |
-|---|---|---|---|
-| S0 interactive (UI, backlight 40 %) | 2.8 W | **2.8–3.05 W** (untuned) → **target 2.3–2.6 W** with the §10.6 policy [EST] | 2.4–2.65 W idle + ≤ 0.4 W panel. Policy saves 0.3–0.6 W (rfkill, freq/core caps, peripherals off) [EST, unmeasured] |
-| S0 local AI burst | 7.0 W | **8.0–9.0 W** (capped at 9 W) | 8.5 W stress-ng measured |
-| S2 display-off, CPU idle | 1.5 W | **2.4–2.65 W untuned → target 1.9–2.2 W** with the policy [EST] | measured idle |
-| S3 suspend (s2idle) | n/a | **unknown**. Decided by the §10.7 test | not sourced for CM5 |
-| Cold boot S4 → listening | ~4 W × 12 s | ~4 W × 10–15 s ≈ **0.011–0.017 Wh (40–60 J)** | |
-| S4 CM5 off, MCU Stop2 | ≤ 4 mW | ≤ 4 mW | unchanged |
+Per-state power (5 V rail, CM5 4 GB; measured idle from §10.0, EST deltas, §10.8 targets):
 
-**Profile A "light / all-day typical use" (the PM-accepted target)**: 25 sessions/day, 60 min total screen-on, 12 min local AI, **30 s post-session hold** (was a 3 min warm window), one cold boot per session, and a daily summary.
-
-| Item | v0.3.1 | **v0.3.2** |
+| State | Untuned (measured / EST) | Tuned target (§10.8) |
 |---|---|---|
-| Screen-on 60 min | 2.80 Wh | 60 min × 2.6 W (policy) = **2.60 Wh** (untuned 3.05 W: 3.05 Wh) |
-| Local AI 12 min | 1.40 | 12 min × 8.5 W = **1.70** |
-| Post-session hold | 1.88 (3 min) | 25 × 30 s × 2.2 W = **0.46** |
-| Cold boots | 0.33 | 25 × 0.017 = **0.42** |
-| Daily summary | 0.15 | 1.5 min × 8.5 W = **0.21** |
-| S4 remainder | 0.05 | **0.05** |
-| **Total** | 6.6 Wh | **≈ 5.4 Wh (policy) / ≈ 5.9 Wh (untuned) = 65–71 % of 8.3 Wh** → ✅ 16 h with ~30 % margin |
+| S0 interactive, 40 % backlight | 2.8–3.05 W | **≤ 2.0 W** (budget uses 2.6 W until measured) |
+| S0 local AI burst | 8.0–9.0 W (≤ 9 W cap) | same |
+| S2 display-off hold | 2.4–2.65 W | ≤ 1.6 W (budget uses 2.2 W) |
+| Cold boot | 40–60 J | ≤ 50 J |
+| S4 (CM5 off, MCU Stop2) | ≤ 4 mW | ≤ 4 mW |
 
-- **Sensitivity check**: with the v0.3.1 3 min warm window at the measured 2.4–2.65 W, the hold alone is 3.0–3.3 Wh, for a total of ≈ 8.0–8.7 Wh. **That fails (≥ 96–105 %).** So the 16 h claim **depends on the CM5-off-by-default rule**, not on battery size.
-- **Profile B "heavy"** (2 h screen-on, 30 min AI, 40 sessions): 5.2 + 4.25 + 0.73 + 0.68 + 0.21 ≈ **11.1 Wh → ≈ 12 h**. ❌ for 16 h (unchanged verdict).
-- **Profile C "always on"** (S2 all day): 16 h × 2.4 W ≈ 38 Wh. ❌ ≈ 3.5 h. It's also thermally impossible (§10.3b).
-- **Standby ≥ 24 h**: S4 ≈ 0.1 Wh/day. ✅ unchanged.
+| Profile (16 h waking day) | Energy | % of 11.0 Wh | Verdict |
+|---|---|---|---|
+| **A light / "all-day typical use"**: 25 sessions, 60 min screen-on, 12 min local AI, 30 s hold, 25 cold boots, daily summary | **≈ 5.4 Wh** (policy) / 5.9 Wh (untuned) | **49–54 %** | ✅ 16 h with ~45 % margin. At this usage the cell lasts ≈ **30 h** |
+| **B heavy**: 2 h screen-on, 30 min AI, 40 sessions | ≈ 11.1 Wh | ≈ 101 % | ⚠ ≈ **16 h, borderline** (was ≈ 12 h on 2.7 Ah). Thermal duty limits (§10.3b) bite before energy does at ≥ 35 °C |
+| **C always-on** (S2 all day, untuned 2.4 W) | ≈ 38 Wh | ≈ 350 % | ❌ ≈ 4.6 h, and thermally impossible |
+| **Standby** (S4) | ≈ 0.1 Wh/day | ≈ 1 %/day | ✅ ≥ 24 h easily. Theoretical ~100 days; in practice cell self-discharge and protection-IC drain dominate [EST] |
 
-⚠ **Re-assessed verdict (v0.3.2)**:
-- "All-day typical use" (16 h, Profile A) still holds **only** with CM5-off-by-default, a 30 s post-session hold, and one cold boot per session.
-- It's also **thermally** feasible only because sessions are short and spread out (§10.3b).
-- Must be validated in M5b/M8 with our own measurements (PM-B1).
+**Verdict (v0.3.4)**:
+- 16 h "all-day typical use" holds with a wide margin, and heavy use now roughly reaches 16 h on energy.
+- **CM5-off-by-default remains the core strategy**, because the **thermal** budget (not energy) is what blocks keeping the CM5 on.
 
-### 10.3b Thermal duty-cycle budget (v0.3.2)
+### 10.3b Thermal duty-cycle budget: enclosure v4_22, passive, fan-free (v0.3.4) [PM/Enclosure 2026-10-21]
 
-Device thermal mass C ≈ 140 J/K (thermal_v3). Sustained budget P_ss from §10.0. Energy headroom from ambient equilibrium is `E_h = C × ΔT_allowed`.
+**Baseline enclosure: v4_22 passive aluminium unibody, 22 mm, no fan** (`../mechanical/thermal_v5_22.md` §"v4_22 passive duty-cycle"; thermal_v3_ribs.md §v4). The micro-blower variant v5_22 is **not baseline**. Software keeps only an unused "fan" hook: the `Platform` HAL has a no-op `fan_set(pct)`, and there's no fan driver in v1.
 
-| Ambient (held) | P_ss | ΔT | E_h | Continuous screen-on at 2.6 W (excess 0.85 W / 2.0 W) | Total local AI at 8.5 W in one session | Long-run duty cycle (on-power ≈ 3 W avg) |
+**Frozen sustained device power** (all heat: CM5 + backlight + power stage):
+
+| Case | 35 °C ambient (skin ≤ 43 °C) | 45 °C ambient (skin ≤ 48 °C) |
+|---|---|---|
+| **Held** | **1.85 W** | **0.66 W** |
+| **Flat (table, on its back)** | **1.08 W** | **0.39 W** |
+| Pocket (enclosure model) | 0.64 W | 0.23–0.24 W |
+
+**Time-to-throttle and duty** (enclosure model, starting from cold; C ≈ 205 J/K; off power 0.05 W). This **replaces** the v0.3.2/v0.3.3 time-to-throttle and duty table. Soft = governor's first throttle step; Limit = skin limit reached; Duty = allowed long-run average on-fraction:
+
+| Case | τ | 35 °C budget | 3 W: soft / limit | 3 W duty | 5 W: soft / limit | 5 W duty | 45 °C budget | 3 W: soft / limit | 3 W duty | 5 W: soft / limit | 5 W duty |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Held | 830 s | 1.85 W | 564 / 744 s | 61 % | 260 / 331 s | 36 % | 0.66 W | 70 / 164 s | 21 % | 19 / 70 s | 12 % |
+| Table | 1464 s | 1.08 W | 480 / 599 s | 35 % | 242 / 302 s | 21 % | 0.39 W | 69 / 157 s | 11 % | 19 / 69 s | 7 % |
+| Pocket | 2500 s | 0.64 W | 447 / 547 s | 20 % | 234 / 289 s | 12 % | 0.23 W | 69 / 154 s | 6 % | 19 / 69 s | 4 % |
+
+⚠ **The 45 °C values are optimistic**:
+- The single-node model underestimates the fast SoC-to-pad transient, so trip times under ~30 s are indicative only (thermal_v5_22).
+- At 45 °C, treat any local AI burst as likely to reach Warn/Soft within tens of seconds.
+
+**Implications for software**:
+- At 35 °C held, a 3 W session reaches Soft after ≈ 9.4 min and the limit after ≈ 12.4 min.
+- A 5 W AI-heavy session reaches Soft after ≈ 4.3 min.
+- On a table or in a pocket the budget is roughly halved or quartered.
+- No case sustains the 2.4–2.65 W CM5-on idle (thermal_v3_ribs: "no variant sustains idle in any case"). Hence CM5-off-by-default and §10.8.
+
+**Governor session accounting** (pm-power, extending §10.4):
+1. `E_used` is the heat above budget, decaying with the case's τ (830 / 1464 / 2500 s for held / table / pocket), using the budget for the **detected case** (§10.4.3). The MCU keeps integrating while the CM5 is off and reports it at `HELLO_ACK`.
+2. **Admission**: a local AI job runs at full speed only if the predicted case NTC at job end stays below **Warn**. Otherwise it's slowed, queued, or offered to the cloud (per-request consent).
+3. **Session end**: backlight off at 10 s, CM5 off at 30 s.
+4. **Cooldown gate**: no non-user wake while the NTC ≥ Warn − 1.5 K.
+
+### 10.3c Body thickness (v0.3.4: decided, 22 mm)
+
+The enclosure sweep (thermal_v3_ribs.md §v4) supersedes the v0.3.3 area-scaling estimate.
+
+| Body | Held 35 °C | Table 35 °C | Pocket 35 °C | Held 45 °C | Cell (EST) | Mass (EST) |
 |---|---|---|---|---|---|---|
-| 25 °C | ≈ 3.9 W (bom.md §7) | 18 K | 2,520 J | unlimited (below P_ss) | ≈ 5 min | unlimited |
-| **35 °C** | **1.75 W** | 8 K | 1,120 J | **≈ 22 min** | **≈ 2.7 min** (1,120 / (8.5 − 1.75)) | **≤ ~58 %** (≈ 6 min on per 10 min) |
-| **45 °C** (limited use) | **0.6 W** | 3 K | 420 J | **≈ 3.5 min** | **≈ 50 s** | **≤ ~20 %** (≈ 2 min on per 10 min) |
-| Flat on a table, 35 °C | 1.0 W | 8 K | 1,120 J | ≈ 12 min | ≈ 2.4 min | ≤ ~33 % |
+| v3 20 mm | 1.75 W | 1.02 W | 0.62 W | 0.62 W | ~3.0 Ah | ~212 g |
+| **v4_22 (baseline)** | **1.85 W** | **1.08 W** | **0.64 W** | **0.66 W** | **~3.6 Ah** | **~233 g** |
+| v4_24 | 1.93 W | 1.14 W | 0.66 W | 0.69 W | ~4.5 Ah | ~258 g |
+| v4_26 | 2.02 W | 1.20 W | 0.68 W | 0.72 W | ~5.3 Ah | ~283 g |
 
-These are a first-order lumped model (EST). The skin hot spot runs ahead of the mean (thermal_v3: +0.9–1.5 K), so the governor uses NTC thresholds, not this table, at runtime.
+- Thickness buys only +6 % (22 mm) to +15 % (26 mm) of thermal budget. Each extra 2 mm mainly buys battery.
+- Ribs add +2 % (recessed) or +5 % (proud), and the proud ribs are rejected.
+- Idle power reduction (§10.8) remains the main lever. The enclosure study's targets are idle **≤ 1.7 W held / ≤ 1.0 W table / ≤ 0.6 W pocket** at 35 °C, adopted as §10.8 stretch goals.
 
-**Governor additions** (pm-power, extending §10.4):
-1. **Session thermal account**: pm-power keeps `E_used` (J above P_ss), decaying with τ = 10 min while the CM5 is off. The MCU keeps integrating with the case NTC while the CM5 is off, and reports it in `HELLO_ACK` at boot.
-2. **Admission**: a local AI job is admitted at full speed only if `E_used + P_job·t_est ≤ 0.8·E_h`. Otherwise it's slowed (2 cores, 1.5 GHz), queued, or offered to the cloud (per-request consent).
-3. **Session end** (no input for 10 s and no job running) → backlight off → **CM5 off after 30 s** (S5→S4).
-4. **Cooldown gate**: the MCU refuses a *non-user* wake (daily summary, background jobs) while the NTC is above T_lim − 3 K. A *user* PTT press always wakes, but at ≥ T2 the session is capped (no local LLM).
-5. Stage triggers follow thermal_v3's NTC thresholds (Warn T_lim − 2.0 K, Soft −1.2 K, Hard −0.5 K, Protect at T_lim, hysteresis 1.5 K). These map onto T1–T4 in §10.4. T_lim = 43 °C for ambient ≤ 40 °C, otherwise ambient + 3, capped at 48 °C.
+### 10.4 Skin-temperature power governor (in pm-power), frozen limits (v0.3.4) [PM/Enclosure 2026-10-21]
 
-**Re-assessed thermal verdict**:
-- **35 °C**: typical short sessions are fine. A continuous session longer than ~20 min, or more than ~2.5 min of local AI in a row, will hit Soft/Hard throttling.
-- **45 °C** (limited use, as rated): sessions of a few minutes, about one local AI request per few minutes. Long tasks are offered to the cloud.
-- **The device can't idle with the CM5 on at any ambient ≥ 30 °C** [EST]. This confirms CM5-off-by-default.
+**Rated operating range: 0–40 °C; limited use at 45 °C** [PM 2026-10-21]. Above 40 °C the UI shows "limited use when hot".
 
-### 10.3c Thermal budget vs. body thickness: 20 / 22 / 26 mm (v0.3.3, estimate)
-
-**Decision context** [Anand 2026-10-21]: the body may grow to **22–26 mm** for cooling.
-
-**Method (estimate)**: thermal_v3's lumped model (natural convection plus radiation from the Al unibody, held) is rescaled by **exposed surface area**, at a fixed footprint of 125 × 75 mm. `A(t) = 2·125·75 + 2·(125+75)·t` mm². Conductance G scales with A (same h and emissivity), and thermal mass C scales with the shell's metal mass (∝ A).
-- Not modelled: hand contact, internal spreading improvements (thicker graphite/vapour chamber), internal air-gap effects, and the hot-spot offset (kept at thermal_v3's +0.9–1.5 K).
-- **Estimate only**: validate in the 35/45 °C chamber (TH1–TH5) on printed or machined 22 and 26 mm mock bodies.
-
-| Thickness | Area A | vs 20 mm | Sustained budget, held, 35 °C (≤ 43 °C) | Held, 45 °C (≤ 48 °C) | Flat on back, 35 °C | Thermal mass C | Continuous screen-on at 35 °C (S0 2.0 W tuned / 2.6 W) |
-|---|---|---|---|---|---|---|---|
-| 20 mm (thermal_v3) | 26,750 mm² | — | **1.75 W** | 0.60 W | 1.00 W | 140 J/K | unlimited (2.0 W ≈ budget) / ≈ 22 min |
-| 22 mm | 27,550 mm² | +3.0 % | **≈ 1.80 W** | ≈ 0.62 W | ≈ 1.03 W | ≈ 144 J/K | ≈ 1.6 h / ≈ 24 min |
-| 26 mm | 29,150 mm² | +9.0 % | **≈ 1.91 W** | ≈ 0.65 W | ≈ 1.09 W | ≈ 153 J/K | unlimited / ≈ 30 min |
-| 26 mm + internal spreader/PCM option [EST] | same | +9 % area; spreading may cut the hot-spot offset ~0.5 K, and ~10 g paraffin PCM (~200 J/g latent, melting near 40 °C) adds a ~2 kJ burst buffer | ≈ 2.0–2.1 W effective | ≈ 0.7 W | ≈ 1.15 W | 153 J/K + ~2 kJ latent | — |
-
-(Continuous screen-on time = C·8 K / (P − P_ss), from ambient equilibrium. "Unlimited" means P ≤ P_ss.)
-
-**Takeaways**:
-- **Thickness is area-limited.** Going from 20 to 26 mm adds only **≈ +0.16 W** sustained at 35 °C, and ≈ +0.05 W at 45 °C. That's about the same as **one** mid-ranked idle lever (Wi-Fi off ≈ 0.18 W). Idle reduction (§10.8) has the most leverage. A 26 mm body mainly buys **room for a spreader or PCM and a bigger thermal mass for bursts**, not steady-state capacity.
-- If §10.8 reaches **S0 ≤ 2.0 W**, a **22 mm** body roughly sustains screen-on use at 35 °C, held. Above that, sessions stay duty-cycled (§10.3b).
-- At 45 °C (limited use), no thickness in range makes CM5-on idle sustainable (0.62–0.7 W vs ≥ 1.4 W). CM5-off-by-default stays mandatory.
-- Recommendation to mechanical: **choose thickness after the M5b idle measurements**. Default to **22 mm** if tuned S0 ≤ 2.0 W, otherwise 24–26 mm with a spreader/PCM.
-
-### 10.4 Skin-temperature power governor (in pm-power) [PM 2026-10-21]
-
-**Rated operating range: 0–40 °C; limited use at 45 °C** [PM 2026-10-21, v0.3]. Above 40 °C the governor starts at ≥ T2, and the UI shows "limited use when hot".
-
-**Limits** (PM spec; these supersede earlier figures):
-- **At 35 °C ambient**: skin ≤ 43 °C sustained.
-- **At 45 °C ambient**: skin ≤ ambient + 3 °C sustained (= 48 °C).
-- **Skin ≤ 48 °C peak at any ambient.**
-- CM5 SoC sustained ≤ 65 °C (target). Locked UX SoC thresholds: 70/75/85 °C.
-
-Sustained limit function (°C):
+#### 10.4.1 Frozen limits
 ```
-L_sus(Ta) = 43                          if Ta ≤ 35
-          = 43 + 0.5·(Ta − 35)          if 35 < Ta ≤ 45     (→ 48 at 45 °C = Ta+3)
-          = 48 and device enters T3     if Ta > 45          (outside rated operating range [Research: 0–40 °C rating proposal])
-L_peak = 48
+T_lim(Ta) = 43 °C                     if Ta ≤ 40 °C
+          = min(Ta + 3 °C, 48 °C)     if Ta > 40 °C
 ```
+- Sustained device power budgets are frozen at §10.3b: **held 1.85 W @35 °C / 0.66 W @45 °C**, and **flat 1.08 W / 0.39 W**. Pocket uses the enclosure model values (0.64 / 0.23 W).
+- CM5 SoC: target < 65 °C sustained. SoC ≥ 80 °C triggers the Protect stage. This supersedes the earlier 70/75/85 SoC stage triggers; the Raspberry Pi firmware's 80/85 °C throttle stays as a backstop.
 
-**Sensors**:
-- **Case NTC** (skin; on the inner face of the hand-contact shell) is read by the **STM32U0 ADC**. The MCU keeps sampling with the CM5 off and sends `EVT_THERMAL` at 1 Hz in S0–S2.
-- **Cell NTC**: shared with the charger TS pin, and also read by the MCU ADC.
-- **SoC temperature**: `/sys/class/thermal/thermal_zone0`.
-- **Ambient estimate**:
-  - the case NTC reading after ≥ 30 min in S4 (thermal equilibrium), updated with an RC model;
-  - or a second "ambient" NTC on the board edge away from the CM5 [A-45, recommended for the custom PCB].
-- **System power**: fuel-gauge current × voltage (1 Hz) plus INA226 on the prototype.
+#### 10.4.2 Sensors
+- **Case NTC (skin)**: 10 kΩ NTC bonded to the **inside of the aluminium back plate at (−55.3, −10) mm** (enclosure coordinates, next to the left grip). It's wired by a **2-pin JST SH (1.0 mm) connector on the carrier**.
+  - **Read by the STM32U0 ADC** (preferred: it works with the CM5 off and is independent of Linux).
+  - Divider: 10 kΩ 0.1 % to a switched 3.3 V reference GPIO, sampled at 1 Hz in S0–S2 and every 60 s in S4. ADC 12-bit, 16× oversampled, with a β/Steinhart–Hart table in MCU flash.
+  - Reported in `EVT_THERMAL` (§11).
+  - Fallback if the STM32U0 has no free ADC channel: an I2C ADC on the MCU bus, never the CM5 [A-63].
+- **Load-dependent hot-spot compensation**: the NTC reads **~0.3 K/W below the hot spot** (enclosure estimate; ~75 mm from the SoC zone). The governor uses
+  `T_skin,hot = T_NTC + k_hs · P_avg(τ_hs)`, with `k_hs = 0.30 K/W` initial and `P_avg` a first-order filtered device power (τ_hs ≈ 60 s initial).
+  `k_hs` and `τ_hs` are calibrated per enclosure revision in M5b (§B4) against thermocouples at the SoC zone and grip, and stored in MCU flash and `/var/lib/pm/thermal_cal.toml`.
+  **Stage thresholds below compare `T_skin,hot`** [A-64: thresholds are stated "on the case NTC"; compensation is applied on top, so it's conservative].
+- **Battery (cell) NTC**: goes to the **charger JEITA/TS input** (BQ25895-class). It's also read by the MCU ADC for `charge_ctrl` (§12, charging only within 10–40 °C).
+  - **At 45 °C ambient, expect no charging.**
+  - UI messaging on screen 15 and the battery icon: "Too hot to charge, charging resumes below 38 °C". When the CM5 is off, the LED shows an amber double-blink.
+  - The system stays powered from USB-C.
+- **SoC temperature**: `/sys/class/thermal/thermal_zone0` (cross-check with `vcgencmd measure_temp`).
+- **Ambient estimate**: the case NTC after ≥ 30 min in S4 (equilibrium), tracked by an RC model. Needed for T_lim when Ta > 40 °C.
+- **System power**: fuel gauge (1 Hz), plus INA226 on the prototype.
 
-**Thermal headroom (EST)**: based on research bom.md §7, with h ≈ 8–10 W/m²K and A ≈ 0.027 m² for 125 × 75 × 20 mm.
+#### 10.4.3 Case (held / table / pocket) detection heuristic
+The budget and τ depend on the case, so pm-power picks the **most conservative plausible case**:
+1. If an **ALS/proximity sensor** is present [A-65: not in the current BOM; recommended for the custom carrier], dark plus near means **pocket**.
+2. If the IMU is present [A-65], a stationary, face-up, near-level device means **table**. Motion or tilt means **held**.
+3. **No sensors (v1 default)**:
+   - Display off → **pocket** (conservative).
+   - Display on with touch or button input in the last 30 s → **held**.
+   - Display on without input for > 30 s → **table**.
+4. A thermal back-check: if the measured NTC rise rate for the given P exceeds the held model by > 30 %, step down one case (held → table → pocket).
+5. The detected case is logged with the stage (`consent_log` `thermal_stage` detail, no user content).
 
-| Ambient | Sustained skin limit | ΔT | Sustained power allowed (EST) | Implication |
-|---|---|---|---|---|
-| 25 °C | 43 °C | 18 K | 3.9–4.9 W | normal use fine; long AI bursts OK |
-| 35 °C | 43 °C | 8 K | **1.7–2.2 W** | ⚠ continuous screen-on (2.8 W) slowly exceeds this, so the governor must dim (T1/T2). AI only in bursts |
-| 45 °C | 48 °C | 3 K | **0.6–0.8 W** | ⚠ even S2 (1.5 W) exceeds this. Mostly S4, short sessions; local LLM effectively unusable, so cloud is offered per request |
+#### 10.4.4 Throttle stages (frozen) and actions
 
-Thermal mass gives burst headroom: ~250 g × ~0.9 J/g·K ≈ 225 J/K [A-46]. A 3 K skin rise ≈ 675 J ≈ 100 s of +6.5 W, which is why short local-AI bursts remain possible when hot.
+The NTC values below are case-NTC thresholds for **Ta ≤ 40 °C / Ta = 45 °C** (T_lim 43 / 48). For Ta between 40 and 45 °C, each threshold = T_lim(Ta) − offset. **Hysteresis is 1.5 K per stage** (release when T ≤ threshold − 1.5 K), with a 30 s minimum dwell.
 
-**Control loop** (pm-power, 1 Hz in S0–S2):
-1. Predict skin temperature 60 s ahead with a two-node RC model (SoC→case), fitted in the M8 chamber test: `T̂_skin(t+60) = f(T_skin, T_soc, P_avg_30s)`.
-2. `e = L_sus(Ta) − T̂_skin`. Then `P_budget = clamp(P_ss(Ta) + Kp·e + Ki·∫e, 0.5 W, 9 W)`, with anti-windup. `P_ss(Ta)` comes from the table above.
-3. **Burst credit**: `E_credit = C_th · (L_sus − T_skin)` in joules. A local AI job is admitted at full speed if `(P_job − P_budget)·t_est ≤ E_credit`. Otherwise it's slowed (fewer threads / lower freq), deferred, or offered to the cloud.
-4. Map `P_budget` and the hard triggers to stages. Hysteresis 1 K, minimum dwell 30 s:
+| Stage | Threshold (Ta ≤ 40 / 45 °C) | Offset from T_lim | Actions |
+|---|---|---|---|
+| **Normal** | below Warn | — | full speed within the 9 W cap and session admission (§10.3b) |
+| **Warn** | **41.0 / 46.0 °C** | −2.0 K | **No new local AI bursts** (running jobs finish). Offer cloud for the next heavy request (per-request consent). Background jobs deferred. Banner 20i |
+| **Soft** | **41.8 / 46.8 °C** | −1.2 K | **CPU frequency down** (−300 MHz per 0.5 K above Soft, floor 1.0 GHz) and **backlight down** (−30 %). LLM threads ≤ 2 |
+| **Hard** | **42.5 / 47.5 °C** | −0.5 K | **CPU/GPU at minimum** (`scaling_max_freq` = min OPP, `gpu_freq` min), **backlight at the floor** (10 %). Local AI refused. Screen 20h-err-thermal |
+| **Protect** | **43.0 / 48.0 °C, or SoC ≥ 80 °C** | 0 K | **Suspend compute: display off, then controlled power-off to S4** (or S3 if §10.7 adopts it). The MCU blocks power-on until the NTC < Warn − 1.5 K (LED "hot" pattern). A user PTT press during the block gives only the LED/visual "too hot" feedback |
 
-| Stage | Trigger (any) | CPU freq cap (`scaling_max_freq`) | Local AI | Display | Other |
-|---|---|---|---|---|---|
-| **T0** | headroom ≥ 3 K and SoC < 65 °C | 2.4 GHz | normal (bursts unlimited within the 9 W cap) | user setting | — |
-| **T1** | headroom < 3 K, or SoC ≥ 65 °C, or battery saver | 1.8 GHz | LLM 3 threads; background jobs (embeddings, summary LLM) deferred | max 70 % | — |
-| **T2** | headroom < 1.5 K, or SoC ≥ 70 °C | 1.5 GHz | **burst mode**: ≤ 20 s per job, cooldown ≥ 2× burst; vision/3B disabled | max 50 % | warn banner (20i). Heavy requests show "Device is warm, use cloud for this one?" (**per-request consent**, §8.3) |
-| **T3** | headroom ≤ 0, or SoC ≥ 75 °C, or Ta > 45 °C | 1.0 GHz | local LLM/VLM/translation refused; ASR + doc OCR only (≤ 5 s bursts) | max 30 % | screen 20h-err-thermal. Cloud offer per request (consent) |
-| **T4** | skin ≥ 48 °C (peak), or SoC ≥ 85 °C, or cell ≥ 60 °C | — | — | — | controlled shutdown → S4. The MCU refuses to power on until skin < 43 °C (shows LED pattern "hot") |
-
-- Cloud offload is never automatic. Being hot only changes what's **offered**. Each request still goes through the consent dialog 12b, with the reason "device is warm".
-- Firmware throttling (80/85 °C) remains as the backstop. Under the governor it should never be reached.
+- Cloud offload is never automatic: heat only changes what's **offered**, through consent dialog 12b.
+- Battery-saver mode (20 %) also forces at least Warn-level behaviour (no background AI).
 
 ### 10.5 System power cap (~9 W) [PM 2026-10-21]
 - Why: the prototype cell is rated 1C (2.7 A × ~3.3–3.7 V ≈ 9–10 W). Sustained discharge above that ages the cell and trips the protection.
@@ -1447,7 +1444,8 @@ Every command gets `ACK{seq,status}` within 50 ms. Otherwise the sender retries 
 | 0x23 | MCU→CM5 | `EVT_MIC_MUTE` | hw switch state |
 | 0x24 | MCU→CM5 | `EVT_RTC_ALARM` | epoch_s |
 | 0x25 | MCU→CM5 | `EVT_SHUTDOWN_REQ` | reason (long-press, critical battery, thermal) and deadline_s |
-| 0x26 | MCU→CM5 | `EVT_THERMAL` | skin_dC, cell_dC, (ambient_dC est.), 1 Hz in S0–S2 |
+| 0x26 | MCU→CM5 | `EVT_THERMAL` | v0.3.4 payload: `case_ntc_dC` (i16, raw case NTC at back plate (−55.3,−10), STM32U0 ADC), `cell_dC` (i16), `ambient_dC_est` (i16), `stage` (u8: 0 Normal / 1 Warn / 2 Soft / 3 Hard / 4 Protect, MCU's own view), `adc_fault` (u8 bit flags: open/short). 1 Hz in S0–S2. Hot-spot compensation (§10.4.2) is applied by pm-power and mirrored in the MCU with the calibrated `k_hs` |
+| 0x27 | CM5→MCU | `SET_THERMAL_CAL` | `k_hs_mK_per_W` (u16), `tau_hs_s` (u16), `ntc_offset_dC` (i8), `p_avg_mW` (u16, sent at 1 Hz so the MCU can enforce Protect independently). Stored in MCU flash, acknowledged with `ACK` |
 | 0x27 | MCU→CM5 | `EVT_CHARGE_INHIBIT` | reason (cell < 10 °C / > 40 °C / charger fault), cell_dC |
 | 0x28 | MCU→CM5 | `EVT_OVERCURRENT` | cell_mA, duration_ms (§10.5) |
 | 0x1B | CM5→MCU | `HAPTIC_CFG` | driver present?, effect library id. Ignored, since there's no haptic driver in MVP (LRA DNP) |
@@ -1543,14 +1541,14 @@ Latency targets apply **from S0–S2 (device awake or in the warm window)**. Fro
 | L10 | S2 → S0 wake | < 300 ms | | ✅ |
 | T1 | CM5 SoC sustained | **< 65 °C** | skin governor T1 at 65 °C | ✅ at 25 °C; at 35–45 °C it's met by throttling (slower) |
 | T2 | Skin | ≤ 43 °C sustained at 35 °C ambient; ≤ Ta+3 (48 °C) sustained at 45 °C; ≤ 48 °C peak | §10.4 | ⚠ at 45 °C ambient the sustained budget is ~0.6–0.8 W, so the device is only usable for short sessions |
-| B1 | Battery | 16 h mixed use + ≥ 24 h standby (MCU holds, CM5 fully off) | §10.3 | ⚠ 16 h only for the light profile on 2.7 Ah. ✅ standby |
+| B1 | Battery | 16 h mixed use + ≥ 24 h standby (MCU holds, CM5 fully off) | §10.3 | ✅ 16 h light profile (~45 % margin) on 3.6 Ah. ⚠ heavy profile borderline at ~16 h. ✅ standby |
 
 ### 14.1 Feasibility flags (summary)
 1. **IndicWhisper (medium) on CM5** is likely too slow for interactive use, so a small/base-size Hindi/Hinglish fine-tune is required. Hinglish WER on small models is unproven (§6.10 gate).
 2. **≤ 750 ms local actions** require streaming ASR plus a non-LLM fast path. LLM-based parsing can't meet it.
 3. **LLM prefill** on CM5 makes RAG answers with long context slow, so context is capped at ~250 tokens and sources are shown first.
 4. **IndicPhotoOCR and IndicTrans2-dist** have no CM5 CPU latency data, and ARM packaging (IndicProcessor, SentencePiece, torch→ONNX/CT2) is a risk.
-5. **16 h mixed use on 2.7 Ah** is met only by the intermittent profile. Heavy users get ~10 h.
+5. **16 h mixed use on 3.6 Ah** (v0.3.4): met for the light profile with margin. Heavy use is borderline at ~16 h, and thermally duty-limited at ≥ 35 °C.
 6. **At 45 °C ambient**, sustained skin limits allow < 1 W, so local LLM use is effectively blocked and cloud is offered per request.
 7. **Cold boot < 10 s from S4** is needed, because CM5 has no usable suspend.
 8. **2 GB SKU** (deferred, not v1): Hindi/Hinglish ASR quality would likely miss the WER bars without cloud help.
@@ -1593,7 +1591,7 @@ Validate on existing hardware before the custom PCB [PRD strategy]: capture/sear
 | 9 | **ST NUCLEO-U083RC** (STM32U083, on-board ST-LINK) [PM 2026-10-21] | low-power MCU (replaces the RP2040 Pico) | 2 | 2 × 12 |
 | 10 | Charger/power path: **BQ25895 eval/breakout** (TS/JEITA, I2C, ship mode, power path) [Research] + 5 V ≥ 3 A boost (e.g., TPS61088-class module) + load switch for the CM5 5 V rail | power path | 1 | 30 |
 | 11 | Fuel gauge breakout (MAX17055 or MAX17048) | battery monitoring | 1 | 10 |
-| 12 | **Li-ion pouch ~2.7 Ah, 51 × 64 mm, protected, 1C, with 10k NTC** [PM 2026-10-21] | battery | 2 | 2 × 12 |
+| 12 | **Li-ion pouch ~3.6 Ah, 8.5 × 51 × 65.5 mm, protected, 1C, with 10k NTC** [PM/Enclosure 2026-10-21] | battery | 2 | 2 × 12 |
 | 13 | 10k NTC thermistors (2–3: case/skin, ambient, spare) + thermal epoxy/Kapton | skin governor | 5 | 3 |
 | 14 | INA226 breakout (5 V rail) + USB-C power meter | power budget | 1 | 12 |
 | 15 | ~~LRA + DRV2605L~~: dropped, LRA is DNP in MVP [v0.3]. Keep 1 for firmware hook bring-up only | (optional) | 0–1 | 0–10 |
@@ -1620,7 +1618,7 @@ The NUCLEO-U083RC pins below are **proposed** and must be checked against the NU
 | Nucleo PA0 (WKUP) | Power button | EXTI wake |
 | Nucleo PC13 (WKUP2) | Action/PTT button | the on-board B1 button can stand in at first |
 | Nucleo PB0, PB1 | Vol+, Vol− | EXTI, pull-ups |
-| Nucleo ADC (e.g., PA1, PA4, PC0 = Arduino A1/A2/A5) | skin NTC (taped to the inner mock-enclosure wall at the grip), cell NTC (pouch, also to BQ25895 TS via its own divider), ambient NTC | divider supply from a GPIO |
+| Nucleo ADC (e.g., PA1, PA4, PC0 = Arduino A1/A2/A5) | case NTC (bonded to the inside of the back plate at (−55.3, −10) on the v4_22 body; product: 2-pin JST SH on the carrier → STM32U0 ADC) [PM/Enclosure 2026-10-21], cell NTC (pouch, also to BQ25895 TS via its own divider), ambient NTC | divider supply from a GPIO |
 | BQ25895 INT / gauge ALRT | Nucleo EXTI | |
 | Nucleo 3V3 | from an always-on 3.3 V LDO off VSYS (battery) | remove the ST-LINK power jumper for current measurements (use IDD) |
 | INA226 | in series with the CM5 5 V rail, read by the CM5 over I2C (dev only) | power budget |
@@ -1637,7 +1635,7 @@ The NUCLEO-U083RC pins below are **proposed** and must be checked against the NU
 | **M2b ASR/OCR/translation benchmark gate** | 1.5 wk (parallel with M2–M4) | §6.10 benchmark on CM5 4G + 2G, EN/HI/Hinglish sets, report | model choice per SKU recorded; ⚠ flags resolved or escalated |
 | **M3 Assistant + RAG** | 2 wk | llama.cpp service, model benchmark (≥ 3 models), hybrid retrieval, source chips, action-item extraction | Answers cite sources; latency targets §14 measured |
 | **M4 OCR + Translation + Vision** | 2.5 wk | Scan flow, PaddleOCR/IndicPhotoOCR, pm-translate (IndicTrans2-dist), overlay, pm-xlit keyboard + cross-script FTS, local VLM trial | PM-X1, PM-K1, PM-S1 pass |
-| **M5b Power reality + suspend decision (v0.3.2/v0.3.3)** | 1.5 wk (start right after M0; finishes before M5) | **Run the §10.8 idle-power workplan (ranked levers, cumulative + attribution)**; measure our own CM5 4 GB idle, tuned idle (§10.6 levers one by one), burst, boot energy, S4. Run the §10.7 s2idle/deep/halt/rail-cut test matrix. Fit the thermal duty-cycle model on the mock unibody | PM-P1 + PM-P2 pass; §10.8 targets (S2 ≤ 1.6 W, S0 ≤ 2.0 W) met or gap reported; thickness recommendation (§10.3c) handed to mechanical; S3 adopt/reject recorded per the §10.7 rule; §10.3 table updated with measured values |
+| **M5b Power reality + suspend decision (v0.3.2–v0.3.4)** | 2 wk (start right after M0; finishes before M5) | **Calibration on hardware (v0.3.4)**: (1) NTC: 2-point bath/chamber check of the case NTC and the cell NTC through the STM32U0 ADC (±0.3 K), store the offset; (2) hot-spot: v4_22 body with thermocouples at the SoC zone, the grip and the NTC site, run 1/2/3/5 W steps at 35 °C held/table/pocket, fit `k_hs` (initial 0.3 K/W) and `τ_hs`, write them with `SET_THERMAL_CAL`; (3) budgets: confirm 1.85/1.08/0.64 W at 35 °C and measure 45 °C (expected lower than the model); (4) trip timing: verify the 3 W/5 W soft/limit times against the §10.3b table (±20 %); (5) stage check: Warn/Soft/Hard/Protect and 1.5 K hysteresis observed; (6) case heuristic: validate display-off ⇒ pocket conservatism; (7) JEITA: charging inhibits at 45 °C, UI message shown. **Run the §10.8 idle-power workplan (ranked levers, cumulative + attribution)**; measure our own CM5 4 GB idle, tuned idle (§10.6 levers one by one), burst, boot energy, S4. Run the §10.7 s2idle/deep/halt/rail-cut test matrix. Fit the thermal duty-cycle model on the mock unibody | PM-P1 + PM-P2 pass; §10.8 targets (S2 ≤ 1.6 W, S0 ≤ 2.0 W) met or gap reported; thickness recommendation (§10.3c) handed to mechanical; S3 adopt/reject recorded per the §10.7 rule; §10.3 table updated with measured values |
 | **M5 Reminders + Power + MCU** | 2.5 wk | pm-remind + daily summary, pm-power + skin governor + 9 W cap, STM32U0 (NUCLEO-U083RC) firmware v0 (LPUART link, buttons, battery, JEITA charge_ctrl, NTCs, RTC alarm, IWDG, mic interlock, Stop2), S0–S5 + ship mode | PM-D1, PM-B2, PWR1, JE1–JE2 pass; reminder fires from S4 |
 | **M6 Cloud adapter + privacy hardening** | 1.5 wk | pm-cloud, consent dialog/token, nftables egress, LUKS data, audit log, export/import | Privacy test suite passes; zero egress in local mode (pcap) |
 | **M7 Updates + recovery** | 1.5 wk | RAUC A/B, signed bundles, health check, recovery partition, MCU FW update | Pull-power-during-update test passes 20/20 |
@@ -1663,7 +1661,7 @@ The NUCLEO-U083RC pins below are **proposed** and must be checked against the NU
 - PR7: No user content in journald (grep a test corpus of canary strings).
 
 **Power / reliability**
-- PW1: Measured power per state (S0 interactive, S0 AI burst, S2, S4, cold boot) vs the §10.3 table. Profile A/B runtime on the 2.7 Ah cell (see PM-B1).
+- PW1: Measured power per state (S0 interactive, S0 AI burst, S2, S4, cold boot) vs the §10.3 table. Profile A/B runtime on the 3.6 Ah cell (see PM-B1).
 - PW2: 500 S2↔S0 cycles and 200 S4→boot cycles without failure. Boot < 15 s.
 - PW3: Battery at 3 % → controlled shutdown completes, no DB corruption (`PRAGMA integrity_check` ok) over 50 runs.
 - PW4: Kill pm-core / hang the CM5 → the MCU WDT resets within 35 s, boot_reason=wdt logged.
@@ -1711,6 +1709,11 @@ The NUCLEO-U083RC pins below are **proposed** and must be checked against the NU
   - 25 Profile-A sessions/h compressed into 2 h: skin ≤ 43 °C;
   - a single continuous 20 min session: Soft throttle allowed, no Protect stage;
   - the CM5 is off within 30 s of every session end (MCU log).
+- PM/Enc-T1 [PM/Enclosure 2026-10-21]: v4_22 in a chamber at 35 °C and 40 °C (held, table, pocket fixtures): skin at the hottest point (thermocouple) never exceeds 43.0 °C. At 45 °C: never exceeds 48.0 °C. Each stage triggers within ±0.3 K of its threshold (after calibration). Release after 1.5 K hysteresis.
+- PM/Enc-T2: The SoC is forced to 80 °C (heat gun or stress at Hard disabled in a test build), and Protect powers off to S4 within 5 s. The MCU blocks power-on until the NTC drops below Warn − 1.5 K.
+- PM/Enc-T3: The case NTC is disconnected (open) or shorted. The MCU flags `adc_fault`, and pm-power falls back to SoC temperature − 25 K with the Warn stage forced and local AI disabled.
+- PM/Enc-T4: Charging at 45 °C ambient → no charge current (charger JEITA), the UI shows "Too hot to charge", and charging resumes below 38 °C.
+- PM/Enc-T5: Wi-Fi antenna: with `dtparam=ant2`, the external FPC antenna is in use. RSSI at 3 m / 10 m from a reference AP is within 3 dB of a reference CM5 + Raspberry Pi antenna kit, and is ≥ 10 dB better than with the FPC disconnected (this proves the external path is selected). `iw dev wlan0 link` throughput is ≥ 20 Mb/s at 10 m.
 - PM-P4: Radios: the Wi-Fi/BT rfkill state is blocked ≥ 95 % of the time over a 16 h Profile A run, with radios up only during logged leases.
 
 **Thermal and JEITA [PM 2026-10-21]**. Run in a 25 / 35 / 45 °C chamber, with thermocouples on 6 skin points plus the case NTC, on the mock enclosure.
@@ -1739,7 +1742,7 @@ The NUCLEO-U083RC pins below are **proposed** and must be checked against the NU
 | A-19 | Haptics: LRA DNP, not in the MVP UX (v0.3). Null driver hook only |
 | A-24 | MCU RTC = STM32U0 internal RTC + LSE |
 | A-25 | STM32U0 (prototype NUCLEO-U083RC) |
-| A-30 / A-34 | ~2.7 Ah 51×64 mm cell in a 125×75×20 mm body. Target 16 h mixed use + ≥ 24 h standby |
+| A-30 / A-34 | Resolved v0.3.4: ~3.6 Ah cell in the 22 mm v4_22 body (capacity EST until the cell is sourced). Target 16 h mixed use + ≥ 24 h standby |
 | A-12 (OCR) | PaddleOCR / IndicPhotoOCR default |
 | A-28 | Latency/thermal targets set by PM (§14) |
 | UX pending 1–3 | slot sizes (§2.1), transliteration (§6.12), provider + deletion API (§6.7) |
@@ -1777,7 +1780,10 @@ The NUCLEO-U083RC pins below are **proposed** and must be checked against the NU
 | A-59 | Rockchip secure-boot chain for RAUC/LUKS |
 | A-60 | Exact DT method to disable HDMI on CM5 KMS (overlay parameter) |
 | A-61 | Amp quiescent current (MAX98357A datasheet) |
-| A-62 | Thickness rescale assumes G ∝ area, same h/ε, hot-spot offset unchanged (estimate) |
+| A-62 | Superseded by the enclosure sweep (thermal_v3_ribs §v4); 22 mm chosen |
+| A-63 | The STM32U0 has a free ADC channel for the case NTC (fallback: I2C ADC on the MCU bus) |
+| A-64 | Stage thresholds apply to the hot-spot-compensated NTC value (conservative reading of "on the case NTC") |
+| A-65 | No ALS/proximity/IMU in the v1 BOM. The case heuristic defaults to display-off ⇒ pocket. Adding an ALS/prox sensor to the custom carrier is recommended |
 | A-22 | (superseded by the locked 20/10/3 %) |
 | A-23 | UART primary, I2C alternate |
 | A-26 | Gauge/charger parts (BQ25895, MAX17055/48 candidates) |
@@ -1810,7 +1816,7 @@ The NUCLEO-U083RC pins below are **proposed** and must be checked against the NU
 
 ## 17. Rev-2 portability: Radxa CM5 (RK3588S2, RKNN NPU) (v0.3.2)
 
-**Status**: not v1. **Anand decided on 2026-10-21 to stay on Pi CM5.** This section is kept as a portability guardrail and an option for later. A rev-2 evaluation runs in parallel on a second carrier spin (research/compute-options.md recommendation). Rationale [Research]:
+**Status**: not v1, and **unfunded until after M5b** [PM/Enclosure 2026-10-21]. **Anand decided on 2026-10-21 to stay on Pi CM5.** This section is kept as a portability guardrail and an option for later. A rev-2 evaluation runs in parallel on a second carrier spin (research/compute-options.md recommendation). Rationale [Research]:
 - idle **1.2 W vs 2.4 W**, which fits about a 2 W budget;
 - a 6 TOPS NPU for LLM/ASR/OCR offload;
 - India module price ≈ ₹7,732 + GST vs ₹15,000.
@@ -1847,6 +1853,7 @@ class Platform(Protocol):
     def suspend(self, state: str) -> None: ...
     # display / camera / audio
     def backlight(self, pct: int) -> None: ...
+    def fan_set(self, pct: int) -> None: ...                   # unused hook: v1 baseline is fan-free (no-op)
     def panel_power(self, on: bool) -> None: ...
     def camera_open(self, mode: str) -> "CameraSession": ...   # libcamera (Pi) | rkaiq/v4l2 (Rockchip)
     def audio_devices(self) -> dict[str, str]: ...             # logical -> ALSA card names
