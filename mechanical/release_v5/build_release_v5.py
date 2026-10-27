@@ -36,8 +36,9 @@ db_pts = [(-34.4, -32.0), (-27.0, -32.0), (-27.0, -35.0), (-22.5, -35.0), (-22.5
 P['LTE_Daughterboard_PCB'] = poly_prism(db_pts, DB_Z0, DB_Z1)
 P['Vol_LTE_EC25_Shield'] = box(-51.3, -20.3, -22.5, 11.5, DB_Z1, SH_TOP)      # 31x34 height keep-out; U1 EC25 (32x29x2.4) ROTATED 90 deg, centre (-35.8,-5.5)
 P['Vol_LTE_U1_Courtyard'] = box(-51.95, -19.65, -23.15, 12.15, DB_Z1, DB_Z1 + 0.05)   # Quectel LGA-144 courtyard 35.3x32.3 rotated (PCB-level marker)
-P['Vol_LTE_UFL_GNSS'] = box(-47.0, -44.8, 14.4, 16.6, DB_Z1, DB_Z1 + 2.1)     # U.FL mated
-P['Vol_LTE_UFL_Main'] = box(-51.6, -49.4, 12.4, 14.6, DB_Z1, DB_Z1 + 2.1)
+# O12 (Layout 27 Oct 23:50 IST): final u.FL positions, both rot 90; mated-plug envelopes
+P['Vol_LTE_UFL_GNSS'] = box(-45.7, -43.5, 14.0, 16.2, DB_Z1, DB_Z1 + 2.1)     # J4 centre (-44.6,15.1)
+P['Vol_LTE_UFL_Main'] = box(-50.8, -48.6, 12.1, 14.3, DB_Z1, DB_Z1 + 2.1)     # J2 centre (-49.7,13.2); body Y 11.9..14.5
 # v5.1: diversity antenna dropped (PM) -> no DIV u.FL / coax / window / FPC
 P['Vol_LTE_NanoSIM_Hinged'] = box(-17.75, -5.35, -31.6, -17.6, DB_Z1, DB_Z1 + 1.4)    # v5.1: CUI/Same Sky NSIM-2-C 12.4 x 14 x 1.4 (verified), 2.4 from U1 pad toes
 P['Vol_LTE_SIM_LidSwing'] = box(-17.75, -5.35, -31.6, -29.0, DB_Z1 + 1.4, DB_Z1 + 1.4 + 12.0)  # lid opening sweep (display/bezel removed)
@@ -87,10 +88,9 @@ P['Vol_Ant_GNSS_Envelope'] = box(-60.4, -58.8, 17.5, 27.0, 2.5, 15.0)           
 P['Vol_Ant_GNSS_PatchOpt_Envelope'] = box(-60.4, -55.6, 17.5, 27.0, 2.5, 12.0)  # option: 9x9x4 patch (Abracon APAKN0904-S1575-T class) on 9.5x9.5x0.8 carrier, kept below the side-key flex riser (Z12)
 P['Vol_Ant_GNSS_Keepout'] = box(-58.8, -55.0, 17.0, 27.5, 2.0, 15.5)
 # coax routes (Ø1.13 mini-coax, modelled as 1.3 mm square runs)
-P['Coax_Main'] = fuse(box(-59.0, -49.95, 12.85, 14.0, 13.3, 14.45),     # -X run off the main U.FL (leftmost, no crossing)
-                      box(-60.2, -58.9, 12.85, 14.0, 10.0, 14.45))       # drop to the feed at the +Y end of the FPC
-P['Coax_GNSS'] = fuse(box(-58.1, -45.4, 14.7, 15.85, 13.3, 14.45),     # passes 0.1 above-Y of main U.FL, 0.15 below side-key flex riser (Y16)
-                      box(-59.4, -58.1, 14.7, 17.45, 11.0, 14.45))      # rise along the web to the GNSS feed (carrier -Y edge, Y17.5)
+from coax_geom import coax_main, coax_gnss   # O12: swept Ø1.13, R>=6.8 (see coax_geom.py)
+P['Coax_Main'] = coax_main()
+P['Coax_GNSS'] = coax_gnss()
 # ---------------- bezel: clamp posts over ears + two finger clamps from the side-key rib ----------------
 Bz = src['Bezel_DisplayFrame_PC']
 Bz = fuse(Bz, box(-24.0, -22.5, -34.6, -32.6, 12.25, 15.85), box(-12.5, -10.5, -34.6, -32.6, 12.25, 15.85),
