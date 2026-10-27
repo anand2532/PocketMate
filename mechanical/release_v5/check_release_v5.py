@@ -39,6 +39,7 @@ def classify(a, b):
     var = lambda n: 'prod' if ('Prod' in n) else ('proto' if ('Proto' in n) else None)
     va, vb = var(a), var(b)
     if va and vb and va != vb: return 'other-variant'
+    if s == {'Vol_Ant_GNSS_Envelope', 'Vol_Ant_GNSS_PatchOpt_Envelope'}: return 'other-variant(GNSS chip vs patch option)'
     if va and vb and va == vb and ('Cell' in a or 'Cell' in b) and ('Leads' in a or 'Leads' in b): return 'intended(lead on cell)'
     if 'Vol_Battery' in s: return 'pocket-envelope'
     if 'BattPad_NTCpocket' in s and any('Cell' in n or 'Vol_NTC_Batt' in n for n in s): return 'intended(pad)'
@@ -47,7 +48,8 @@ def classify(a, b):
         if any(t in o for t in ('Coax', 'Vol_Ant', 'Pigtail', 'UFL')) or not METAL(o): return 'keepout-ok(non-metal/own feed)'
         return 'KEEPOUT-VIOLATION'
     if any('Coax' in n for n in s) and any(('UFL' in n) or ('Vol_Ant' in n) for n in s): return 'intended(coax mate)'
-    if 'LTE_Flex_22P' in s and any(('Conn' in n) or ('J14' in n) for n in s): return 'intended(flex in connector)'
+    if s == {'LTE_Flex_22P', 'Vol_LTE_FFC_Bow_MaxTol_15p3'}: return 'other-variant(FFC nominal vs max-length bow)'
+    if s & {'LTE_Flex_22P', 'Vol_LTE_FFC_Bow_MaxTol_15p3'} and any(('Conn' in n) or ('J14' in n) for n in s): return 'intended(FFC stiffener seated in FH12)'
     if 'Vol_LTE_U1_Courtyard' in s and (s & {'LTE_Daughterboard_PCB', 'Vol_LTE_EC25_Shield', 'ThermalPad_Shield_0p5'}): return 'same-part'
     if 'Vol_LTE_SIM_LidSwing' in s: return 'service(lid swing needs bezel+display off)'
     return 'CLASH'
