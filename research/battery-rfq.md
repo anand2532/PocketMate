@@ -1,6 +1,6 @@
 # RFQ: Custom 1S Li-Po pouch cell for PocketMate
 
-> **Scope (Rev C):** this RFQ is for the PRODUCTION custom cell only (≤8.5×50.5×62.0 mm incl. PCM, ≥3000 mAh rated / 3100 target, ≥2C continuous, 3C/10 s peak). The PROTOTYPE cell is the off-the-shelf Akyga LP655063 (3000 mAh, 1C / 3 A max, 65.5×51×7.0 mm max pack, 10k NTC beta unstated). It is not part of this RFQ. See components.md for it and its B3950 trip estimates ("Akyga LP655063 datasheet" section, about line 424–442).
+> **Scope (Rev D):** this RFQ is for the PRODUCTION custom cell only (≤8.5×50.5×62.0 mm incl. PCM, ≥3000 mAh rated / 3100 target, ≥2C continuous, 3C/10 s peak). The PROTOTYPE cell is the off-the-shelf Akyga LP655063 (3000 mAh, 1C / 3 A max, 65.5×51×7.0 mm max pack, 10k NTC beta unstated). It is not part of this RFQ. See components.md for it and its B3950 trip estimates ("Akyga LP655063 datasheet" section, about line 424–442).
 **Issued by:** PocketMate hardware team (Anand Mohan Pandey) · **Date:** 2026-10-21 · **Rev:** D (staggered lead lengths, Enclosure v4_22c). Rev C was sent to iBorn, Grepow and THOR; Rev D goes as a follow-up
 **Product:** PocketMate, a handheld personal AI companion (Raspberry Pi CM5). **Market:** India first (BIS mandatory), then global.
 
