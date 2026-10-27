@@ -289,6 +289,22 @@ C('100nF','+3V3_AON'); C('1uF','MIC_FEED')
 # REC indicator: lit whenever MIC_FEED (the mic supply itself) is powered -> exact indication
 R('1.3k','MIC_FEED','REC_LED_A')
 part('Device','LED','D6','GREEN REC (APTD1608LZGCK)','LED_SMD:LED_0603_1608Metric',{'2':'REC_LED_A','1':'GND'})
+# ===== LTE daughterboard link (kicad-lte, Option D of layout/lte_placement_study.md) =====
+# Carrier J14 = Hirose FH12-22S-0.5SH, 22p 0.5 mm FPC to the LTE board (EC25-E / EC200U-CN). Appended last so no existing ref renumbers.
+# Signals are CM5 3.3 V GPIO domain; 1.8 V translation + PWRKEY/RESET_N open-drain drivers live on the LTE board.
+# USB2: CM5 USB3-0 port's USB2 pair (J2 134 DP / 136 DM), 90R diff. LTE_USB_VBUS = +5V_CM5 (EC200U needs USB_VBUS >= 3.5 V, so not VSYS).
+sheet('LTE','lte_link.kicad_sch','LTE daughterboard link J14 (FH12-22S, 22p 0.5mm): VSYS, USB2 (CM5 USB3-0 DP/DM), control GPIOs')
+for k,v in {'134':'LTE_USB_DP','136':'LTE_USB_DM'}.items():
+    SHEETS['CM5']['parts'][[q['ref'] for q in SHEETS['CM5']['parts']].index('J2')]['conn'][k]=v
+for k,v in {'34':'LTE_PWR_EN','30':'LTE_PWRKEY','28':'LTE_RESET','24':'LTE_W_DISABLE_N','29':'LTE_STATUS','31':'LTE_RI','41':'LTE_AP_READY'}.items():
+    SHEETS['CM5']['parts'][[q['ref'] for q in SHEETS['CM5']['parts']].index('J1')]['conn'][k]=v
+LTEFLEX={'1':'VSYS','2':'VSYS','3':'VSYS','4':'VSYS','5':'VSYS','6':'VSYS','7':'GND','8':'GND','9':'GND',
+ '10':'LTE_USB_DM','11':'LTE_USB_DP','12':'GND','13':'LTE_USB_VBUS','14':'GND',
+ '15':'LTE_PWR_EN','16':'LTE_PWRKEY','17':'LTE_RESET','18':'LTE_W_DISABLE_N','19':'LTE_STATUS','20':'LTE_RI','21':'LTE_AP_READY','22':'GND'}
+part('Connector_Generic','Conn_01x22','J14','LTE link FH12-22S-0.5SH(55)','Connector_FFC-FPC:Hirose_FH12-22S-0.5SH_1x22-1MP_P0.50mm_Horizontal',LTEFLEX,MPN='Hirose FH12-22S-0.5SH(55)')
+R('0R','+5V_CM5','LTE_USB_VBUS')          # USB_VBUS detect feed (uA load); DNP to hide the module from USB
+R('100k','LTE_PWR_EN','GND')              # LTE load switch off while CM5 GPIO floats / CM5 off
+C('22uF','VSYS',fp=C0805); C('100nF','VSYS')  # carrier-side VSYS decoupling at J14 (2 A burst feed, bulk is on the LTE board)
 # GND flag
 SHEETS['CM5']['parts'].append(dict(lib='power',sym='PWR_FLAG',ref='#FLG',val='PWR_FLAG',fp='',conn={'1':'GND'},dnp=False,props={}))
 # ---------------- emit ----------------

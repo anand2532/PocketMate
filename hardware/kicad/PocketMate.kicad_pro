@@ -367,6 +367,26 @@
       {
         "netclass": "PWR",
         "pattern": "+5V*"
+      },
+      {
+        "netclass": "MIPI_100R",
+        "pattern": "DSI_D?_?"
+      },
+      {
+        "netclass": "MIPI_100R",
+        "pattern": "DSI_C_?"
+      },
+      {
+        "netclass": "MIPI_100R",
+        "pattern": "CSI_D?_?"
+      },
+      {
+        "netclass": "MIPI_100R",
+        "pattern": "CSI_C_?"
+      },
+      {
+        "netclass": "USB_90R",
+        "pattern": "LTE_USB_D?"
       }
     ]
   },

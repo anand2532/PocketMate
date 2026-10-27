@@ -3,6 +3,7 @@
   "Audio",
   "CM5",
   "DisplayCamera",
+  "LTE",
   "MCU",
   "PowerInput",
   "Regulators",
@@ -83,6 +84,7 @@
  "+5V_CM5": [
   "Audio",
   "CM5",
+  "LTE",
   "Regulators"
  ],
  "CM5_3V3": [
@@ -122,6 +124,34 @@
  "CAM_GPIO1": [
   "CM5",
   "DisplayCamera"
+ ],
+ "LTE_PWR_EN": [
+  "CM5",
+  "LTE"
+ ],
+ "LTE_PWRKEY": [
+  "CM5",
+  "LTE"
+ ],
+ "LTE_RESET": [
+  "CM5",
+  "LTE"
+ ],
+ "LTE_W_DISABLE_N": [
+  "CM5",
+  "LTE"
+ ],
+ "LTE_STATUS": [
+  "CM5",
+  "LTE"
+ ],
+ "LTE_RI": [
+  "CM5",
+  "LTE"
+ ],
+ "LTE_AP_READY": [
+  "CM5",
+  "LTE"
  ],
  "USB_DM": [
   "CM5",
@@ -210,6 +240,14 @@
  "DSI_D3_P": [
   "CM5",
   "DisplayCamera"
+ ],
+ "LTE_USB_DP": [
+  "CM5",
+  "LTE"
+ ],
+ "LTE_USB_DM": [
+  "CM5",
+  "LTE"
  ],
  "+3V3_PERIPH": [
   "DisplayCamera",
@@ -306,6 +344,7 @@
   "PowerInput"
  ],
  "VSYS": [
+  "LTE",
   "PowerInput",
   "Regulators",
   "Sensors"
@@ -466,5 +505,8 @@
  ],
  "REC_LED_A": [
   "SideFlex"
+ ],
+ "LTE_USB_VBUS": [
+  "LTE"
  ]
 }
