@@ -441,3 +441,15 @@ BIS status of every option: **needs vendor R-number**.
   - Production RFQ specifies 10k ±1%, B25/85 = 3435 ±1% (103AT-equivalent).
   - For the Akyga prototype, measure the NTC first. If it is B3950, recompute RT1/RT2 with Eq. 2 using RTH(0 °C) ≈ 33.6 kΩ and RTH(45 °C) ≈ 4.35 kΩ (beta-model EST), or use the actual R-T table.
 - **The pinout change does not affect this:** the NTC returns to pack − (GND, pins 3–4), and TS reads pin 5.
+
+## Rev D items (2026-10-21, 23:10 IST)
+- **Battery lead lengths (Enclosure v4_22c), staggered by exit order:**
+  - Production: 22.1 / 24.5 / 26.9 / 29.4 / 31.8 mm.
+  - Akyga re-termination: 24.2 / 26.6 / 29.0 / 31.5 / 34.0 mm.
+  - Pin mapping now **confirmed**: pins 1–5 in that order (Layout). **Tolerance TBC** (±0.5 mm proposed).
+  - See battery-rfq.md §4d and the "Rev D follow-up delta".
+- **Display and camera FPC spec:** research/display-spec.md.
+  - The Waveshare 4.3" glass is **RGB 40-pin** (DSI via its adapter PCB) with a 0.30 mm contact end. ❌
+  - Ronbo MPI4303 publishes no FPC data and offers custom. A **custom DSI 22-pin tail is needed**.
+  - The OV5647AF module is 15-pin stock. A **custom 22-pin 0.5 mm, about 14 mm tail is needed**.
+- **Akyga NTC test:** research/proto-test-plan.md T-BAT-01.

@@ -1,7 +1,7 @@
 # RFQ: Custom 1S Li-Po pouch cell for PocketMate
 
 > **Scope (Rev C):** this RFQ is for the PRODUCTION custom cell only (≤8.5×50.5×62.0 mm incl. PCM, ≥3000 mAh rated / 3100 target, ≥2C continuous, 3C/10 s peak). The PROTOTYPE cell is the off-the-shelf Akyga LP655063 (3000 mAh, 1C / 3 A max, 65.5×51×7.0 mm max pack, 10k NTC beta unstated). It is not part of this RFQ. See components.md for it and its B3950 trip estimates ("Akyga LP655063 datasheet" section, about line 424–442).
-**Issued by:** PocketMate hardware team (Anand Mohan Pandey) · **Date:** 2026-10-21 · **Rev:** C (L ≤ 62 mm, capacity ≥ 3.0 Ah, schematic pinout)
+**Issued by:** PocketMate hardware team (Anand Mohan Pandey) · **Date:** 2026-10-21 · **Rev:** D (staggered lead lengths, Enclosure v4_22c). Rev C was sent to iBorn, Grepow and THOR; Rev D goes as a follow-up
 **Product:** PocketMate, a handheld personal AI companion (Raspberry Pi CM5). **Market:** India first (BIS mandatory), then global.
 
 ## 1. Mechanical
@@ -46,7 +46,7 @@
 | Crimp terminal | **Molex 205342-5028**: female crimp, **AWG 20–22**, gold, copper alloy, 20 mΩ max ([RS 201-7496](https://no.rs-online.com/web/p/crimp-contacts/2017496)). The 205342 series covers AWG 20–26 overall ([Molex datasheet 987650-9061](https://www.molex.com/content/dam/molex/molex-dot-com/en_us/pdf/datasheets/987650-9061.pdf)) |
 | Mating PCB header (carrier J7) | **Molex 205338-0005**: right-angle SMT, gold, positive lock, 5 circuits, **mated height 2.60 mm** ([205338 series chart](https://www.molex.com/en-us/products/series-chart/205338)). The 205338 series chart lists **right-angle SMT only. No vertical header was found** in the 2.00 mm Pico-Lock family |
 | Wire | **AWG20** for the 4 power leads, UL1007/UL1571 (state type and insulation OD). NTC lead: AWG20 preferred for one terminal type, or AWG22 (same terminal 205342-5028) |
-| Lead length | **About 40 mm (TBD)**, pack edge to housing face. Confirmed before samples |
+| Lead length | **Staggered per §4d (Rev D)**. Supersedes "about 40 mm" |
 | Wire exit | From the PCM on the **50 mm edge**, routed per §4c |
 
 ### 4a. Pinout (the schematic is master, Rev C)
@@ -77,6 +77,24 @@
   - Vendor and Enclosure team to confirm the bend radius on the drawing.
 - **No lead crosses the cell face** (8.5 + about 1.6 mm would exceed 9.0 mm).
 - **PCM pads:** 4 × AWG20 plus NTC. Vendor to confirm pad size, solder method and ≥ 8 A pad/trace rating.
+
+### 4d. Staggered lead lengths (Rev D, from Enclosure `mechanical/keepouts_v4_22c.md` and `build_v4_22c.py`)
+| J7 pin | Signal | Housing cavity position | Production pack (mm) | Akyga re-termination (mm) |
+|---|---|---|---|---|
+| 1 | VBAT | Y 27.7 | **22.1** | **24.2** |
+| 2 | VBAT | Y 25.7 | **24.5** | **26.6** |
+| 3 | BAT_N | Y 23.7 | **26.9** | **29.0** |
+| 4 | BAT_N | Y 21.7 | **29.4** | **31.5** |
+| 5 | NTC (CHG_TS) | Y 19.7 | **31.8** | **34.0** |
+
+- **Pin mapping confirmed by Layout (2026-10-21):** pins 1–5 are at Y 27.7 → 19.7, X 7.12 in the Layout frame, with the cable mouth facing −X. Lead *i* in Enclosure's model (`build_v4_22c.py`) is therefore pin *i*.
+  - Note: Enclosure's model puts the housing mouth at X −8.88, which is a different X datum from Layout's 7.12. The Y values agree. Enclosure and Layout should confirm the frame offset so the lengths still hold.
+- **Definition:** these are Enclosure's model wire centreline lengths (`W.Length`) from the pack exit point to the housing mouth face (X −8.88).
+  - Model wire OD is 1.6 mm, and the leads exit the pack edge at 1.6 mm pitch.
+  - **Vendor to confirm** whether they quote lead length to the housing face or to the crimp. Our figures are to the **housing face**.
+- **Tolerance: TBC.** No harness-length tolerance is given in the Enclosure files, and I have no sourced standard figure to cite.
+  - Proposed for vendor comment: **±0.5 mm** per lead. The leads step by 2.4–2.5 mm, so ±0.5 mm keeps the order unambiguous.
+  - Vendor to state their capability. Enclosure to confirm the slack available in the U-turn.
 
 ## 5. Compliance and documents (deliverables)
 - **IEC 62133-2:2017** test report (cell and pack), from a CB-scheme lab
@@ -125,3 +143,29 @@ Quote: unit price at 20 / 1k / 5k / 10k, tooling/NRE (if any), MOQ, Incoterms (F
 | Sample lead time / price | | | |
 | Pilot 1k and 10k/yr price, MOQ, NRE | | | |
 | Drawing + datasheet supplied | | | |
+
+## Rev D follow-up delta (paste into vendor emails)
+> **Subject: PocketMate 1S Li-po RFQ: Rev D delta (lead lengths)**
+> Further to our Rev C RFQ, only §4 termination changes:
+> 1. **Lead lengths are now staggered**, measured from the pack exit to the Molex 205341-0205 housing face. Pins 1–5: **22.1 / 24.5 / 26.9 / 29.4 / 31.8 mm**. They replace "about 40 mm".
+> 2. **Pin-to-length mapping (pin 1 at the +Y end of the 5-way housing):** pin 1 VBAT 22.1, pin 2 VBAT 24.5, pin 3 GND 26.9, pin 4 GND 29.4, pin 5 NTC 31.8 mm. Please quote the harness as staggered, 5 × AWG20 (UL1007/UL1571), 205342-5028 terminals.
+> 3. **Proposed length tolerance ±0.5 mm per lead.** Please confirm your capability, and whether you measure to the housing face or the crimp.
+>
+> All other Rev C requirements are unchanged: ≤ 8.5 × 50.5 × 62.0 mm incl. PCM; ≥ 3.0 Ah rated (target 3.1 Ah) at 0.2C; 2C; PCM OCP 6–8 A; 10k B25/85 = 3435 NTC; pinout 1 VBAT, 2 VBAT, 3 GND, 4 GND, 5 NTC; IEC 62133-2, UN38.3, MSDS, and BIS IS 16046-2 R-number.
+
+> **Note (2026-10-21 23:16 IST, from Layout):** Enclosure moved J7 0.3 mm toward -Y. The pins stay at X 7.12, and the new Y positions are: pin 1 VBAT 27.4, pin 2 VBAT 25.4, pin 3 BAT_N 23.4, pin 4 BAT_N 21.4, pin 5 NTC 19.4. The §4d lead lengths came from Enclosure v4_22c, before the move. Enclosure needs to confirm whether they change, and also resolve the X reference mismatch (Layout X 7.12 vs the Enclosure housing face at X −8.88), before the Rev D follow-up goes out.
+
+## 4e. Final lead spec (Enclosure v4_22e, 2026-10-21 23:18 IST): supersedes the §4d lengths
+- 5x AWG20 leads exit the 50 mm edge at the PCM end, at 1.6 mm pitch at the exit, into a Molex 205341-0205 housing with 205342-5028 terminals.
+- Length is measured from the cell exit to the housing face, tolerance ±1 mm.
+- Pin 1 is furthest toward the pack's +X side (exit X −20.2), and pins 2–5 step toward −X.
+
+| Pin | Signal (schematic master) | Production pack (≤62 mm) | Akyga prototype |
+|---|---|---|---|
+| 1 | VBAT | 22.1 mm | 24.2 mm |
+| 2 | VBAT | 24.5 mm | 26.6 mm |
+| 3 | GND (BAT_N) | 26.9 mm | 29.0 mm |
+| 4 | GND (BAT_N) | 29.4 mm | 31.5 mm |
+| 5 | NTC | 31.9 mm | 34.0 mm |
+
+> **RESOLVED (23:19 IST):** Enclosure confirmed the schematic is master (1–2 VBAT, 3–4 BAT_N, 5 NTC/CHG_TS). The lengths stand, with pin 5 at 31.9 mm. Cleared to send as the Rev D follow-up.
