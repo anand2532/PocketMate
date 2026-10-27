@@ -188,3 +188,87 @@ Source: *CM5 Datasheet* R3, pinout table and §2.4. All pins are on the **high-s
      - **Bezel frame** (Z ≥ 11.5): local ribs not sampled. **Enclosure to confirm** a clear Z 11.3..15.0 volume over the cell.
   3. Swell clearance: the 0.5 mm pocket margin is the only gap between the cell and the board. An IEC-type swelling allowance (typically about 8–10% of thickness, EST) would need **≈ 0.7–0.85 mm**. **Flag this to Enclosure/Battery:** consider a 0.3 mm stiffener-free gap or lowering the board ledge budget.
   4. Thermal: the board sits directly over the cell, so EC25 heat (up to ≈ 2.9 W in bursts) warms the cell. Thermal-pad the shield to the bezel or Al, not into the cell.
+
+## 8. Update 2026-10-27, 22:20 IST: answers for Schematic (supersedes 7.2–7.4 where they differ)
+Sources:
+- *CM5 Datasheet* Release 3 (build 08/06/2026), pinout pp. 21–22, §2.4.2, CM4→CM5 table p. 35
+- `hardware/kicad/PocketMate.net`
+- `mechanical/release_v5/README_release_v5.md` and `keepouts_v5_22.md`
+- `hardware/kicad-lte/kicad-lte_BOM.csv`
+- Quectel EC25 spec V3.0 and EC200U spec V1.8
+
+### 8.1 EC25-E covers India: **confirmed**
+- EC25-E bands: LTE-FDD **B1/3/5/7/8/20**, LTE-TDD **B38/40/41** (EC25 spec V3.0; region "EMEA/South Korea/Thailand/India"). That covers all six Indian bands, **B1/3/5/8/40/41** ✅.
+- Prototype fallback **EC200U-CN**: FDD B1/3/5/8 and TDD B34/38/39/40/41 ([EC200U spec V1.8](https://developer.quectel.com/en/wp-content/uploads/sites/2/2024/11/Quectel_EC200U_Series_LTE_Standard_Module_Specification_V1.8.pdf)), which also covers India ✅. It is Cat-1 only.
+- Qty-1 India stock and pricing are in `proto-bom-india.md` §2.
+
+### 8.2 CM5 USB2 pairs for the module (pin numbers, J2 high-speed connector)
+| CM5 port | D+ pin | D− pin | Status in `PocketMate.net` |
+|---|---|---|---|
+| USB 2.0 (USB_P / USB_N) | 105 | 103 | **Used by the USB-C. Do not use for LTE** |
+| **USB3-0 USB2 pair** (USB3-0-DP / -DM) | **134** | **136** | **Already routed to LTE**: net `LTE_USB_DP` → J14-11 and `LTE_USB_DM` → J14-10 |
+| USB3-1 USB2 pair (USB3-1-DP / -DM) | 163 | 165 | **Spare (NC)**. Valid alternate |
+
+- The datasheet's CM4→CM5 table labels pins 134/136/163/165 as "USB 2.0 signal". The SuperSpeed pairs stay NC.
+- **Correction to 7.2:** 7.2 recommended 163/165, but the carrier netlist uses **134/136**. Both are valid. **Keep 134/136** (no change), and keep 163/165 as the documented fallback.
+- Routing rules (§2.4.2): 90 Ω differential, P/N matched within 0.15 mm, no P/N swap. Across the FH12-22 FFC, use G-D+-D−-G, with J14 pins 10/11 flanked by GND.
+- J14 pinout (from the netlist):
+
+| J14 pin | Signal |
+|---|---|
+| 1–6 | LTE_VBAT (via F1 0466004) |
+| 10 / 11 | D− / D+ |
+| 13 | LTE_USB_VBUS |
+| 15 | PWR_EN (J1-45) |
+| 16 | PWRKEY (J1-40) |
+| 17 | RESET (J1-28) |
+| 18 | W_DISABLE_N (J1-24) |
+| 19 | STATUS (J1-29) |
+| 20 | RI (J1-31) |
+| 21 | AP_READY (J1-41) |
+
+- Bench-verify enumeration on the CM5 IO Board (lsusb, `/dev/ttyUSB*`).
+
+### 8.3 Antennas (release_v5 windows; supersedes the 7.3 parts, which do not fit)
+| Role | Part number | Size (mm) | Bands | Connector | India qty 1 |
+|---|---|---|---|---|---|
+| **LTE main** | **Abracon AANI-FB-0173-1** ([datasheet](https://abracon.com/datasheets/AANI-FB-0173.pdf)) | **40 × 15 × 0.2**, into the 42×16 left-wall window | 698–960 / 1710–2690 MHz. Peak gain 2.2 / 5.5 dBi, average efficiency 31 / 61 % | u.FL (MHF1), 66 mm Ø1.13. -3/-5 variants have 150/200 mm cable | element14 4751751, ₹278.14 ex., 910 in stock |
+| **GNSS (primary)** | **Johanson 1575AT43A0040001E** LTCC chip | **7.0 × 2.0 × 0.8** on a 9.5 × 12.5 × 0.8 carrier with GND, 50 Ω GCPW, π-match and a u.FL pigtail | 1561–1602 MHz | via the carrier | element14 4397877, ₹104.86 ex., 963 in stock |
+| GNSS (alt) | **Abracon APAKN0904-S1575-T** passive patch | **9.0 × 9.0 × 4**, fills the 4.8-deep PatchOpt envelope on a 0.8 carrier | 1575.42 MHz, RHCP | via the carrier | LionCircuits ₹339.02 ex. (◐) |
+| LTE diversity | **None fitted** (release_v5 PM decision; at most 16 × 3.3 mm available) | — | — | J3 u.FL DNP | Disable RX diversity in firmware. The exact AT command is **VERIFY** in the EC25 AT manual |
+
+- Rejected for size:
+  - Taoglas FXUB63 (96 × 21) and Molex 146185 (84 × 15) do not fit the 42×16 window.
+  - TE/Linx ANT-GNFPC-SAHL1 GNSS FPC (13 × 13 × 0.3; element14 4378472, ₹410.82) exceeds the 9.5 (Y) limit of the 10.5 × 13.5 window. It would fit only if Mechanical widens the window to ≥ 14 mm.
+- Both GNSS options depend on the ground plane and face edge-on. Expect several dB below datasheet figures and budget a tuning pass (release_v5 §5). Main sits 6.45 mm from the cell, so plan a π-match.
+
+### 8.4 Daughterboard over the cell: thickness check vs the 9 mm pocket (release_v5, supersedes 7.4)
+| Z (mm) | Item |
+|---|---|
+| 2.3 | pocket floor |
+| 10.8 | production cell top (8.5 mm cell) |
+| 10.9 | + 0.1 PET liner |
+| 11.3 | pocket top (**9.0 mm pocket**). 0.5 foam fills 10.9 → about 11.4 |
+| 11.4 – 12.2 | **LTE board (0.8 mm, 4-layer)**, on Al ledges at Z 11.40 with PC clamp posts. It is its own shelf; no screws over the cell |
+| 12.2 – 15.5 | U1 + shield (rotated 90°, centred at (−35.8, −5.5)) |
+| 16.8 | display back |
+
+**Clearances (release_v5 README):**
+
+| Gap | mm |
+|---|---|
+| Board → pocket | 0.10 |
+| Board → production cell | **0.60** |
+| Board → production leads | 1.10 |
+| Board → Akyga leads | 1.30 |
+| Board → J7 | 0.56 |
+| Shield top → display back | **1.30** |
+
+- Akyga prototype (7.0 mm) top is at Z 9.3, with 2.0 mm foam.
+- **Verdict: fits.**
+  - The board sits **above** the 9.0 mm pocket, not in it. It needs **no bottom-side components** (as 7.4 said).
+  - The 7.4 XY clashes (speaker, leads, side-key flex) are resolved by the v5 outline X −52..−8, Y −32..17.
+- **Open:**
+  - The swell allowance at 0.60 mm (vs about 0.7–0.85 mm EST for 8–10 % swell) still rests on the 0.5 foam being compliant. **Battery RFQ to confirm the swell spec.**
+  - Waive interference C4 (U1 courtyard vs SIM, 0.3 mm) per INTERFERENCE_CHECK_release_v5.
+- **RC LiPo tether (`proto-bom-india.md` §4):** it does not go in the pocket; the pocket stays empty or carries a dummy spacer.
