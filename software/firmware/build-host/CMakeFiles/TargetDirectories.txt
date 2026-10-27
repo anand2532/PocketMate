@@ -1,0 +1,4 @@
+/workspace/pocketmate/software/firmware/build-host/CMakeFiles/pm_fw_tests.dir
+/workspace/pocketmate/software/firmware/build-host/CMakeFiles/test.dir
+/workspace/pocketmate/software/firmware/build-host/CMakeFiles/edit_cache.dir
+/workspace/pocketmate/software/firmware/build-host/CMakeFiles/rebuild_cache.dir

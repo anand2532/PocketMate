@@ -1,0 +1,43 @@
+#!/bin/bash
+# pm-lte-net up|down: start/stop the LTE data call (§19.6). APN: PM_LTE_APN or settings.toml [lte] apn.
+#   EC25   (2c7c:0125): qmi_wwan raw-IP via qmicli (libqmi-utils), then systemd-networkd DHCP on wwan0.
+#   EC200U (2c7c:0901): ECM (cdc_ether). APN by AT+CGDCONT; data call by AT+QNETDEVCTL=1,1,1 (VERIFY on
+#                       firmware: not confirmed from a Quectel manual here); networkd DHCP on the usb netdev.
+# The APN is operator-specific and is NOT set by default (TODO: per-SIM).
+set -euo pipefail
+DRY="${PM_LTE_DRYRUN:-0}"
+run() { if [ "$DRY" = 1 ]; then echo "+ $*"; else "$@"; fi; }
+at() { if [ "$DRY" = 1 ]; then echo "+ AT $1"; else printf '%s\r' "$1" > "${PM_LTE_AT:-/dev/pm-lte-at}"; fi; }
+APN="${PM_LTE_APN:-}"
+if [ -z "$APN" ] && [ -r /var/lib/pm/settings.toml ]; then
+    APN="$(sed -n '/^\[lte\]/,/^\[/{s/^apn *= *"\(.*\)"/\1/p}' /var/lib/pm/settings.toml | head -1)"
+fi
+MOD="$(cat "${PM_LTE_STATE_DIR:-/var/lib/pm}/lte-module" 2>/dev/null || echo unknown)"
+WDM="${PM_LTE_WDM:-/dev/cdc-wdm0}"
+
+case "${1:-}" in
+    up)
+        [ -n "$APN" ] || { echo "pm-lte-net: no APN configured ([lte] apn)" >&2; exit 2; }
+        case "$MOD" in
+            ec25)
+                run qmicli -d "$WDM" --wda-set-data-format=raw-ip || true
+                run ip link set wwan0 down
+                if [ "$DRY" = 1 ]; then echo "+ echo Y > /sys/class/net/wwan0/qmi/raw_ip"; else echo Y > /sys/class/net/wwan0/qmi/raw_ip; fi
+                run ip link set wwan0 up
+                run qmicli -d "$WDM" --device-open-proxy --wds-start-network="apn=$APN,ip-type=4" --client-no-release-cid
+                ;;
+            ec200u)
+                at "AT+CGDCONT=1,\"IP\",\"$APN\""
+                at "AT+QNETDEVCTL=1,1,1"
+                ;;
+            *) echo "pm-lte-net: module unknown; run pm-lte-power detect" >&2; exit 2 ;;
+        esac
+        ;;
+    down)
+        case "$MOD" in
+            ec25) run qmicli -d "$WDM" --device-open-proxy --wds-stop-network=disable-autoconnect || true ;;
+            ec200u) at "AT+QNETDEVCTL=0,1,0" ;;
+        esac
+        ;;
+    *) echo "usage: $0 up|down" >&2; exit 64 ;;
+esac

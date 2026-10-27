@@ -1,0 +1,7 @@
+# bootsel partition (p1). Written by rauc-tryboot-backend; boot_partition = active slot (2 = A, 3 = B).
+# CM5 bootloader: tryboot_a_b=1 makes `reboot "0 tryboot"` boot [tryboot] once.
+[all]
+tryboot_a_b=1
+boot_partition=2
+[tryboot]
+boot_partition=3

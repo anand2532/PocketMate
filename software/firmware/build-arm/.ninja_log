@@ -1,0 +1,18 @@
+# ninja log v7
+1	25	1793119278591066916	CMakeFiles/pm_mcu.elf.dir/src/crc16.c.obj	59b2557c40eddd9c
+4	25	1793119278595066921	CMakeFiles/pm_mcu.elf.dir/target/startup_stm32u031.c.obj	3cc89287d21f358b
+1	27	1793119278591066916	CMakeFiles/pm_mcu.elf.dir/src/cobs.c.obj	31b61f48cd697cb2
+3	32	1793119278591066916	CMakeFiles/pm_mcu.elf.dir/src/buttons.c.obj	6bc2db21f7990dd7
+3	35	1793119278591066916	CMakeFiles/pm_mcu.elf.dir/src/wdtsup.c.obj	f2ccb4c82342c75a
+2	36	1793119278591066916	CMakeFiles/pm_mcu.elf.dir/src/privacy.c.obj	59d61653dc84ea0a
+4	43	1793119278595066921	CMakeFiles/pm_mcu.elf.dir/target/hal_stm32u0.c.obj	15ab8797a7945c01
+2	43	1793119278591066916	CMakeFiles/pm_mcu.elf.dir/src/charge.c.obj	d21b86c6737c7a1e
+25	44	1793119278615066946	CMakeFiles/pm_mcu.elf.dir/target/main.c.obj	4909a295d709a243
+2	45	1793119278591066916	CMakeFiles/pm_mcu.elf.dir/src/frame.c.obj	b921fa3a6786430e
+3	54	1793119278591066916	CMakeFiles/pm_mcu.elf.dir/src/app.c.obj	bb0c5c2dd8364252
+54	63	1793119278643066981	pm_mcu.elf	1a2e18da579809be
+1	18	1793119321579124194	CMakeFiles/pm_mcu.elf.dir/target/main.c.obj	4909a295d709a243
+1	75	1793119321579124194	CMakeFiles/pm_mcu.elf.dir/src/app.c.obj	bb0c5c2dd8364252
+75	84	1793119321655124302	pm_mcu.elf	1a2e18da579809be
+0	62	1793119333811141734	CMakeFiles/pm_mcu.elf.dir/src/app.c.obj	bb0c5c2dd8364252
+62	71	1793119333871141821	pm_mcu.elf	1a2e18da579809be

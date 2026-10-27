@@ -1,0 +1,48 @@
+# PocketMate pm-power — generated for ARCHITECTURE.md §5.2 [impl v0.4.0]
+[Unit]
+Description=PocketMate power, MCU link, thermal governor
+PartOf=pocketmate.target
+After=pm-profile.service
+Wants=pm-profile.service
+
+[Service]
+Type=notify
+NotifyAccess=main
+ExecStart=/usr/bin/pm-power --port /dev/ttyAMA0
+User=pm-power
+Group=pm-power
+SupplementaryGroups=pm
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=-/etc/default/pocketmate
+RuntimeDirectory=pm
+RuntimeDirectoryPreserve=yes
+RuntimeDirectoryMode=0770
+WatchdogSec=30
+Restart=on-failure
+RestartSec=2
+MemoryMax=40M
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+RestrictNamespaces=yes
+RestrictRealtime=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+CapabilityBoundingSet=
+UMask=0007
+PrivateNetwork=yes
+RestrictAddressFamilies=AF_UNIX
+SupplementaryGroups=dialout
+ReadWritePaths=/var/lib/pm /sys/class/rfkill /sys/class/backlight
+# pm-power writes rfkill/backlight via sysfs; udev rules (99-pocketmate.rules) grant the group.
+DeviceAllow=/dev/ttyAMA0 rw
+
+[Install]
+WantedBy=pocketmate.target

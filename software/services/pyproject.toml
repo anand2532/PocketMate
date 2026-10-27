@@ -1,0 +1,80 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pocketmate"
+version = "0.4.0.dev0"
+description = "PocketMate on-device services (pm-core, pm-audio, pm-power, pm-memory, pm-remind, pm-cloud)"
+requires-python = ">=3.11"
+dependencies = [
+  "pyserial>=3.5",
+  "python-dateutil>=2.8",
+]
+
+[project.optional-dependencies]
+# Local AI backends. All are imported lazily; the stub backend needs none of them.
+whispercpp = ["pywhispercpp"]
+llamacpp   = ["httpx"]            # talks to llama-server over a Unix socket
+piper      = ["piper-tts"]
+paddleocr  = ["rapidocr-onnxruntime"]
+xlit       = ["indic-transliteration"]
+msgpack    = ["msgpack"]
+dev        = ["pytest>=7", "ruff"]
+
+[project.scripts]
+pm-core    = "pocketmate.services.pm_core:main"
+pm-audio   = "pocketmate.services.pm_audio:main"
+pm-power   = "pocketmate.services.pm_power:main"
+pm-memory  = "pocketmate.services.pm_memory:main"
+pm-remind  = "pocketmate.services.pm_remind:main"
+pm-cloud   = "pocketmate.services.pm_cloud:main"
+pm-health  = "pocketmate.services.pm_health:main"
+pm-profile = "pocketmate.services.pm_profile:main"
+pm-lte     = "pocketmate.services.pm_lte:main"
+pm-mcu-sim = "pocketmate.mcu.simulator:main"
+
+[project.entry-points."pocketmate.cloud.providers"]
+sarvam = "pocketmate.cloud.providers.sarvam:SarvamProvider"
+openai = "pocketmate.cloud.providers.openai:OpenAIProvider"
+gemini = "pocketmate.cloud.providers.gemini:GeminiProvider"
+
+[project.entry-points."pocketmate.engines.asr"]
+stub = "pocketmate.engines.backends.stub:StubASR"
+whispercpp = "pocketmate.engines.backends.whispercpp:WhisperCppASR"
+
+[project.entry-points."pocketmate.engines.llm"]
+stub = "pocketmate.engines.backends.stub:StubLLM"
+llamacpp = "pocketmate.engines.backends.llamacpp:LlamaCppLLM"
+
+[project.entry-points."pocketmate.engines.ocr"]
+stub = "pocketmate.engines.backends.stub:StubOCR"
+paddleocr = "pocketmate.engines.backends.paddleocr:PaddleOCR"
+
+[project.entry-points."pocketmate.engines.tts"]
+stub = "pocketmate.engines.backends.stub:StubTTS"
+piper = "pocketmate.engines.backends.piper:PiperTTS"
+
+[project.entry-points."pocketmate.engines.embed"]
+stub = "pocketmate.engines.backends.stub:StubEmbedding"
+llamacpp = "pocketmate.engines.backends.llamacpp:LlamaCppEmbedding"
+
+[tool.setuptools.packages.find]
+include = ["pocketmate*"]
+
+[tool.setuptools.package-data]
+pocketmate = ["memory/*.sql"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B", "UP", "I"]
+ignore = ["E501", "UP007", "B008", "UP042", "E701"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E702"]

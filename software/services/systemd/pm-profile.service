@@ -1,0 +1,21 @@
+# SKU detection + model selection at boot (§6.11). Exit 3 = unsupported SKU (UI shows it).
+[Unit]
+Description=PocketMate SKU profile
+Before=pm-core.service pm-llm.service
+After=local-fs.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=pm-core
+Group=pm-core
+ExecStart=/usr/bin/pm-profile --manifest /opt/pm/models/manifest.json
+RuntimeDirectory=pm
+RuntimeDirectoryPreserve=yes
+SuccessExitStatus=3
+ProtectSystem=strict
+PrivateNetwork=yes
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=pocketmate.target

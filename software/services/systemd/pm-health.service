@@ -1,0 +1,16 @@
+# Boot health check -> rauc status mark-good / mark-bad (§2.2). Runs once per boot.
+[Unit]
+Description=PocketMate boot health check
+After=pocketmate.target
+Requires=pocketmate.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/pm-health --db /var/lib/pm/memory.db
+# Needs root for `rauc status mark-good` (D-Bus to rauc). No network.
+PrivateNetwork=yes
+NoNewPrivileges=yes
+ProtectHome=yes
+
+[Install]
+WantedBy=multi-user.target

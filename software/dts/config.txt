@@ -1,0 +1,29 @@
+# /boot/firmware/config.txt — PocketMate prototype on CM5 IO Board (ARCHITECTURE.md §3)
+# Installed by os/stage-pm. Lines marked VERIFY have not been booted yet.
+arm_64bit=1
+dtoverlay=vc4-kms-v3d
+# 4.3" 800x480 DSI panel (prototype: Waveshare 4.3" DSI LCD) on DSI1 (default; add ",dsi0" for DSI0).
+# v0.4.0 correction: ARCHITECTURE.md v0.3.13 used "vc4-kms-dsi-waveshare-panel,4_3_inch,dsi1", but that
+# overlay has no 4_3_inch or dsi1 parameter (firmware overlays/README, checked 2026-10-27). The stock
+# overlay for this panel is vc4-kms-dsi-waveshare-800x480 (includes edt-ft5406 touch).
+dtoverlay=vc4-kms-dsi-waveshare-800x480
+# Camera Module 3 (IMX708). The overlay's default is CAM1; it has a "cam0" param but no "cam1" param
+# (v0.4.0 correction of "imx708,cam1"). VERIFY which IO-board connector the FFC is on.
+camera_auto_detect=0
+dtoverlay=imx708
+# I2S mics + MAX98357A amp. NOT the stock googlevoicehat-soundcard: it hard-codes amp SD on GPIO16,
+# which the carrier netlist uses for LTE_STATUS. pocketmate-audio is the same driver with SD on GPIO27.
+dtparam=i2s=on
+dtoverlay=pocketmate-audio
+# MCU link: UART0 GPIO14/15 -> /dev/ttyAMA0, no console (remove console=serial0,* from cmdline.txt)
+dtparam=uart0=on
+enable_uart=0
+dtparam=i2c_arm=on
+dtparam=i2c_arm_baudrate=400000
+dtparam=ant2
+dtparam=watchdog=on
+# Power policy (§10.6): PCIe off
+dtparam=pciex1=off
+# PocketMate carrier: MCU_IRQ_N (GPIO4), mic-mute switch (GPIO17), haptics (disabled).
+# 4G SKU / LTE board fitted: use "dtoverlay=pocketmate-carrier,lte" (rfkill wwan on GPIO26).
+dtoverlay=pocketmate-carrier

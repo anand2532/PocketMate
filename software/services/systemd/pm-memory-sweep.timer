@@ -1,0 +1,10 @@
+[Unit]
+Description=PocketMate memory retention sweep (daily)
+
+[Timer]
+OnCalendar=*-*-* 03:30
+Persistent=true
+RandomizedDelaySec=15min
+
+[Install]
+WantedBy=timers.target

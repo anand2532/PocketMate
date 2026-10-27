@@ -1,0 +1,5 @@
+singleton Theme 1.0 Theme.qml
+StatusBar 1.0 StatusBar.qml
+HintBar 1.0 HintBar.qml
+Tile 1.0 Tile.qml
+BackButton 1.0 BackButton.qml

@@ -1,0 +1,50 @@
+# PocketMate pm-ui — generated for ARCHITECTURE.md §5.2 [impl v0.4.0]
+[Unit]
+Description=PocketMate Qt/QML UI (800x480 DSI)
+PartOf=pocketmate.target
+After=pm-core.service
+Wants=pm-core.service
+
+[Service]
+Type=notify
+NotifyAccess=main
+ExecStart=/usr/bin/pm-ui
+User=pm
+Group=pm
+SupplementaryGroups=pm
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=-/etc/default/pocketmate
+RuntimeDirectory=pm
+RuntimeDirectoryPreserve=yes
+RuntimeDirectoryMode=0770
+WatchdogSec=30
+Restart=on-failure
+RestartSec=2
+MemoryMax=200M
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+RestrictNamespaces=yes
+RestrictRealtime=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+CapabilityBoundingSet=
+UMask=0007
+PrivateNetwork=yes
+RestrictAddressFamilies=AF_UNIX
+SupplementaryGroups=video render input
+Environment=QT_QPA_PLATFORM=eglfs QT_QPA_EGLFS_HIDECURSOR=1
+# QtQuick JIT needs W+X pages
+MemoryDenyWriteExecute=no
+DeviceAllow=char-drm rw
+DeviceAllow=char-input r
+
+[Install]
+WantedBy=pocketmate.target

@@ -1,0 +1,107 @@
+// PocketMate carrier overlay (ARCHITECTURE.md §3) — PROTOTYPE, NOT YET BOOTED ON HARDWARE.
+//
+// Covers: UART0 to the MCU (GPIO14/15, no console), MCU_IRQ_N on GPIO4 as a gpio-keys KEY_WAKEUP wake
+// source, mic-mute sense on GPIO17 as an EV_SW SW_MUTE_DEVICE switch, DRV2605L @0x5a on i2c_arm (DNP,
+// disabled), and an rfkill-gpio "wwan" switch on LTE_W_DISABLE_N (GPIO26) for the optional LTE board
+// (disabled unless `dtoverlay=pocketmate-carrier,lte`). Audio is in pocketmate-audio-overlay.dts.
+// Pin numbers follow hardware/kicad/PocketMate.net (2026-10-27 16:22 IST).
+//
+// VERIFY on the CM5 IO Board (RP1 GPIO controller):
+//   * `&gpio` resolves to the RP1 GPIO block on bcm2712 firmware DTBs (it does for stock Pi 5 / CM5
+//     overlays, but re-check with `dtoverlay -d` / `vcdbg log msg` at boot).
+//   * RP1 pin config uses generic pinconf (`pins`/`function`/`bias-*`), not brcm,pins/brcm,pull.
+// Numeric constants are used so the file compiles with plain dtc (no kernel cpp headers):
+//   GPIO_ACTIVE_LOW=1, GPIO_ACTIVE_HIGH=0, KEY_WAKEUP=143, EV_SW=5, SW_MUTE_DEVICE=0x0e.
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "brcm,bcm2712";
+
+	fragment@0 {
+		target = <&uart0>;
+		__overlay__ {
+			status = "okay";
+			pinctrl-names = "default";
+			pinctrl-0 = <&uart0_pins>;
+		};
+	};
+
+	fragment@1 {
+		target = <&gpio>;
+		__overlay__ {
+			pm_irq_pins: pm_irq_pins {
+				pins = "gpio4";
+				function = "gpio";
+				bias-pull-up;          // 10k external pull-up exists on the carrier; harmless on the IO board
+			};
+			pm_mute_pins: pm_mute_pins {
+				pins = "gpio17";
+				function = "gpio";
+				bias-disable;          // driven by the Q6 inverter; no pull (§3)
+			};
+		};
+	};
+
+	fragment@2 {
+		target-path = "/";
+		__overlay__ {
+			pm_keys: pocketmate-keys {
+				compatible = "gpio-keys";
+				pinctrl-names = "default";
+				pinctrl-0 = <&pm_irq_pins &pm_mute_pins>;
+
+				mcu_irq {
+					label = "pocketmate-mcu-irq";
+					gpios = <&gpio 4 1>;            // active low
+					linux,code = <143>;             // KEY_WAKEUP
+					wakeup-source;
+					debounce-interval = <0>;
+				};
+				mic_mute {
+					label = "pocketmate-mic-mute";
+					gpios = <&gpio 17 0>;           // active high = muted
+					linux,input-type = <5>;         // EV_SW
+					linux,code = <0x0e>;            // SW_MUTE_DEVICE
+					debounce-interval = <5>;
+				};
+			};
+		};
+	};
+
+	fragment@3 {
+		target = <&i2c_arm>;
+		__overlay__ {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			haptics: drv2605l@5a {
+				compatible = "ti,drv2605l";
+				reg = <0x5a>;
+				mode = <1>;                     // LRA (part is DNP in MVP)
+				status = "disabled";
+			};
+		};
+	};
+
+	// LTE daughterboard (J14). W_DISABLE# is active low at the module: rfkill "blocked" drives the line
+	// low (radio off). The other LTE lines (PWR_EN GPIO24, PWRKEY GPIO9, RESET GPIO13, STATUS GPIO16,
+	// RI GPIO12, AP_READY GPIO25) are driven by lte/pm-lte via `pinctrl`, not claimed here.
+	// VERIFY: CONFIG_RFKILL_GPIO in the Pi kernel; polarity through the LTE-board level shifter.
+	fragment@4 {
+		target-path = "/";
+		__overlay__ {
+			pm_wwan_rfkill: pocketmate-wwan-rfkill {
+				compatible = "rfkill-gpio";
+				label = "pocketmate-wwan";
+				radio-type = "wwan";
+				shutdown-gpios = <&gpio 26 0>;  // high = radio enabled
+				status = "disabled";
+			};
+		};
+	};
+
+	__overrides__ {
+		haptics = <&haptics>, "status";
+		lte = <&pm_wwan_rfkill>, "status";
+	};
+};

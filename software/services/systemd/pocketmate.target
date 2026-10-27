@@ -1,0 +1,7 @@
+[Unit]
+Description=PocketMate services
+Wants=pm-profile.service pm-power.service pm-audio.service pm-core.service pm-llm.service pm-ui.service pm-cloud.service pm-remind.timer pm-memory-sweep.timer
+After=multi-user.target
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,55 @@
+// PocketMate audio: 2x I2S MEMS mics (SPH0645-class) + MAX98357A amp on CM5 I2S (GPIO18-21).
+// Clone of the stock googlevoicehat-soundcard overlay (raspberrypi/linux rpi-6.12.y) with ONE change:
+// amp SD_MODE is CM5 GPIO27 (netlist net AMP_SD_MODE, J1-48), not GPIO16. In the carrier netlist
+// GPIO16 is LTE_STATUS (an input from the modem), so the stock overlay must NOT be loaded: it would
+// drive GPIO16 as an output.
+// VERIFY on hardware: capture/playback via `arecord -D hw:CARD=...`/`speaker-test`; the
+// google,voicehat codec driver is a stand-in (both directions, 48 kHz S32) until a dedicated
+// simple-audio-card overlay with proper channel config is written.
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "brcm,bcm2712";
+
+	fragment@0 {
+		target = <&i2s_clk_producer>;
+		__overlay__ {
+			status = "okay";
+		};
+	};
+
+	fragment@1 {
+		target = <&gpio>;
+		__overlay__ {
+			pm_amp_sd_pins: pm_amp_sd_pins {
+				pins = "gpio27";
+				function = "gpio";
+				bias-disable;  /* R10 on the carrier sets the default level */
+			};
+		};
+	};
+
+	fragment@2 {
+		target-path = "/";
+		__overlay__ {
+			pm_voicehat_codec: voicehat-codec {
+				#sound-dai-cells = <0>;
+				compatible = "google,voicehat";
+				pinctrl-names = "default";
+				pinctrl-0 = <&pm_amp_sd_pins>;
+				sdmode-gpios = <&gpio 27 0>;
+				status = "okay";
+			};
+		};
+	};
+
+	fragment@3 {
+		target = <&sound>;
+		__overlay__ {
+			compatible = "googlevoicehat,googlevoicehat-soundcard";
+			i2s-controller = <&i2s_clk_producer>;
+			status = "okay";
+		};
+	};
+};

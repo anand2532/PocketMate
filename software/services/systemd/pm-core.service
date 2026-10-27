@@ -1,0 +1,48 @@
+# PocketMate pm-core — generated for ARCHITECTURE.md §5.2 [impl v0.4.0]
+[Unit]
+# /var/lib/pm is the LUKS2 data partition (ARCHITECTURE.md §2.1)
+RequiresMountsFor=/var/lib/pm
+Description=PocketMate orchestrator, memory (single writer), reminders, consent gate
+PartOf=pocketmate.target
+After=pm-profile.service pm-power.service pm-llm.service
+Wants=pm-profile.service pm-power.service pm-llm.service
+
+[Service]
+Type=notify
+NotifyAccess=main
+ExecStart=/usr/bin/pm-core --db /var/lib/pm/memory.db
+User=pm-core
+Group=pm-core
+SupplementaryGroups=pm
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=-/etc/default/pocketmate
+RuntimeDirectory=pm
+RuntimeDirectoryPreserve=yes
+RuntimeDirectoryMode=0770
+WatchdogSec=30
+Restart=on-failure
+RestartSec=2
+MemoryMax=160M
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+RestrictNamespaces=yes
+RestrictRealtime=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+CapabilityBoundingSet=
+UMask=0007
+PrivateNetwork=yes
+RestrictAddressFamilies=AF_UNIX
+ReadWritePaths=/var/lib/pm
+ReadOnlyPaths=/opt/pm/models
+
+[Install]
+WantedBy=pocketmate.target
