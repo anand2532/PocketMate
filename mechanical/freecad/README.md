@@ -1,6 +1,8 @@
 # mechanical/freecad
 
-**Current version: v4_22c** — passive 22 mm aluminium unibody (layout final positions).
+> **Superseded:** the current enclosure is [`../release_v5/`](../release_v5/) (see [`../README.md`](../README.md)).
+
+**Last FreeCAD version: v4_22c** — passive 22 mm aluminium unibody (layout final positions).
 - `pocketmate_enclosure_v4_22c.FCStd` – FreeCAD model, built by `build_v4_22c.py`
 - STEP: `pocketmate_al_unibody_v4_22c.step`, `pocketmate_assembly_v4_22c.step`, `pocketmate_plastics_v4_22c.step`, `pocketmate_sidekey_flex_v4_22c.step`
 - Renders: `pocketmate_enclosure_v4_22c_*.png`
