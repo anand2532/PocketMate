@@ -32,8 +32,8 @@
 |---|---|
 | Overcharge (OVP) | 4.275–4.30 V detect, with release and delay stated |
 | Over-discharge (UVP) | 2.5–2.8 V detect, with release and delay stated |
-| Over-current (OCP) | **6–8 A discharge** (must not trip at 6.5 A continuous). State delay |
-| Short circuit | Required. Auto-recovery or load-removal release (state which). State delay (µs) |
+| Over-current (OCP) | **6–8 A discharge** (must not trip at 6.5 A continuous). **State the over-current trip (detection) delay, in ms, at the stated OCP current** |
+| Short circuit | Required. Auto-recovery or load-removal release (state which). **State the short-circuit trip delay, in µs, and the short-circuit detection threshold** |
 | Charge over-current | State |
 | MOSFET Rds(on), PCM | Report (≤ 20 mΩ target) |
 | Quiescent current | ≤ 5 µA, report |
@@ -118,6 +118,8 @@ Quote: unit price at 20 / 1k / 5k / 10k, tooling/NRE (if any), MOQ, Incoterms (F
 4. Is the BQ25895 3 A charge acceptable? Recommended JEITA settings?
 5. Existing BIS R-numbers (cell/pack) and the timeline for this model.
 6. Termination per §4: confirm the 205341-0205 / 205342-5028 harness, AWG20, the PCM pad rating ≥ 8 A, and the fit option from §4c (a/b/c).
+7. **PCM over-current trip delay:** at the OCP setting (6–8 A), what is the detection delay (ms) before the discharge FET opens? Please give the PCM IC part number and the delay-time spec or datasheet table. We need to know that LTE TX bursts (system peaks of 7.76–8.37 A LTE-only and 9.35–9.37 A worst case, power-config.md v0.4) and CM5 boot surges below the trip threshold or shorter than the delay do not cause a nuisance trip. Also state the OCP release method.
+8. **PCM short-circuit trip delay:** what is the short-circuit detection threshold (A or mV across the FETs) and trip delay (µs)? How does the PCM release (auto on load removal, or on a charger connection)? Please confirm that the short-circuit delay is longer than the inrush from our 2 × 100 µF LTE bulk capacitance plus the TPS22965 soft-start, or tell us the maximum capacitance it tolerates.
 
 ## 8. Vendor contact routes (from each vendor's own website)
 | Vendor | Email | Phone | RFQ route | Verified |
@@ -132,7 +134,7 @@ Quote: unit price at 20 / 1k / 5k / 10k, tooling/NRE (if any), MOQ, Incoterms (F
 | Pack T × W × L incl. PCM (max) ≤ 8.5 × 50.5 × 62.0 | | | |
 | Rated capacity (mAh) @ 0.2C / typical | | | |
 | Continuous discharge (A) ≥ 6.5. Peak (A, s) | | | |
-| OCP setting 6–8 A. Short-circuit delay | | | |
+| OCP setting 6–8 A. **OCP trip delay (ms). Short-circuit threshold and trip delay (µs). Release method** | | | |
 | 10k B3435 NTC, separate wire | | | |
 | Termination: 205341-0205 + 205342-5028, AWG20, 2+2+1 pinout; fit option §4c a/b/c | | | |
 | BQ25895 3 A charge OK. JEITA notes | | | |

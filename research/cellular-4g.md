@@ -141,15 +141,15 @@ Source: *CM5 Datasheet* R3, pinout table and §2.4. All pins are on the **high-s
 | Port | D+ / D− pins | Note |
 |---|---|---|
 | USB 2.0 (USB_P / USB_N) | 105 / 103 | **Used by the carrier USB-C.** Datasheet: USB 2.0 needs `dtoverlay=dwc2,dr_mode=host` |
-| **USB3-0** USB2 pair (USB3-0-DP / -DM) | **134 / 136** | Datasheet labels these "USB 2.0 signal" |
-| **USB3-1** USB2 pair (USB3-1-DP / -DM) | **163 / 165** | as above |
+| **USB3-0** USB2 pair (USB3-0-DP / -DM) | **134 / 136** | Datasheet labels these "USB 2.0 signal". **Used for LTE in the netlist** (`LTE_USB_DP` → J14-11, `LTE_USB_DM` → J14-10) |
+| USB3-1 USB2 pair (USB3-1-DP / -DM) | 163 / 165 | Same label. **Unconnected spare** in `PocketMate.net` (fallback only) |
 
 - **Can they run USB2-only?** Each USB 3.0 port includes its own USB 2.0 HS pair (DP/DM), so the SuperSpeed TX/RX pairs can be left unconnected.
   - A USB2-only device such as the EC25 then enumerates on that pair.
   - This is standard USB 3.x host behaviour and how Pi 5 USB3 ports serve USB2 devices. EST: the datasheet does not state "USB2-only" explicitly. **Bench-verify on the CM5 IO board.**
-- **Recommendation:** route the **USB3-1 DP/DM (163/165)** pair to the flex.
+- **Recommendation (corrected 2026-10-28):** route the **USB3-0 DP/DM (J2-134/136)** pair to the flex. This matches `hardware/kicad/PocketMate.net`. USB3-1 (163/165) stays NC as a spare.
   - 90 Ω differential, P/N matched ≤ 0.15 mm, **no P/N swap** on USB 2.0 pairs (datasheet §2.4).
-  - Leave the USB3-1 RX/TX pairs NC. Use VBUS_EN or a GPIO-switched rail for module USB_VBUS sense.
+  - Leave the USB3-0 RX/TX pairs NC. Use VBUS_EN or a GPIO-switched rail for module USB_VBUS sense.
 - **Note on CM4-to-CM5 migration:** these pins were CAM0/DSI0 on CM4 (datasheet pin-change table). The carrier must not use them for MIPI.
 - **USB2 across the ~22-pin flex:** keep the pair as a GND-flanked coplanar pair (G-D+-D−-G) at 90 Ω on the flex stack-up. Assign several flex pins to VSYS/GND for the 2 A bursts (EST: ≥ 4 + 4 pins at 0.5 A/pin, **check the connector rating**).
 
@@ -210,7 +210,7 @@ Sources:
 | USB3-1 USB2 pair (USB3-1-DP / -DM) | 163 | 165 | **Spare (NC)**. Valid alternate |
 
 - The datasheet's CM4→CM5 table labels pins 134/136/163/165 as "USB 2.0 signal". The SuperSpeed pairs stay NC.
-- **Correction to 7.2:** 7.2 recommended 163/165, but the carrier netlist uses **134/136**. Both are valid. **Keep 134/136** (no change), and keep 163/165 as the documented fallback.
+- **Correction to 7.2 (applied 2026-10-28):** 7.2 originally recommended 163/165. It now says 134/136, matching the carrier netlist. Both pairs are valid; **keep 134/136**, with 163/165 as the documented fallback.
 - Routing rules (§2.4.2): 90 Ω differential, P/N matched within 0.15 mm, no P/N swap. Across the FH12-22 FFC, use G-D+-D−-G, with J14 pins 10/11 flanked by GND.
 - J14 pinout (from the netlist):
 
@@ -240,6 +240,26 @@ Sources:
 - Rejected for size:
   - Taoglas FXUB63 (96 × 21) and Molex 146185 (84 × 15) do not fit the 42×16 window.
   - TE/Linx ANT-GNFPC-SAHL1 GNSS FPC (13 × 13 × 0.3; element14 4378472, ₹410.82) exceeds the 9.5 (Y) limit of the 10.5 × 13.5 window. It would fit only if Mechanical widens the window to ≥ 14 mm.
+#### 8.3a LTE main: stock FPC with a short (20–30 mm) cable, India (checked 2026-10-28)
+**Finding: no stock FPC LTE antenna with a 20–30 mm cable exists at Robu, Evelta, element14 India, Mouser/DigiKey India or ElectronicsComp.** (Mouser/DigiKey/Robu/ElectronicsComp pages block fetch; checked through element14 India parametric/search pages plus manufacturer catalogues. Stock at those other sellers is **VERIFY**.) The shortest stock cable that fits 40×15 and covers B1/3/5/8/40/41 is **66 mm**. Abracon's AANI-FB-0173 drawing gives cable length L from the FPC edge to the connector tip, so the ~21 mm route leaves **~45 mm of slack**.
+
+| | **AANI-FB-0173-1 (PICK)** | Molex 207235-0100 | AANI-FB-0174-1 |
+|---|---|---|---|
+| Link (resolves 2026-10-28) | [element14 4751751](https://in.element14.com/search?st=4751751) · [datasheet](https://abracon.com/datasheets/AANI-FB-0173.pdf) | [element14 2930755](https://in.element14.com/search?st=2930755) · [series chart](https://www.molex.com/en-us/products/series-chart/207235) | [element14 4751752](https://in.element14.com/search?st=4751752) · [datasheet](https://abracon.com/datasheets/AANI-FB-0174.pdf) |
+| Qty-1 price | ₹278.14 (element14 India shows ex-GST by its convention; +18 % ≈ ₹328.2 **VERIFY at cart**) | ₹245.54 (same GST note) | ₹301.27 (same GST note) |
+| Stock | 910, 4–6 days (UK stock) | 6,562, 4–6 days | 979, 4–6 days |
+| Cable | 66 mm Ø1.13, u.FL/MHF1; FPC edge → connector tip (datasheet drawing "L") | 100 mm Ø1.13, MHF (U.FL-compatible); series chart "Cable Length" 100.00 mm. Sales drawing lists 93.5 mm for the L1 dimension (it is not clear what L1 measures, **VERIFY**) | 75 mm Ø1.13, u.FL/MHF1 |
+| Size | 40 × 15 × 0.2: fits | 40.4 × 15.4 × 0.1: just over 40×15 but inside 42×16 | **30 × 20 × 0.2: 20 mm exceeds the 16 mm window** |
+| Bands | 698–960 / 1710–2690 MHz. Avg efficiency 31 / 61 % | 824–960 / 1710–2170 MHz only: **no B40 (2300–2400) or B41 (2496–2690)** | 698–960 / 1710–2690 MHz, but average efficiency 25 / 43 %, peak gain 0.37 / 2.7 dBi |
+| Datasheet bend guidance | **None**: no bend radius, cable routing or handling text in the Abracon datasheet (searched bend/radius/fold/handl/mount). R6.8 is **not confirmed by the vendor** | No radius. Application spec AS-2072350100: keep the cable ≥5 mm away from the antenna pattern; not for metal surfaces; ≥15 mm from a parallel ground plane (≥5 mm from a vertical one) | Not checked in full (**VERIFY**); the search extract shows none |
+| Verdict | Only part that meets size + bands + u.FL; cable is too long | Fails bands | Fails size |
+
+- Not stock or not fitting: TE 2367286-2 (50 mm cable, 698–2700 MHz, MHF1) is **65 × 15 mm** per TE's page, and I found no element14 India listing for the -2 (only -1, 1.71–2.7 GHz, ₹326.02). TE L000486-xx is 90 × 15. Taoglas FXUB63 is 96 × 21 and FXUB16 is 90 × 15. TE ANT-LPC-FPC-100 (₹702.61, not in stock at element14 India) is the 2.4 GHz part.
+- **Practical options (pick one; all need a VNA check):**
+  1. **Proto: fit the -1 as is.** Lay the ~45 mm of slack as one open, shallow S away from the FPC (bends at R≥6.8 mm; cable ≥5 mm from the radiating pattern, per the Molex guide for a comparable part). Avoid closed loops: Taoglas's PCB-antenna note says cable loops and bends of more than ~30° shift the frequency. Keep the cable off the cell and CPU-side noise sources. The π-match already planned for the 6.45 mm cell gap can absorb some detuning.
+  2. **Next spin: ask Abracon for a custom ~25 mm cable.** The datasheet says "Different cable and connector configurations that are not listed may be available upon request via Abracon online support" and "Fully customizable RF Cable & Connector". Price, MOQ and lead time are **unknown (TBC)**; it isn't a stock part.
+  3. **MHF1 jumper: does not help.** It adds a second connector pair and cannot shorten the antenna's built-in 66 mm cable. It only helps when the route is longer than the cable.
+
 - Both GNSS options depend on the ground plane and face edge-on. Expect several dB below datasheet figures and budget a tuning pass (release_v5 §5). Main sits 6.45 mm from the cell, so plan a π-match.
 
 ### 8.4 Daughterboard over the cell: thickness check vs the 9 mm pocket (release_v5, supersedes 7.4)
