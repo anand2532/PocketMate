@@ -1,6 +1,6 @@
 # Release v5.1 – interference check output (auto-generated: check_release_v5.py -> make_interference_md.py)
 
-Parts: 76 enclosure parts/volumes + 144 carrier solids from the KiCad export of PocketMate.kicad_pcb (md5 126f5c6c…, read-only copy). Estimated-height boxes for parts without 3D models: TP1, TP2, U1, J9, J5.
+Parts: 77 enclosure parts/volumes + 144 carrier solids from the KiCad export of PocketMate.kicad_pcb (md5 126f5c6c…, read-only copy). Estimated-height boxes for parts without 3D models: TP1, TP2, U1, J9, J5.
 
 Threshold: common volume > 0.01 mm³. CLASH = real; other classes are intended / variant / envelope pairs.
 
@@ -14,12 +14,15 @@ Threshold: common volume > 0.01 mm³. CLASH = real; other classes are intended /
 | Al_Unibody | Vol_CM5 | 0.323 | contact(face) | [0.0, 53.0, -29.0, 9.0, 5.0, 5.0] |
 | Vol_CM5 | Vol_J1_B2B | 94.5 | intended(B2B mated) | [17.75, 40.25, 5.6, 8.4, 8.44, 9.94] |
 | Vol_CM5 | Vol_J2_B2B | 94.5 | intended(B2B mated) | [17.75, 40.25, -28.4, -25.6, 8.44, 9.94] |
+| Vol_LTE_DB_Conn_FH12_22 | LTE_Flex_22P | 10.958 | intended(FFC stiffener seated in FH12) | [-8.5, -5.0, -12.25, -0.75, 12.49, 12.86] |
+| Vol_LTE_DB_Conn_FH12_22 | Vol_LTE_FFC_Bow_MaxTol_15p3 | 10.957 | intended(FFC stiffener seated in FH12) | [-8.5, -5.0, -12.25, -0.75, 12.49, 12.85] |
+| Vol_J14_FH12_22_Courtyard | LTE_Flex_22P | 10.961 | intended(FFC stiffener seated in FH12) | [-0.95, 2.55, -12.25, -0.75, 11.74, 12.11] |
+| Vol_J14_FH12_22_Courtyard | Vol_LTE_FFC_Bow_MaxTol_15p3 | 10.96 | intended(FFC stiffener seated in FH12) | [-0.95, 2.55, -12.25, -0.75, 11.74, 12.11] |
+| LTE_Flex_22P | PCB:J14 | 6.745 | intended(FFC stiffener seated in FH12) | [0.59, 2.55, -12.25, -0.75, 11.74, 12.04] |
+| Vol_LTE_FFC_Bow_MaxTol_15p3 | PCB:J14 | 6.745 | intended(FFC stiffener seated in FH12) | [0.59, 2.55, -12.25, -0.75, 11.74, 12.04] |
 | Vol_UFL | Vol_Pigtail | 1.98 | intended(coax mate) | [51.4, 52.9, 0.4, 1.6, 1.9, 3.0] |
 | Vol_LTE_UFL_GNSS | Coax_GNSS | 1.84 | intended(coax mate) | [-47.0, -45.4, 14.7, 15.85, 13.3, 14.3] |
 | Vol_LTE_UFL_Main | Coax_Main | 1.897 | intended(coax mate) | [-51.6, -49.95, 12.85, 14.0, 13.3, 14.3] |
-| Vol_LTE_DB_Conn_FH12_22 | LTE_Flex_22P | 4.875 | intended(flex in connector) | [-5.6, -5.0, -12.75, -0.25, 12.3, 12.95] |
-| Vol_J14_FH12_22_Courtyard | LTE_Flex_22P | 15.844 | intended(flex in connector) | [-0.95, 1.0, -12.75, -0.25, 12.3, 12.95] |
-| LTE_Flex_22P | PCB:J14 | 11.416 | intended(flex in connector) | [-0.41, 1.0, -12.75, -0.25, 12.3, 12.95] |
 | Vol_J7_Molex205338 | Vol_J7_Housing205341 | 43.24 | intended(mated) | [-0.91, 0.26, 16.13, 30.68, 11.6, 14.14] |
 | Bezel_DisplayFrame_PC | Vol_Antenna_Keepout | 0.72 | keepout-ok(non-metal/own feed) | [54.4, 54.5, -25.0, 11.0, 15.8, 16.0] |
 | Vol_Antenna_FPC | Vol_Antenna_Keepout | 91.8 | keepout-ok(non-metal/own feed) | [59.6, 59.9, -24.0, 10.0, 5.5, 14.5] |
@@ -36,6 +39,7 @@ Threshold: common volume > 0.01 mm³. CLASH = real; other classes are intended /
 | Vol_Leads_ProtoAkyga | Liner_PET_Prod | 5.508 | other-variant | [-26.99, -12.29, 18.21, 28.3, 10.8, 10.9] |
 | Liner_PET_Prod | Foam_Proto_2p0 | 208.78 | other-variant | [-51.7, -5.3, -31.7, 16.7, 10.8, 10.9] |
 | Foam_Prod_0p5 | Foam_Proto_2p0 | 1043.9 | other-variant | [-51.7, -5.3, -31.7, 16.7, 10.9, 11.4] |
+| LTE_Flex_22P | Vol_LTE_FFC_Bow_MaxTol_15p3 | 25.711 | other-variant(FFC nominal vs max-length bow) | [-8.5, 2.55, -12.25, -0.75, 11.74, 14.46] |
 | Vol_Ant_GNSS_Envelope | Vol_Ant_GNSS_PatchOpt_Envelope | 144.4 | other-variant(GNSS chip vs patch option) | [-60.4, -58.8, 17.5, 27.0, 2.5, 12.0] |
 | Vol_Battery | Vol_Cell_Prod_62 | 26877.0 | pocket-envelope | [-53.75, -2.75, -33.5, 28.5, 2.3, 10.8] |
 | Vol_Battery | Vol_Cell_Proto_Akyga | 23383.5 | pocket-envelope | [-53.75, -2.75, -33.5, 32.0, 2.3, 9.3] |
@@ -74,9 +78,13 @@ Threshold: common volume > 0.01 mm³. CLASH = real; other classes are intended /
 | Vol_LTE_NanoSIM_Hinged | Vol_LTE_SIM_LidSwing | 0.0 |
 | Vol_LTE_SIM_LidSwing | Vol_Display | 0.0 |
 | Vol_LTE_DB_Conn_FH12_22 | LTE_Flex_22P | 0.0 |
+| Vol_LTE_DB_Conn_FH12_22 | Vol_LTE_FFC_Bow_MaxTol_15p3 | 0.0 |
 | Vol_J14_FH12_22_Courtyard | LTE_Flex_22P | 0.0 |
+| Vol_J14_FH12_22_Courtyard | Vol_LTE_FFC_Bow_MaxTol_15p3 | 0.0 |
 | Vol_J14_FH12_22_Courtyard | PCB:J14 | 0.0 |
+| LTE_Flex_22P | Vol_LTE_FFC_Bow_MaxTol_15p3 | 0.0 |
 | LTE_Flex_22P | PCB:J14 | 0.0 |
+| Vol_LTE_FFC_Bow_MaxTol_15p3 | PCB:J14 | 0.0 |
 | Liner_PET_Prod | Vol_Battery | 0.0 |
 | Liner_PET_Prod | Vol_Cell_Prod_62 | 0.0 |
 | Liner_PET_Prod | Vol_Leads_ProtoAkyga | 0.0 |
@@ -118,7 +126,6 @@ Threshold: common volume > 0.01 mm³. CLASH = real; other classes are intended /
 | Vol_Ant_LTE_Main_Keepout | Al_Unibody | 0.058 |
 | Vol_J14_FH12_22_Courtyard | PCB:CarrierBoard | 0.09 |
 | LTE_Daughterboard_PCB | Vol_Battery | 0.1 |
-| LTE_Daughterboard_PCB | LTE_Flex_22P | 0.1 |
 | Vol_LTE_UFL_Main | Coax_GNSS | 0.1 |
 | Foam_Prod_0p5 | Vol_Cell_Prod_62 | 0.1 |
 | Foam_Proto_2p0 | Vol_Cell_Proto_Akyga | 0.1 |
@@ -127,6 +134,10 @@ Threshold: common volume > 0.01 mm³. CLASH = real; other classes are intended /
 | Vol_LTE_EC25_Shield | HeatSpreader_Cu_0p5 | 0.2 |
 | RFWindow_LTE_Main_L_PC | Vol_Ant_LTE_Main_Keepout | 0.2 |
 | Vol_LTE_U1_Courtyard | Vol_LTE_UFL_Main | 0.25 |
+| LTE_Daughterboard_PCB | LTE_Flex_22P | 0.29 |
+| LTE_Daughterboard_PCB | Vol_LTE_FFC_Bow_MaxTol_15p3 | 0.29 |
+| LTE_Flex_22P | PCB:CarrierBoard | 0.29 |
+| Vol_LTE_FFC_Bow_MaxTol_15p3 | PCB:CarrierBoard | 0.29 |
 | Vol_LTE_EC25_Shield | Bezel_DisplayFrame_PC | 0.3 |
 | Liner_PET_Prod | Al_Unibody | 0.3 |
 | Liner_PET_Prod | Vol_Leads_Prod62 | 0.3 |
@@ -172,7 +183,6 @@ Threshold: common volume > 0.01 mm³. CLASH = real; other classes are intended /
 | Vol_LTE_DB_Conn_FH12_22 | Foam_Proto_2p0 | 0.8 |
 | Vol_Ant_GNSS_Keepout | SideKey_Flex | 0.8 |
 | Vol_LTE_U1_Courtyard | Vol_Speaker | 0.85 |
-| LTE_Flex_22P | PCB:CarrierBoard | 0.85 |
 | Foam_Prod_0p5 | Bezel_DisplayFrame_PC | 0.85 |
 | Foam_Proto_2p0 | Bezel_DisplayFrame_PC | 0.85 |
 | Foam_Prod_0p5 | Vol_J7_Housing205341 | 0.883 |
@@ -185,8 +195,6 @@ Threshold: common volume > 0.01 mm³. CLASH = real; other classes are intended /
 | Vol_LTE_UFL_Main | Vol_Battery | 0.9 |
 | Vol_LTE_NanoSIM_Hinged | Vol_Battery | 0.9 |
 | Vol_LTE_DB_Conn_FH12_22 | Vol_Battery | 0.9 |
-| LTE_Flex_22P | Foam_Prod_0p5 | 0.9 |
-| LTE_Flex_22P | Foam_Proto_2p0 | 0.9 |
 | ThermalPad_Shield_0p5 | Vol_Display | 0.9 |
 | Vol_Pigtail | RFWindow_PC | 0.9 |
 | Vol_J14_FH12_22_Courtyard | PCB:C62 | 0.916 |

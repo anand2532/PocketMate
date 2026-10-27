@@ -1,6 +1,6 @@
 # PocketMate enclosure – release v5.1 (prototype freeze, updated in place)
 
-Rev **5.1**, Tue 27 Oct 2026, 22:15 IST. It is built on v5.0 (21:56 IST), whose files are preserved in `archive/release_v5.0_snapshot_20261027_1629.tar.gz`; the name carries the box clock in UTC, which is 21:59 IST. The source is `../pocketmate_assembly_v4_22e.step`. All earlier files in `mechanical/` are untouched.
+Rev **5.1**, Tue 27 Oct 2026, 22:15 IST, with O10 FFC added at 22:33 IST. It is built on v5.0 (21:56 IST), whose files are preserved in `archive/release_v5.0_snapshot_20261027_1629.tar.gz`; the name carries the box clock in UTC, which is 21:59 IST. The source is `../pocketmate_assembly_v4_22e.step`. All earlier files in `mechanical/` are untouched.
 
 Boards were read only, via /tmp copies, and never modified:
 - `hardware/kicad/PocketMate.kicad_pcb`, md5 `126f5c6c…`, with J14 reserved. It was exported with kicad-cli to `ref/carrier_kicad_export_126f5c6c.step`.
@@ -8,7 +8,7 @@ Boards were read only, via /tmp copies, and never modified:
 
 Frame: the origin is at the body centre, +X right, +Y to the top edge, and Z from the outer back. Units are mm.
 
-**Tooling note.** The FreeCAD MCP and the FreeCAD binary are not available, so there is **no .FCStd file for v5/v5.1**. The geometry is built in CadQuery 2.8 / OpenCascade. To rebuild, run `build_release_v5.py` → `check_release_v5.py` → `export_release_v5.py` → `drawings_release_v5.py`, then `key_gaps_release_v5.py`, `make_interference_md.py` and `lte47_fit_check.py`.
+**Tooling note.** The FreeCAD MCP and the FreeCAD binary are not available, so there is **no .FCStd file for v5/v5.1**. The geometry is built in CadQuery 2.8 / OpenCascade. To rebuild, run `build_release_v5.py` → `check_release_v5.py` → `export_release_v5.py` → `drawings_release_v5.py`, then `key_gaps_release_v5.py`, `make_interference_md.py` and `lte47_fit_check.py`. The FFC study is `ffc_bow.py` → `ffc_fit_check.py`; `ffc_geom.py` is imported by the builder.
 
 ## 0. Changelog
 ### v5.1 (27 Oct 2026, 22:15 IST): PM decisions
@@ -34,7 +34,14 @@ Frame: the origin is at the body centre, +X right, +Y to the top edge, and Z fro
    - The FFC span is shortened, and the foams are extended to X −5.3.
    - The SIM is now the CUI/Same Sky **NSIM-2-C** (14×12.4×1.4, verified), moved to X −17.75..−5.35. That clears the U1 courtyard clash (C4 in v5.0 is closed).
    - See §2a.
-5. The interference check, key gaps, STEP/STL exports, the 17-sheet PDF plus DXFs, and this README were all regenerated.
+5. **O10 closed (Layout decision, 22:15 IST): LTE FFC.** J14 stays where it is. The link is a custom 22P 0.5 mm Type A FFC, **14.5 ±0.3 mm overall (tip to tip)**, bowed upward. It is modelled as `LTE_Flex_22P`, an elastica centreline with 3.0×0.3 stiffened ends seated in J1/J14. `Vol_LTE_FFC_Bow_MaxTol_15p3` is the worst-case long-cable envelope. See §2b.
+6. Layout's changes are recorded:
+   - SIM 3 mm rework-rule waiver (2.40);
+   - main u.FL moved to Y ≥14.65;
+   - J3 (diversity) dropped.
+
+   The u.FL move is **not yet modelled** and needs a coax re-route (O12).
+7. The interference check (77 parts), key gaps, STEP/STL exports, the 17-sheet PDF plus DXFs, and this README were all regenerated from the same build.
 
 ### v5.0 (27 Oct 2026, 21:56 IST)
 - The first release: LTE daughterboard shelf, thermal path, cell insulation, RF windows, SIM, bezel bridge, and front M2 screws.
@@ -42,7 +49,7 @@ Frame: the origin is at the body centre, +X right, +Y to the top edge, and Z fro
 ## 1. Deliverables
 | What | Path |
 |---|---|
-| Assembly STEP (76 named bodies, coloured) | `pocketmate_assembly_release_v5.step` |
+| Assembly STEP (77 named bodies, coloured) | `pocketmate_assembly_release_v5.step` |
 | Per-part STEP (22 physical parts) | `step_parts/<Part>_release_v5.step` |
 | Envelopes and keep-outs (reference only) | `step_parts/envelopes_and_keepouts_release_v5.step` |
 | STL, printable/machined (11) | `stl/` – unibody, bezel, action cap, 3 RF windows (Wi-Fi, LTE main, GNSS), 2 grip inlays, camera window, Cu spreader, LTE PCB outline |
@@ -50,6 +57,7 @@ Frame: the origin is at the body centre, +X right, +Y to the top edge, and Z fro
 | Interference list (full) | `INTERFERENCE_CHECK_release_v5.md`, `work/check.json`, `work/key_gaps.json` / `key_gaps.txt` |
 | STL mesh check | `work/stl_check.json` |
 | 47 mm LTE board fit check | `lte47_fit_check.py`, `work/lte47_fit.json` |
+| LTE FFC bow / length study (O10) | `ffc_bow.py`, `ffc_geom.py`, `ffc_fit_check.py`, `work/ffc_bow.json`, `work/ffc_fit.json` |
 | Carrier reference | `ref/carrier_kicad_export_126f5c6c.step`, `ref/carrier_footprints_126f5c6c.json` |
 
 **STL check (v5.1, trimesh 4).** All 11 STLs are **watertight, winding-consistent, `is_volume` true, a single body, with 0 edges whose face count ≠ 2**. admesh is not installed on the build box, so the trimesh edge-manifold count stands in for it.
@@ -86,7 +94,7 @@ The STEP files for the unibody, bezel and cap each pass BRepCheck as a valid sin
 3. **U1 (EC25/EC200U) is rotated 90°, centred at (−35.8, −5.5).** Its height keep-out is X −51.3..−20.3, Y −22.5..11.5, Z 12.2–15.5, with the shield top at 15.5.
 4. **Connector, u.FL and SIM.**
    - **J1** is an FH12-22S rotated 90°, **mouth +X at the X −5.0 edge**, with contacts centred at Y −6.5, aligned with carrier **J14**.
-   - The FFC's free span from the J1 mouth to the J14 courtyard is **4.05 mm**.
+   - **4.05 mm is the clearance from the DB edge / J1 courtyard (X −5.0) to the J14 courtyard (X −0.95). It is not the FFC span.** The FFC is 14.5 mm overall (§2b).
    - The u.FLs are Main (−51.6..−49.4, 12.4..14.6) and GNSS (−47..−44.8, 14.4..16.6). There is no diversity u.FL.
    - **SIM:** an NSIM-2-C at X −17.75..−5.35, Y −31.6..−17.6.
 5. **Thermal path.** Shield → 0.5 gap pad → 0.5 Cu C1100 spreader (Ni plated, Kapton on the display side; plate at Z 15.9–16.4, joggle, tab at Z 15.2–15.7) → 0.3 pad → Al thermal post (X −34.4..−28.4, top Z 14.9).
@@ -134,6 +142,73 @@ Layout's `hardware/kicad-lte` (md5 34c2eb67, 21:58 IST) is 47×50 at X −52..�
   - U4 and the J1 area overlap the FFC path: Layout's J1 sits at X −13 and Y −10. Use J1 mouth X −5.0 with contacts at Y −6.5; Layout's own open item says "shift J1 +3 mm".
   - The u.FLs: Layout's J2/J3/J4 sit at X −26..−13, Y 10–14. The enclosure coax routes need **MAIN at X −51.6..−49.4, Y 12.4..14.6 and GNSS at X −47..−44.8, Y 14.4..16.6**. Drop J3 (diversity). The MAIN u.FL is 0.75 from the U1 pad toes, inside the 3 mm rework rule, so Layout must waive it or move it to Y ≥14.65 and re-route Coax_Main.
 
+## 2b. LTE FFC length: authoritative breakdown (O10, v5.1)
+Datum: J1 (FH12-22S-0.5SH, rot 90, mouth +X, courtyard edge X −5.0, contacts centred Y −6.5) on the daughterboard (Z 11.4–12.2), facing carrier J14 (courtyard X −0.95..7.04, mouth −X, same Y).
+
+J14 geometry is taken from the KiCad 3D model in the read-only carrier export:
+- FFC slot Z 11.725–12.05;
+- FFC stop at X 2.55;
+- housing front face X 0.60;
+- actuator lip X −0.40.
+
+J1 is the same part mirrored (x′ = −5.95 − x) and raised by 0.75.
+
+| Segment | Length mm |
+|---|---|
+| J1 insertion: FFC tip at stop X −8.50 → housing face X −6.55 (**insertion depth 1.95**) | 1.95 |
+| J1 under the actuator: face −6.55 → actuator lip −5.55 (FFC still flat, clamped) | 1.00 |
+| Free span lip to lip: X −5.55 → −0.40 = 5.15 in X, with **Z drop 0.75** (FFC centre Z 12.64 at J1 = DB top 12.2 + 0.44 → Z 11.89 at J14 = carrier top 11.45 + 0.44). Straight chord √(5.15² + 0.75²) | 5.20 |
+| J14 under the actuator: lip −0.40 → face 0.60 | 1.00 |
+| J14 insertion: face 0.60 → stop 2.55 (**insertion depth 1.95**) | 1.95 |
+| **Taut geometric length, tip to tip** | **11.10** |
+| **Bend allowance (upward bow)** | **+3.40** |
+| **Order length (overall, tip to tip)** | **14.5 ±0.3** |
+
+The DB edge to J14 courtyard distance of 4.05 mm is only a clearance. The housing faces are 7.15 apart, and the actuator lips 5.15.
+
+**Bow** (clamped–clamped planar elastica, `ffc_bow.py`; 0.1 mm film, 0.3 mm stiffened ends 3.0 long):
+
+| Overall L | Crest Z (outer) | Bow above J1 / J14 slot centre | Display gap (16.8) | Min bend radius (R/t) |
+|---|---|---|---|---|
+| 14.0 | 15.03 | 2.34 / 3.09 | 1.78 | 1.00 (10.0) |
+| 14.2 | 15.13 | 2.44 / 3.19 | 1.67 | 1.00 (10.0) |
+| **14.5** | **15.29** | **2.60 / 3.35** | **1.51** | **1.00 (10.0)** |
+| 14.8 | 15.45 | 2.76 / 3.51 | 1.36 | 1.00 (10.0) |
+| 15.0 | 15.55 | 2.86 / 3.61 | 1.25 | 1.01 (10.1) |
+| 15.3 | 15.70 | 3.01 / 3.76 | 1.10 | 1.02 (10.1) |
+
+- The bow stays between the actuator lips in X (−5.55..−0.40) and never drops below the slot height.
+- The bend radius is set by the 5.15 mm lip-to-lip span, not by the length. It is ≈1.0 mm (≈10×t) for any L from 14 to 15.3. Only shorter cables bend more gently (12.5 → R 1.10), but they leave less slack.
+- **14.5 is recommended** because:
+  - its slack (3.4) is more than one insertion depth (1.95), so the second end can be inserted after the first is locked;
+  - it keeps ≥1.36 to the display over ±0.3.
+- 15.0 also fits (display gap 1.25 nominal, 1.10 at +0.3).
+
+**Free space along the route** (slab X −5.55..−0.40, Z 11.7–17):
+- In Z, from the cell/foam (top 11.4 at X ≤ −5.3; liner 10.9 and cell 10.8 to X −2.75) up to the display back at Z 16.8 is open. There is no bezel, shield or spreader overhead: the bezel is 20.2 away, the shield 11.8, the spreader 12.6.
+- In Y, the FFC is Y −12.25..−0.75. The nearest neighbours in the slab are the SIM corner (Y −17.6, at X < −5.35), the NTC rise (Y −32), and the J7 housing (Y +16.13).
+- Laterally the FFC is guided by the FH12 actuator arms, 0.06 per side.
+
+**Current derating** (pinout from the read-only netlists `hardware/kicad/PocketMate.net` and `hardware/kicad-lte/kicad-lte.net`):
+
+| | J14 pins | J1 pads |
+|---|---|---|
+| LTE_VBAT (6 pins) | 1–6 | 17–22 |
+| GND (6 pins) | 7, 8, 9, 12, 14, 22 | 16, 15, 14, 11, 9, 1 |
+| LTE_USB_VBUS (sense only) | 13 | 10 |
+
+- **Hirose FH12 rating:** 0.5 A DC per contact, or **70 % (0.35 A) when current flows through all contacts** (Hirose FH12 catalogue, checked).
+- **EC25 peak:** VBAT_RF up to 1.8 A in a burst and VBAT_BB up to 0.8 A. The supply must provide **≥2.0 A** (Quectel EC25 Hardware Design, checked).
+- **Supply margin:**
+  - At the 70 % derating: 6 × 0.35 = **2.1 A vs 2.0 A peak, +5 % (0.1 A)**.
+  - At the plain 0.5 A rating: 3.0 A, +50 %.
+  - The GND return has the same count and margin.
+- The peak is a short burst. Taking the GSM 1/8 slot as an example, 2.0 A peak is ≈0.71 A RMS, or ≈0.12 A per pin, so the contacts run thermally well inside their rating.
+- **The short cable helps.** Assuming a typical 0.3×0.035 mm conductor (not verified for the chosen vendor), each conductor is ≈24 mΩ at 14.5 mm, versus ≈66 mΩ at 40 mm. Six in parallel gives ≈4 mΩ each way.
+- **Worst-case drop at 2 A** ≈ 0.08 V. That combines 2×(4 mΩ cable) with 4 contact rows at the Hirose maximum of 50 mΩ per contact over 6 in parallel.
+- **J14 does not need to move.**
+- **Watch:** F1 is 4 A, so it does not protect the FFC/contacts between 2.1 and 4 A. Confirm the custom FFC conductor rating with the vendor (≥0.35 A per conductor).
+
 ## 3. Key clearances (B-rep, v5.1)
 | Pair | Gap |
 |---|---|
@@ -147,7 +222,11 @@ Layout's `hardware/kicad-lte` (md5 34c2eb67, 21:58 IST) is 47×50 at X −52..�
 | Daughterboard → speaker | 0.60 |
 | Daughterboard → bezel | 0.05 (clamp-post nominal; foam tape preload) |
 | Daughterboard → J14 body / courtyard | 4.59 / 4.05 |
-| J1 → J14 courtyard (FFC free span) | 4.05 |
+| J1 courtyard → J14 courtyard (clearance, **not** the FFC span) | 4.05 |
+| FFC bow (14.5) → display back / bezel / shield / Cu spreader | **1.51** / 20.2 / 11.8 / 12.6 |
+| FFC bow (15.3 worst) → display back | 1.10 |
+| FFC → production cell / Akyga cell / foam / liner / battery pocket | 1.69 / 3.19 / 1.09 / 1.59 / 1.19 |
+| FFC film → FH12 actuator side arms (lateral guide) | 0.06 |
 | SIM → U1 courtyard / pad toes | 1.90 / 2.40 |
 | SIM → shield keep-out / J1 / bezel clamp post | 2.55 / 2.53 / 1.00 |
 | Shield → speaker | 1.50 |
@@ -163,7 +242,7 @@ Layout's `hardware/kicad-lte` (md5 34c2eb67, 21:58 IST) is 47×50 at X −52..�
 | LTE main FPC → Wi-Fi antenna / window | 119.8 / 120.7 |
 | Wi-Fi pigtail → unibody / CM5 / carrier | 0.57 / 1.90 / 4.49 |
 
-## 4. Interference result (v5.1: 76 parts × 144 carrier solids)
+## 4. Interference result (v5.1: 77 parts × 144 carrier solids)
 There are **zero enclosure clashes**. Fixed along the way in v5.0:
 - SIM ↔ shield;
 - spreader ↔ shield;
@@ -255,7 +334,7 @@ Print the unibody and bezel from `stl/` in SLA tough resin, or MJF PA12, to chec
 | 1+1 | PET/PI 0.1 liner (production / Akyga) | `flat_Liner_*` |
 | 1+1 | Closed-cell PE/PU foam 0.5 / 2.0 | `flat_Foam_*`; fit the one that matches the cell |
 | 4 | 0.2 mm foam tape dots | Bezel clamp-post tips and finger pads |
-| 1 | 22P 0.5 mm FFC, Type A (same-side contacts, reversed numbering, J14 pin k = J1 pad 23−k), **≈11 mm overall** (v5.1: 4.05 free span plus insertion at both ends) | J1 (LTE) ↔ J14 (carrier). Layout's stub note asks for ≥40 mm, but there is no room for a 30+ mm slack loop between J1 and J14. **Reconcile (O10):** use a custom-length FFC, or move J14. |
+| 1 | **Custom** 22P 0.5 mm FFC, Type A (same-side contacts, reversed numbering, J14 pin k = J1 pad 23−k). **14.5 ±0.3 mm overall**, 11.5 wide, 0.3 ±0.05 thick at the contact ends (Hirose FH12 mating spec), stiffener **3.0 mm** each end, max | J1 (LTE) ↔ J14 (carrier). Breakdown in §2b. Stock 30–50 mm cables are for the bench only and do not fit inside the enclosure. |
 | 2 | U.FL Ø1.13 coax | Main and GNSS (no diversity in v5.1). Integral to the antenna FPC or carrier. |
 | 1 | LTE main FPC 40×15 (AANI-FB-0173 class) | |
 | 1 | GNSS: Johanson 1575AT43A0040001E chip on a 9.5×12.5 carrier, **or** Abracon APAKN0904-S1575-T 9×9 patch | See §5 |
@@ -267,7 +346,7 @@ Print the unibody and bezel from `stl/` in SLA tough resin, or MJF PA12, to chec
 3. CM5 thermal pad, then CM5 + carrier onto the standoffs (4× M2.5). Route the Wi-Fi pigtail under the CM5 to its antenna.
 4. Side-key flex and keys, action cap, cell NTC pad, then the cell into its pocket. Leads to J7.
 5. **PET liner on the cell top, then foam** (0.5 mm production / 2.0 mm Akyga).
-6. Daughterboard: ears onto the ledges. Plug the FFC into the daughterboard J1, then carrier J14. Lock both actuators.
+6. Daughterboard: plug the FFC into J1 and lock it, then set the ears onto the ledges. Slide the free end 1.95 mm into carrier J14; the 3.4 mm bow slack allows this. Lock J14 and check that the bow stands up (crest ≈ Z 15.3) and is not folded down onto the cell.
 7. Mate the U.FLs (main → left wall, GNSS → top-left). Dress the coax with Kapton, keeping the GNSS coax under the flex riser.
 8. Insert the nano-SIM and close the lid.
 9. Shield pad, then the Cu spreader (tab onto the 0.3 pad on the Al post).
@@ -297,12 +376,17 @@ Shield → 0.5 pad → Cu spreader → 0.3 pad → Al post into the bottom wall 
 - **O3** – Carrier J8 THT leads (C1); J4 vs Q2/C6 (C2); J12 vs R3 (C3).
 - **O4** – GNSS: get samples of 1575AT43A0040001E and APAKN0904-S1575-T. The patch height of 4 mm is confirmed; the carrier must be ≤0.8 thick. Tune on the small carrier; expect reduced gain. Leave the bias tee DNP for passive antennas.
 - **O5** – Main antenna tuning near the cell and the Al wall. Order AANI-FB-0173 samples.
-- **O6** – SIM: NSIM-2-C is 2.40 from the U1 pad toes, under Layout's 3 mm rework rule, so a waiver is needed. The main u.FL is 0.75 from the U1 pad toes (a waiver, or move it to Y ≥14.65 and re-route Coax_Main).
+- **O6 – resolved by Layout (22:15 IST).** The SIM (NSIM-2-C, 2.40 from the U1 pad toes) takes a 3 mm-rule **waiver**. The main u.FL **moves to Y ≥14.65**. **J3 (diversity) is dropped.**
 - **O7** – LTE_VBAT: 6 J14 pins, derated to 2.1 A, with a 4 A fuse. EC25 TX peaks reach about 2 A, so keep the bulk caps (C4/C5) on the LTE board and check the VSYS droop.
 - **O8** – DSI FFC slack is needed to lift the bezel + display for SIM service.
 - **O9** – Screw lengths are to be confirmed on the first build.
-- **O10** – Reconcile the LTE FFC length: the geometry needs about 11 mm, Layout's note says ≥40 mm.
+- **O10 – CLOSED (22:15 IST).** J14 is unmoved. The FFC is a custom 22P 0.5 mm Type A, **14.5 ±0.3 mm** overall, with 3.0 mm stiffeners (§2b).
+  - Bend radius is ≈1.0 mm (10×t) at every length from 14.0 to 15.3.
+  - Display clearance is 1.36–1.67 over the tolerance band.
+  - `research/proto-bom-india.md` line 73 still says "free span 4.05 mm". That is the courtyard clearance, so the line should read 14.5 mm overall. The file was not edited here.
 - **O11** – Turn off RX diversity in the EC25 firmware, using the exact command from the AT manual.
+- **O12 (new)** – Moving the main u.FL to Y ≥14.65 (Layout) puts it under the modelled `Coax_GNSS` run (Y 14.7–15.85, Z 13.3–14.45). Box overlap is about 2.5 mm³ for a u.FL at X −51.6..−49.4, Y 14.65..16.85. `Coax_Main` also has to be re-routed. This is **not modelled in v5.1**: v5.1 still has the main u.FL at Y 12.4–14.6. Next rev: give Layout's final u.FL coordinates, then re-route both coax runs (e.g. GNSS coax over the main u.FL at Z ≥14.4, under the side-key flex riser).
+- **O13** – LTE_VBAT current through the FFC is at the edge of its rating (§2b). The burst RMS is fine, but do not add more LTE load to these 6 pins.
 
 **Carried forward**
 - DSI Z-fold length;
