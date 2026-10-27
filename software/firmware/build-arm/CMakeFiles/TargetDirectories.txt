@@ -1,3 +1,0 @@
-/workspace/pocketmate/software/firmware/build-arm/CMakeFiles/pm_mcu.elf.dir
-/workspace/pocketmate/software/firmware/build-arm/CMakeFiles/edit_cache.dir
-/workspace/pocketmate/software/firmware/build-arm/CMakeFiles/rebuild_cache.dir
