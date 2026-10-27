@@ -20,3 +20,7 @@
 (rule "BAT_N" (condition "A.NetName == '/PowerInput/BAT_N'") (constraint track_width (min 1.0mm) (opt 3.0mm)))
 (rule "VBUS VSYS PMID" (condition "A.NetName == '/PowerInput/VBUS_C' || A.NetName == '/PowerInput/VBUS_CHG' || A.NetName == 'VSYS' || A.NetName == '/PowerInput/CHG_PMID' || A.NetName == '/Regulators/+5V_BOOST'") (constraint track_width (min 1.5mm) (opt 2.0mm)))
 (rule "Switch nodes" (condition "A.NetName == '/PowerInput/CHG_SW' || A.NetName == '/Regulators/BST_SW' || A.NetName == '/Regulators/BUCK3V3_SW'") (constraint track_width (min 1.5mm) (opt 2.0mm)))
+# SoC thermal pad zone (B side): no footprints except the CM5 B2B connectors J1/J2
+(rule "SoC_pad_zone"
+  (constraint disallow footprint)
+  (condition "A.insideArea('KO_SoC_pad_zone_B_nofp_exceptJ1J2') && A.Reference != 'J1' && A.Reference != 'J2'"))

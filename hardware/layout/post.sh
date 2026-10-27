@@ -1,4 +1,4 @@
-export PYTHONHASHSEED=0; cd /workspace/pocketmate/hardware/layout && cp ../kicad/PocketMate.kicad_pcb.pre_netlist_v2.bak ../kicad/PocketMate.kicad_pcb && timeout 600 python3 import_netlist_v2.py && python3 outline_v4_22b.py && python3 place_j11_group.py && python3 route_usb.py 2>&1|tail -1 && python3 place_passives.py && cd ../kicad && kicad-cli pcb drc --schematic-parity --output /tmp/drc.txt PocketMate.kicad_pcb | tail -3; grep -oE '^\[[a-z_]+\]' /tmp/drc.txt | sort | uniq -c; python3 - <<'P'
+export PYTHONHASHSEED=0; cd /workspace/pocketmate/hardware/layout && cp ../kicad/PocketMate.kicad_pcb.pre_netlist_v2.bak ../kicad/PocketMate.kicad_pcb && timeout 600 python3 import_netlist_v2.py && python3 outline_v4_22b.py && python3 place_j11_group.py && python3 route_usb.py 2>&1|tail -1 && python3 hand_place.py && python3 check_passives.py && cd ../kicad && kicad-cli pcb drc --schematic-parity --output /tmp/drc.txt PocketMate.kicad_pcb | tail -3; grep -oE '^\[[a-z_]+\]' /tmp/drc.txt | sort | uniq -c; python3 - <<'P'
 import re
 t=open('/tmp/drc.txt').read()
 for b in re.split(r'\n(?=\[)',t):

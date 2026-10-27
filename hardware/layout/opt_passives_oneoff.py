@@ -21,43 +21,44 @@ def target(r):
                     pri=0 if r2[0]=='U' else 1
                     if best is None or pri<best[0]: best=(pri,r2,p)
     return best
+TC={}
 def dist(r):
-    t=target(r)
+    t=TC.get(r) or TC.setdefault(r,target(r))
     if not t: return 0
     px,py=mm(t[2].GetPosition()); ps=[p for p in F[r].Pads() if p.GetNetname()==t[2].GetNetname()]
     return min(math.hypot(px-mm(p.GetPosition())[0],py-mm(p.GetPosition())[1]) for p in ps)
 for f in F.values(): f.BuildCourtyardCaches()
 def poly(f): return f.GetCourtyard(P.F_CrtYd)
 trk=[t for t in B.GetTracks() if t.IsOnLayer(P.F_Cu)]
+def _bb(g):
+    c=poly(g); b=c.BBox() if c.OutlineCount() else g.GetBoundingBox(False,False)
+    return (P.ToMM(b.GetLeft()),P.ToMM(b.GetRight()),-P.ToMM(b.GetBottom()),-P.ToMM(b.GetTop()))
+BBS={r2:_bb(g) for r2,g in F.items() if not g.IsFlipped()}
+TB=[]
+for t in trk:
+    b=t.GetBoundingBox(); TB.append((P.ToMM(b.GetLeft())-0.15,P.ToMM(b.GetRight())+0.15,-P.ToMM(b.GetBottom())-0.15,-P.ToMM(b.GetTop())+0.15))
 def legal(r):
     f=F[r]; f.BuildCourtyardCaches()
     if not fits(f): return False
-    c=poly(f)
-    if c.OutlineCount()==0: return False
-    for r2,g in F.items():
-        if r2==r or g.IsFlipped(): continue
-        c2=poly(g)
-        if c2.OutlineCount() and c.Collide(c2): return False
-        if c2.OutlineCount()==0:
-            if c.BBox().Intersects(g.GetBoundingBox(False,False)): return False
-    bb=c.BBox()
-    for t in trk:
-        tb=t.GetBoundingBox(); tb.Inflate(M(0.15))
-        if bb.Intersects(tb): return False
+    a=_bb(f)
+    for r2,b in BBS.items():
+        if r2!=r and a[0]<b[1] and b[0]<a[1] and a[2]<b[3] and b[2]<a[3]: return False
+    for b in TB:
+        if a[0]<b[1] and b[0]<a[1] and a[2]<b[3] and b[2]<a[3]: return False
     return True
 def spots(r,lim=2.95):
-    f=F[r]; t=target(r); px,py=mm(t[2].GetPosition()); out=[]
+    f=F[r]; t=TC.get(r) or TC.setdefault(r,target(r)); px,py=mm(t[2].GetPosition()); out=[]
     ox,oy,orot=*mm(f.GetPosition()),f.GetOrientationDegrees()
-    for rot in (0,90,180,270):
+    for rot in (0,90):
         f.SetOrientationDegrees(rot)
-        for i in range(-40,41):
-            for j in range(-40,41):
-                x,y=px+i*0.1,py+j*0.1
+        for i in range(-20,21):
+            for j in range(-20,21):
+                x,y=px+i*0.17,py+j*0.17
                 f.SetPosition(V(x,y))
                 if dist(r)<=lim and legal(r): out.append((dist(r),x,y,rot))
     f.SetPosition(V(ox,oy)); f.SetOrientationDegrees(orot); f.BuildCourtyardCaches()
     return sorted(out)
-def place(r,s): F[r].SetOrientationDegrees(s[3]); F[r].SetPosition(V(s[1],s[2])); F[r].BuildCourtyardCaches()
+def place(r,s): F[r].SetOrientationDegrees(s[3]); F[r].SetPosition(V(s[1],s[2])); F[r].BuildCourtyardCaches(); BBS[r]=_bb(F[r])
 far=[r for r in pas if not bulk(F[r]) and dist(r)>3.0]
 print('far',len(far),far)
 moved={}
@@ -69,12 +70,12 @@ for r in sorted(far,key=lambda r:dist(r)):
     near=sorted([q for q in pas if q!=r and not bulk(F[q]) and math.hypot(mm(F[q].GetPosition())[0]-px,mm(F[q].GetPosition())[1]-py)<4.0],key=lambda q:-dist(q))
     for q in near:
         old=(dist(q),*mm(F[q].GetPosition()),F[q].GetOrientationDegrees())
-        F[q].SetPosition(V(-50,-50)); F[q].BuildCourtyardCaches()
+        F[q].SetPosition(V(-50,-50)); F[q].BuildCourtyardCaches(); BBS[q]=_bb(F[q])
         s=spots(r)
         if s:
             place(r,s[0]); s2=spots(q)
             if s2: place(q,s2[0]); moved[r]=s[0]; moved[q]=s2[0]; print('EVICT',r,s[0],q,s2[0]); done=True; break
-            F[r].SetPosition(V(-60,-60))
+            F[r].SetPosition(V(-60,-60)); F[r].BuildCourtyardCaches(); BBS[r]=_bb(F[r])
         place(q,old)
     if not done: print('FAIL',r,round(dist(r),2))
 print('remaining far',[ (r,round(dist(r),1)) for r in pas if not bulk(F[r]) and dist(r)>3.0])
