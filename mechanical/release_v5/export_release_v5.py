@@ -25,7 +25,7 @@ E.save(os.path.join(HERE, 'step_parts', 'envelopes_and_keepouts_release_v5.step'
 for n in PHYS:
     cq.exporters.export(cq.Workplane().add(P[n]), os.path.join(HERE, 'step_parts', n + '_release_v5.step'))
 STL = ['Al_Unibody', 'Bezel_DisplayFrame_PC', 'ActionCap_PC', 'RFWindow_PC', 'RFWindow_LTE_Main_L_PC', 'RFWindow_GNSS_TL_PC',
-       'RFWindow_LTE_Div_BL_PC', 'GripInlay_L', 'GripInlay_R', 'CameraWindow_PC', 'HeatSpreader_Cu_0p5', 'LTE_Daughterboard_PCB']
+       'GripInlay_L', 'GripInlay_R', 'CameraWindow_PC', 'HeatSpreader_Cu_0p5', 'LTE_Daughterboard_PCB']
 for n in STL:
     cq.exporters.export(cq.Workplane().add(P[n]), os.path.join(HERE, 'stl', n + '_release_v5.stl'), tolerance=0.01, angularTolerance=0.1)
 print('exported', len(PHYS), 'part STEPs,', len(STL), 'STLs')

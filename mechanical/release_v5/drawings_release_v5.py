@@ -57,7 +57,7 @@ class Sheet:
             d.render()
         ax.set_aspect('equal'); ax.grid(True, lw=0.2)
         ax.set_title(f'{s.t}\n{s.sub}', fontsize=10)
-        ax.text(0.01, 0.01, '\n'.join(s.notes + ['PocketMate release v5 - units mm - origin body centre, +X right, +Y top edge, Z from outer back',
+        ax.text(0.01, 0.01, '\n'.join(s.notes + ['PocketMate release v5.1 (27 Oct 2026) - units mm - origin body centre, +X right, +Y top edge, Z from outer back',
                                                   'General tol. ISO 2768-mK unless noted; critical dims per README']),
                 transform=ax.transAxes, fontsize=7, va='bottom', family='monospace')
         pdf.savefig(fig); plt.close(fig)
@@ -65,7 +65,7 @@ class Sheet:
         for t in s.notes: msp.add_text(t, height=1.2, dxfattribs={'insert': (-60, y)}); y -= 2
         doc.saveas(os.path.join(D, fname))
 U, Bz = P['Al_Unibody'], P['Bezel_DisplayFrame_PC']
-WIN = ['RFWindow_LTE_Main_L_PC', 'RFWindow_GNSS_TL_PC', 'RFWindow_LTE_Div_BL_PC', 'RFWindow_PC']
+WIN = ['RFWindow_LTE_Main_L_PC', 'RFWindow_GNSS_TL_PC', 'RFWindow_PC']
 sheets = []
 s = Sheet('UNIBODY 6061-T6 - plan section Z=10.0 (cell/CM5 level) and Z=14.0 (LTE shelf level)', 'Al_Unibody_release_v5.step')
 s.add(section(U, 'Z', 10.0), 'U_Z10', 'k'); s.add(section(U, 'Z', 14.0), 'U_Z14', '0.55')
@@ -73,12 +73,12 @@ for w in WIN: s.add(section(P[w], 'Z', 10.0) + section(P[w], 'Z', 14.0), 'WINDOW
 s.dim((-62.5, -37.5), (62.5, -37.5), -6); s.dim((-62.5, -37.5), (-62.5, 37.5), -6, horiz=False)
 s.dim((-34.4, -35.6), (-28.4, -35.6), -3.5, 'POST 6.0'); s.dim((-27.0, -35.6), (-22.5, -35.6), -2.0, 'LEDGE 4.5')
 s.dim((-13.0, -35.6), (-10.0, -35.6), -2.0, 'LEDGE 3.0'); s.dim((-62.5, -28), (-62.5, 14), -3, 'LTE MAIN WIN 42.0', horiz=False)
-s.dim((-62.5, 17), (-62.5, 27.5), -3, 'GNSS WIN 10.5', horiz=False); s.dim((-27.6, -37.5), (-9.6, -37.5), -3, 'DIV WIN 18.0')
+s.dim((-62.5, 17), (-62.5, 27.5), -3, 'GNSS WIN 10.5', horiz=False)
 s.note('POST X-34.4..-28.4 Y-35.6..-33.6 top Z14.90 +0/-0.05 (thermal; flat 0.05)')
 s.note('LEDGES X-27.0..-22.5 & -13.0..-10.0, Y-35.6..-33.6, top Z11.40 +0/-0.05 (daughterboard seat)')
 sheets.append((s, 'unibody_plan_sections_release_v5.dxf'))
 for ax_, val, name, ttl in [('X', -61.5, 'left_end', 'LEFT END WALL - section X=-61.5 (looking +X) - LTE main + GNSS windows'),
-                            ('Y', -36.5, 'bottom_wall', 'BOTTOM WALL - section Y=-36.5 - diversity window'),
+                            ('Y', -36.5, 'bottom_wall', 'BOTTOM WALL - section Y=-36.5 - plain Al (v5.1: diversity window deleted)'),
                             ('Y', 36.5, 'top_wall', 'TOP WALL - section Y=36.5 (unchanged from v4_22e)'),
                             ('X', 61.5, 'right_end', 'RIGHT END WALL - section X=61.5 - Wi-Fi window (unchanged)')]:
     s = Sheet(ttl, 'Al_Unibody + RF windows'); s.add(section(U, ax_, val), 'UNIBODY', 'k')
@@ -88,7 +88,7 @@ for ax_, val, name, ttl in [('X', -61.5, 'left_end', 'LEFT END WALL - section X=
         s.dim((17, 2), (27.5, 2), -3, '10.5 +0.1/0'); s.dim((27.5, 2), (27.5, 15.5), 3, '13.5 +0.1/0', horiz=False)
         s.dim((14, 18), (17, 18), 2, 'WEB 3.0'); s.note('Windows: through-pocket in 2.1 wall, slot corners R0.5 max (EDM/0.8 end mill: plug corners to match)')
     if name == 'bottom_wall':
-        s.dim((-27.6, 12), (-9.6, 12), -3, '18.0 +0.1/0'); s.dim((-9.6, 12), (-9.6, 17.6), 3, '5.6 +0.1/0', horiz=False)
+        s.note('v5.1: no diversity window - bottom wall is continuous 6061 between USB-C and speaker ports')
     sheets.append((s, f'unibody_{name}_release_v5.dxf'))
 s = Sheet('BEZEL / DISPLAY FRAME (PC) - plan sections Z=13.0 (clamps, fingers) and Z=16.4 (lips)', 'Bezel_DisplayFrame_PC_release_v5.step')
 s.add(section(Bz, 'Z', 13.0), 'BEZ_Z13', 'k'); s.add(section(Bz, 'Z', 16.4), 'BEZ_Z16', '0.55')
@@ -122,10 +122,10 @@ for n, note in [('Foam_Prod_0p5', 'PE/PU closed-cell foam 0.5 (production cell) 
 s = Sheet('LTE DAUGHTERBOARD OUTLINE (Edge.Cuts proposal for hardware/kicad-lte) - 0.8 mm 4L', 'mech coords; KiCad Y = -mech Y')
 s.add(section(P['LTE_Daughterboard_PCB'], 'Z', 11.8), 'Edge.Cuts', 'g'); s.add(section(P['Vol_LTE_EC25_Shield'], 'Z', 13), 'U1_SHIELD', 'r')
 s.add(section(P['Vol_LTE_NanoSIM_Hinged'], 'Z', 12.5), 'SIM', 'm'); s.add(section(P['Vol_LTE_DB_Conn_FH12_22'], 'Z', 13), 'J1', 'b')
-for u in ('Vol_LTE_UFL_Main', 'Vol_LTE_UFL_GNSS', 'Vol_LTE_UFL_Div'): s.add(section(P[u], 'Z', 13), 'UFL', 'c')
-s.dim((-52, -32), (-8, -32), -5); s.dim((-52, -23.4), (-52, 17), -3, horiz=False); s.dim((-34.4, -23.4), (-34.4, -32), -2, 'NOTCH 8.6', horiz=False)
-s.note('U1 EC25/EC200U ROTATED 90 deg, centre (-35.8,-5.5); J1 FH12-22 rot 90 mouth +X at X-8.0, contacts centred Y-6.5 (aligns with carrier J14)')
-s.note('Ears X-27..-22.5 and -13..-10 to Y-35.0 sit on Al ledges; bezel clamp posts above. No screws (no room over the cell).')
+for u in ('Vol_LTE_UFL_Main', 'Vol_LTE_UFL_GNSS'): s.add(section(P[u], 'Z', 13), 'UFL', 'c')
+s.dim((-52, -32), (-5, -32), -5, '47.0'); s.dim((-52, -23.4), (-52, 17), -3, horiz=False); s.dim((-34.4, -23.4), (-34.4, -32), -2, 'NOTCH 8.6', horiz=False)
+s.note('U1 EC25/EC200U ROTATED 90 deg, centre (-35.8,-5.5); J1 FH12-22 rot 90 mouth +X at X-5.0, contacts centred Y-6.5 (aligns with carrier J14)')
+s.note('v5.1: 47 mm wide (X-52..-5) per Layout; keep speaker notch X<-34.4/Y<-23.4 and J7 notch X>-9.4/Y>15.5; NSIM-2-C at X-17.75..-5.35 Y-31.6..-17.6'); s.note('Ears X-27..-22.5 and -13..-10 to Y-35.0 sit on Al ledges; bezel clamp posts above. No screws (no room over the cell).')
 sheets.append((s, 'lte_daughterboard_outline_release_v5.dxf'))
 with PdfPages(os.path.join(HERE, 'drawings', 'pocketmate_drawings_release_v5.pdf')) as pdf:
     for s, f in sheets: s.render(pdf, f)
