@@ -1,6 +1,6 @@
 # PocketMate enclosure – release v5.1 (prototype freeze, updated in place)
 
-Rev **5.1**, Tue 27 Oct 2026, 22:15 IST, with O10 FFC added at 22:33 IST. It is built on v5.0 (21:56 IST), whose files are preserved in `archive/release_v5.0_snapshot_20261027_1629.tar.gz`; the name carries the box clock in UTC, which is 21:59 IST. The source is `../pocketmate_assembly_v4_22e.step`. All earlier files in `mechanical/` are untouched.
+Rev **5.1**, Tue 27 Oct 2026, 22:15 IST, with O10 FFC added at 22:33 IST and O12 coax re-route / final u.FL positions added at 23:50 IST, and the O12b Abracon feed-exit re-route at 00:05 IST (28 Oct). It is built on v5.0 (21:56 IST), whose files are preserved in `archive/release_v5.0_snapshot_20261027_1629.tar.gz`; the name carries the box clock in UTC, which is 21:59 IST. The source is `../pocketmate_assembly_v4_22e.step`. All earlier files in `mechanical/` are untouched.
 
 Boards were read only, via /tmp copies, and never modified:
 - `hardware/kicad/PocketMate.kicad_pcb`, md5 `126f5c6c…`, with J14 reserved. It was exported with kicad-cli to `ref/carrier_kicad_export_126f5c6c.step`.
@@ -8,7 +8,7 @@ Boards were read only, via /tmp copies, and never modified:
 
 Frame: the origin is at the body centre, +X right, +Y to the top edge, and Z from the outer back. Units are mm.
 
-**Tooling note.** The FreeCAD MCP and the FreeCAD binary are not available, so there is **no .FCStd file for v5/v5.1**. The geometry is built in CadQuery 2.8 / OpenCascade. To rebuild, run `build_release_v5.py` → `check_release_v5.py` → `export_release_v5.py` → `drawings_release_v5.py`, then `key_gaps_release_v5.py`, `make_interference_md.py` and `lte47_fit_check.py`. The FFC study is `ffc_bow.py` → `ffc_fit_check.py`; `ffc_geom.py` is imported by the builder.
+**Tooling note.** The FreeCAD MCP and the FreeCAD binary are not available, so there is **no .FCStd file for v5/v5.1**. The geometry is built in CadQuery 2.8 / OpenCascade. To rebuild, run `build_release_v5.py` (imports `ffc_geom.py` and `coax_geom.py`) → `check_release_v5.py` → `export_release_v5.py` → `drawings_release_v5.py`, then `key_gaps_release_v5.py`, `make_interference_md.py` and `lte47_fit_check.py`. The FFC study is `ffc_bow.py` → `ffc_fit_check.py`; `ffc_geom.py` is imported by the builder.
 
 ## 0. Changelog
 ### v5.1 (27 Oct 2026, 22:15 IST): PM decisions
@@ -37,11 +37,27 @@ Frame: the origin is at the body centre, +X right, +Y to the top edge, and Z fro
 5. **O10 closed (Layout decision, 22:15 IST): LTE FFC.** J14 stays where it is. The link is a custom 22P 0.5 mm Type A FFC, **14.5 ±0.3 mm overall (tip to tip)**, bowed upward. It is modelled as `LTE_Flex_22P`, an elastica centreline with 3.0×0.3 stiffened ends seated in J1/J14. `Vol_LTE_FFC_Bow_MaxTol_15p3` is the worst-case long-cable envelope. See §2b.
 6. Layout's changes are recorded:
    - SIM 3 mm rework-rule waiver (2.40);
-   - main u.FL moved to Y ≥14.65;
+   - main u.FL moved to Y ≥14.65 (superseded by item 8);
    - J3 (diversity) dropped.
-
-   The u.FL move is **not yet modelled** and needs a coax re-route (O12).
 7. The interference check (77 parts), key gaps, STEP/STL exports, the 17-sheet PDF plus DXFs, and this README were all regenerated from the same build.
+8. **O12 closed (Layout final u.FL positions, 27 Oct 23:50 IST).** Both u.FLs are rotated 90° and now sit at:
+   - **J2 MAIN:** centre (−49.7, 13.2), plug envelope X −50.8..−48.6, Y 12.1..14.3 (body Y 11.9..14.5);
+   - **J4 GNSS:** centre (−44.6, 15.1), envelope X −45.7..−43.5, Y 14.0..16.2.
+   Both coax runs were rebuilt as true swept Ø1.13 tubes (`coax_geom.py`, Z centre 13.875) from these centres. The bend rule is **R ≥ 6.8 mm**, the strictest of the 1.13 mm micro-coax datasheets checked: Taoglas 300115B000098A and Samtec MH113 give 6.8, Wellshow D113L115 gives 5.0, Rosnol RF1.13 gives 4.5 (static) and Gigatronix 1.13 gives 4.0 (static). The cable is not named in any BOM yet, so 6.8 is a safe design value.
+   - **Coax_Main (re-routed in O12b, 28 Oct 00:05 IST, from the Abracon datasheet; see item 9):** an Ø1.13 run of 20.7 mm from the antenna feed tail at (X −59.63, Y 2.0, Z 7.9) to J2 (−49.7, 13.2, Z 13.875). It has two exact circular arcs: R 6.8 mm rising up the wall (72° heading), then R 7.0 mm swinging inward and down (82°). The minimum radius is 6.8 mm. It arrives at J2 heading +X, 8° downward.
+   - **Coax_GNSS:** 8.4 mm straight in −X from J4 at Y 15.1, then one **R 6.8 mm, 40° arc**, then a 40° straight to the GNSS feed at (−58.8, 17.9). It is 15.0 mm long. It passes 0.23 above the main u.FL plug, and crosses the side-key flex riser (X −54.2) with 0.78 to spare.
+   - See §3 for the clearances. The previous v5.1 files are kept in `archive/pre_O12_*`; `work/build_release_v5.pre_O12.py.bak` is the previous build script.
+
+9. **O12b: main antenna datasheet check (Abracon AANI-FB-0173-1, REVISED 05-26-25, abracon.com/datasheets/AANI-FB-0173.pdf).** Read the product-dimensions page (p. 4):
+   - **Outline:** 40.00 × 15.00 × 0.2 mm flexible PCB. The bottom view shows a 39.00 × 14.00 copper area inside it. Adhesive mount.
+   - **Cable exit:** one Ø1.13 coax leaves through a **40 mm long edge, perpendicular to it**, lying along the 15 mm axis. It is **11.0 mm from one short end** (29 mm from the other, scaled from the drawing). The cable lies on the board face for about **9.6 mm** (the solder tail) before leaving the edge.
+   - **Connector and length:** `-1` = **u.FL/IPEX-1/MHF1, 66 mm** (L is measured from the 15 mm edge to the connector tip); `-3` = 150 mm and `-5` = 200 mm. `-2/-4/-6` are IPEX-4 (w.FL). Cable and connector are "fully customizable", and unlisted configurations are available on request. The drawing gives no tolerance on the 11 mm position or the length.
+   - **Our model before this change:** FPC Y −27..13, Z 2.5..17.5, feed assumed at Y 12.5 on the +Y end, cable straight to J2. That was wrong: the real exit is on a long edge, not the +Y end.
+   - **New orientation (no FPC move needed):** 40 mm along Y, 15 mm along Z, cable face toward +X (the cable side faces away from the adhesive), **exit edge at the top (Z 17.5), the 11 mm end toward +Y**. This puts the feed tail at **Y = 13 − 11 = 2.0, Z = 17.5 − 9.6 = 7.9**. The FPC box stays at X −60.4..−60.2, Y −27..13, Z 2.5..17.5.
+   - **Window:** 42 × 16 (Y −28..14, Z 2..18) for a 40 × 15 part is 1.0 mm clear each side in Y and 0.5 mm in Z. The 39 × 14 copper has 1.5 / 1.0. **The part fits; the window is unchanged.**
+   - **Cable length problem:** the cable runs 20.7 mm from the tail to J2, but the catalog `-1` carries 66 mm (plus the 9.6 mm on the board), about **55 mm of slack** with nowhere to store it. Order a **custom cable length**. See O14.
+   - **Bend fit:** the cable has to climb 6.8 mm to turn horizontal, from the tail at Z 7.9 to Z 14.7 (cable top 15.27; measured gap to the bezel 1.45, to the display back 2.37), and it ends at J2 at Z 13.875 on a slight downward slope. A catalog cable bonded along the board face would exit at the top edge (Z 17.5), which cannot turn inward with R 6.8 under the display. So the cable has to be **free of the board** from the tail on.
+10. **Layout's replies (27 Oct 23:58 IST):** J2 and J4 are **locked**. The Kapton dressing note is accepted (see §7.5 step 7). The J2 overlap into the U1 courtyard is **accepted under waiver W2**. The main antenna feed point is ours to set, so it is set at Y 2.0 (item 9).
 
 ### v5.0 (27 Oct 2026, 21:56 IST)
 - The first release: LTE daughterboard shelf, thermal path, cell insulation, RF windows, SIM, bezel bridge, and front M2 screws.
@@ -95,7 +111,7 @@ The STEP files for the unibody, bezel and cap each pass BRepCheck as a valid sin
 4. **Connector, u.FL and SIM.**
    - **J1** is an FH12-22S rotated 90°, **mouth +X at the X −5.0 edge**, with contacts centred at Y −6.5, aligned with carrier **J14**.
    - **4.05 mm is the clearance from the DB edge / J1 courtyard (X −5.0) to the J14 courtyard (X −0.95). It is not the FFC span.** The FFC is 14.5 mm overall (§2b).
-   - The u.FLs are Main (−51.6..−49.4, 12.4..14.6) and GNSS (−47..−44.8, 14.4..16.6). There is no diversity u.FL.
+   - The u.FLs (O12, Layout 23:50 IST) are J2 Main (−50.8..−48.6, 12.1..14.3, centre −49.7/13.2) and J4 GNSS (−45.7..−43.5, 14.0..16.2, centre −44.6/15.1). There is no diversity u.FL.
    - **SIM:** an NSIM-2-C at X −17.75..−5.35, Y −31.6..−17.6.
 5. **Thermal path.** Shield → 0.5 gap pad → 0.5 Cu C1100 spreader (Ni plated, Kapton on the display side; plate at Z 15.9–16.4, joggle, tab at Z 15.2–15.7) → 0.3 pad → Al thermal post (X −34.4..−28.4, top Z 14.9).
 6. **Cell insulation.** A 0.1 PET/PI liner sits on the cell: at Z 10.8 for production, 9.3 for the Akyga cell (with a lead relief). Closed-cell foam fills the gap to the board, 0.5 or 2.0 mm, now out to X −5.3. The daughterboard never touches the cell.
@@ -140,7 +156,7 @@ Layout's `hardware/kicad-lte` (md5 34c2eb67, 21:58 IST) is 47×50 at X −52..�
   - Q6 and TP2 sit under the finger (Q6 1.45 mm³). Keep Y 16..17 under the fingers free of parts above 0.05 mm, i.e. bare copper only.
   - C22, C23 and C24 hit the J7 housing (0.3–1.1 mm³). They go away with the J7 notch.
   - U4 and the J1 area overlap the FFC path: Layout's J1 sits at X −13 and Y −10. Use J1 mouth X −5.0 with contacts at Y −6.5; Layout's own open item says "shift J1 +3 mm".
-  - The u.FLs: Layout's J2/J3/J4 sit at X −26..−13, Y 10–14. The enclosure coax routes need **MAIN at X −51.6..−49.4, Y 12.4..14.6 and GNSS at X −47..−44.8, Y 14.4..16.6**. Drop J3 (diversity). The MAIN u.FL is 0.75 from the U1 pad toes, inside the 3 mm rework rule, so Layout must waive it or move it to Y ≥14.65 and re-route Coax_Main.
+  - The u.FLs: Layout's J2/J3/J4 sit at X −26..−13, Y 10–14. The enclosure coax routes need **MAIN at centre (−49.7, 13.2) and GNSS at centre (−44.6, 15.1)**, as Layout finally placed them (O12). Drop J3 (diversity). Note: this is the position as originally asked; the final coordinates supersede it (§0 item 8).
 
 ## 2b. LTE FFC length: authoritative breakdown (O10, v5.1)
 Datum: J1 (FH12-22S-0.5SH, rot 90, mouth +X, courtyard edge X −5.0, contacts centred Y −6.5) on the daughterboard (Z 11.4–12.2), facing carrier J14 (courtyard X −0.95..7.04, mouth −X, same Y).
@@ -232,8 +248,31 @@ The DB edge to J14 courtyard distance of 4.05 mm is only a clearance. The housin
 | Shield → speaker | 1.50 |
 | Action cap → hole (incl. new lintel) | **0.20** |
 | Action cap flange → wall inner face | 0.05 (v4 stop) |
-| Coax GNSS → side-key flex riser / main u.FL | 0.15 / 0.10 (Kapton) |
-| GNSS patch-option envelope → coax GNSS / side-key flex / Al | 0.05 / 1.40 / 0.04 |
+| **O12 coax / u.FL (B-rep, R ≥ 6.8 mm)** | |
+| Coax GNSS → main u.FL plug envelope | **0.23** (tightest) |
+| Coax GNSS → side-key flex riser | 0.78 |
+| Coax Main → side-key flex | 2.65 |
+| Coax Main ↔ Coax GNSS | 0.67 |
+| Coax Main / GNSS → bezel | 1.45 / 1.36 |
+| Coax Main / GNSS → display back | 2.37 / 2.36 |
+| Coax Main / GNSS → LTE shield | 1.14 / 3.04 |
+| Coax Main / GNSS → U1 courtyard | 1.38 / 2.80 |
+| Coax Main / GNSS → Cu spreader | 2.16 / 3.74 |
+| Coax Main / GNSS → J7 housing | 40.81 / 35.76 |
+| Coax Main / GNSS → production cell leads | 25.45 / 20.12 |
+| Coax Main / GNSS → ALS | 4.95 / 2.53 |
+| Coax Main / GNSS → Al unibody | 3.09 / 1.41 |
+| Coax GNSS → GNSS window | 1.34 |
+| Coax GNSS → main FPC | 4.08 |
+| Coax Main → GNSS keep-out / envelope | 3.90 / 6.16 |
+| Coax Main → cell / battery pocket / foam / liner | 2.52 / 2.02 / 1.92 / 2.42 |
+| Coax Main → LTE window plate / main FPC | 0.30 / 0.01 (cable lies on the FPC inner face, X −60.195) |
+| Coax Main → GNSS u.FL | 3.89 |
+| Main u.FL → LTE shield / bezel / display back / Cu spreader | 0.60 / 1.52 / 2.50 / 1.79 |
+| Main u.FL → U1 courtyard marker | **0.00** (receptacle body Y 11.9 is 0.25 inside the 12.15 courtyard edge; see O12 note) |
+| GNSS u.FL → LTE shield / bezel / display back / Cu spreader | 2.50 / 2.50 / 2.50 / 3.14 |
+| Main u.FL ↔ GNSS u.FL | 2.90 |
+| GNSS patch-option envelope → coax GNSS / side-key flex / Al | 1.31 / 1.40 / 0.04 |
 | GNSS keep-out → ALS (−58, 20) / side-key flex | 1.47 / 0.80 |
 | GNSS window → ALS | 1.96 |
 | Main keep-out → ALS / flex / NTC | 2.60 / 2.0 / 0.30 |
@@ -269,8 +308,8 @@ Remaining items are at board level, not in the enclosure:
 SIM service needs the bezel and display removed; the lid swing intersects the display.
 
 ## 5. RF decisions (v5.1)
-- **LTE main:** a 42×16 window in the left end wall for a 40×15×0.2 FPC (**Abracon AANI-FB-0173** class, datasheet checked). The keep-out is 4.8 deep. The cell is 6.45 away, so plan a π-match tuning pass.
-- **GNSS (kept):** a 10.5 (Y) × 13.5 (Z) window at the top-left of the left wall, for an antenna of **≤12.5 (Z) × 9.5 (Y)** on EC25 ANT_GNSS (pad 47), with the u.FL at (−47..−44.8, 14.4..16.6).
+- **LTE main:** a 42×16 window in the left end wall for a 40×15×0.2 FPC (**Abracon AANI-FB-0173-1**, datasheet checked 28 Oct: 40 × 15 × 0.2, cable out of a long edge 11 mm from one end, u.FL/IPEX-1, 66 mm; mounted 40 along Y, cable exit at the top edge, feed tail at Y 2.0, Z 7.9; the part fits the window with 1.0 mm / 0.5 mm clear). The keep-out is 4.8 deep. The cell is 6.45 away, so plan a π-match tuning pass.
+- **GNSS (kept):** a 10.5 (Y) × 13.5 (Z) window at the top-left of the left wall, for an antenna of **≤12.5 (Z) × 9.5 (Y)** on EC25 ANT_GNSS (pad 47), with the u.FL J4 centred at (−44.6, 15.1).
   - **Primary: Johanson 1575AT43A0040001E** (legacy 1575AT43A0040), an LTCC chip antenna for GPS/Galileo/BeiDou/GLONASS, 1561–1602 MHz, **7.0×2.0×0.8 mm**, linear polarisation, 0.5 dBi peak and 50 % average efficiency on the eval board, active status (Johanson datasheet and product page checked). Mount it on a 9.5×12.5×0.8 FR4/FPC carrier: GND plane, 50 Ω GCPW, a π-match as Johanson recommends, and a u.FL pigtail. It fills `Vol_Ant_GNSS_Envelope`, 1.6 deep.
   - **Alternative: Abracon APAKN0904-S1575-T**, a passive ceramic patch, **9.0×9.0×4 mm** (height from Abracon's parametric page). It is RHCP, 1575.42 MHz, 0.5 dBi peak on a 70×70 ground, and active status (Abracon datasheet checked). On a 9.5×9.5×0.8 carrier it is 4.8 deep, which exactly fills `Vol_Ant_GNSS_PatchOpt_Envelope` (4.8 deep, Z ≤12), so a carrier thicker than 0.8 does not fit.
   - **Caveat, honest:** both parts are ground-plane dependent. A carrier of ≤12.5×9.5 is far smaller than their reference grounds (Johanson eval board 40×20; Abracon 70×70), and the antenna faces −X, edge-on, rather than up. Expect several dB below datasheet and plan a tuning pass, or tie the carrier ground to the Al frame.
@@ -335,8 +374,8 @@ Print the unibody and bezel from `stl/` in SLA tough resin, or MJF PA12, to chec
 | 1+1 | Closed-cell PE/PU foam 0.5 / 2.0 | `flat_Foam_*`; fit the one that matches the cell |
 | 4 | 0.2 mm foam tape dots | Bezel clamp-post tips and finger pads |
 | 1 | **Custom** 22P 0.5 mm FFC, Type A (same-side contacts, reversed numbering, J14 pin k = J1 pad 23−k). **14.5 ±0.3 mm overall**, 11.5 wide, 0.3 ±0.05 thick at the contact ends (Hirose FH12 mating spec), stiffener **3.0 mm** each end, max | J1 (LTE) ↔ J14 (carrier). Breakdown in §2b. Stock 30–50 mm cables are for the bench only and do not fit inside the enclosure. |
-| 2 | U.FL Ø1.13 coax | Main and GNSS (no diversity in v5.1). Integral to the antenna FPC or carrier. |
-| 1 | LTE main FPC 40×15 (AANI-FB-0173 class) | |
+| 2 | U.FL Ø1.13 coax | Main and GNSS (no diversity in v5.1). Integral to the antenna FPC or carrier. Bend R ≥ 6.8 mm. |
+| 1 | LTE main FPC 40×15 (**AANI-FB-0173-1 base part, custom cable**) | u.FL/IPEX-1, Ø1.13. Custom total cable length about 25 mm from the feed solder point; see O14. Cable exit: long edge, 11 mm from one end. |
 | 1 | GNSS: Johanson 1575AT43A0040001E chip on a 9.5×12.5 carrier, **or** Abracon APAKN0904-S1575-T 9×9 patch | See §5 |
 | 1 | Nano-SIM, hinged: CUI/Same Sky NSIM-2-C | Optional MFF2 eSIM (DNP) |
 | — | Two-part epoxy, Kapton tape | Window bonding, coax and flex dressing |
@@ -347,7 +386,9 @@ Print the unibody and bezel from `stl/` in SLA tough resin, or MJF PA12, to chec
 4. Side-key flex and keys, action cap, cell NTC pad, then the cell into its pocket. Leads to J7.
 5. **PET liner on the cell top, then foam** (0.5 mm production / 2.0 mm Akyga).
 6. Daughterboard: plug the FFC into J1 and lock it, then set the ears onto the ledges. Slide the free end 1.95 mm into carrier J14; the 3.4 mm bow slack allows this. Lock J14 and check that the bow stands up (crest ≈ Z 15.3) and is not folded down onto the cell.
-7. Mate the U.FLs (main → left wall, GNSS → top-left). Dress the coax with Kapton, keeping the GNSS coax under the flex riser.
+7. Mate the U.FLs (main → left wall, GNSS → top-left). Dress the coax with Kapton (Layout-approved, 23:58 IST), keeping the GNSS coax under the flex riser.
+   - **Kapton dressing:** tape both coax runs down with 0.05 mm Kapton. The **GNSS coax sits only 0.23 mm above the main u.FL plug**, so put one Kapton layer between them and do not tighten the GNSS cable onto the plug. Keep the bends at R ≥ 6.8 mm; never tape a bend flat or kink the cable at the connector.
+   - **Main coax:** the cable is **free of the antenna FPC** from the feed tail (Y 2.0, Z 7.9). Do not tape it along the radiator face. Route it up the wall, inward over the foam, and into J2. Tape it only at the J2 end and at one point mid-run, 3–5 mm from the wall.
 8. Insert the nano-SIM and close the lid.
 9. Shield pad, then the Cu spreader (tab onto the 0.3 pad on the Al post).
 10. Connect the display FPC to J4 and seat the display in the bezel. Lower the bezel, so the clamp posts and fingers land on the daughterboard, and fit 4× M2 countersunk screws.
@@ -385,7 +426,15 @@ Shield → 0.5 pad → Cu spreader → 0.3 pad → Al post into the bottom wall 
   - Display clearance is 1.36–1.67 over the tolerance band.
   - `research/proto-bom-india.md` line 73 still says "free span 4.05 mm". That is the courtyard clearance, so the line should read 14.5 mm overall. The file was not edited here.
 - **O11** – Turn off RX diversity in the EC25 firmware, using the exact command from the AT manual.
-- **O12 (new)** – Moving the main u.FL to Y ≥14.65 (Layout) puts it under the modelled `Coax_GNSS` run (Y 14.7–15.85, Z 13.3–14.45). Box overlap is about 2.5 mm³ for a u.FL at X −51.6..−49.4, Y 14.65..16.85. `Coax_Main` also has to be re-routed. This is **not modelled in v5.1**: v5.1 still has the main u.FL at Y 12.4–14.6. Next rev: give Layout's final u.FL coordinates, then re-route both coax runs (e.g. GNSS coax over the main u.FL at Z ≥14.4, under the side-key flex riser).
+- **O12 – CLOSED (J2/J4 locked by Layout, 23:58 IST).** Both coax runs are routed from J2 (−49.7, 13.2) and J4 (−44.6, 15.1) with R ≥ 6.8 mm. There are zero new clashes; the check still has the same 4 carrier-board rows (O3).
+  - **W2 (waiver, Layout 23:58 IST):** the J2 receptacle body (Y 11.9) is 0.25 mm inside the U1 courtyard edge (Y 12.15) and 0.4 from the shield wall (Y 11.5). Accepted. The courtyard is a PCB-level marker, so the check does not flag it (Main u.FL → courtyard 0.00 in §3).
+  - **Tightest gap is 0.23 mm** between the GNSS coax and the main u.FL plug envelope. Kapton, as in §7.5 step 7 (accepted by Layout).
+  - **Main feed point is set by us, at Y 2.0 (Z 7.9)**, from the Abracon datasheet (§0 item 9). It is no longer an assumption.
+- **O14 (new)** – AANI-FB-0173-1 cable: the catalog `-1` has a 66 mm cable (about 75 mm from the solder point); the route needs 20.7 mm.
+  - Ask Abracon for a **custom length of about 25 mm from the feed solder point** (20.7 route + about 4 mm service), u.FL/IPEX-1, Ø1.13, and **cable free of the board** from the tail on (not bonded along the radiator).
+  - Confirm how Abracon defines L (the datasheet measures it from the 15 mm edge) and the tolerance on the 11 mm cable position. The datasheet gives no tolerance on either.
+  - Until they confirm, the 66 mm `-1` can be used for fit tests only, with the slack looped (one R ≥ 6.8 loop is about 43 mm) away from the antenna keep-out.
+  - Also ask whether the cable can leave the solder tail with R 6.8 straight away, or needs 1–2 mm of straight (each extra mm of straight raises the apex by 1 mm, to Z 15.7 for 1 mm, so the bezel and display gaps (1.45 / 2.37) must be re-checked).
 - **O13** – LTE_VBAT current through the FFC is at the edge of its rating (§2b). The burst RMS is fine, but do not add more LTE load to these 6 pins.
 
 **Carried forward**
