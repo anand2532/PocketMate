@@ -1,0 +1,14 @@
+# RAUC bundle manifest template (system bundle). Filled by rauc/make-bundle.sh.
+[update]
+compatible=PocketMate cm5-4g
+version=@VERSION@
+description=PocketMate system @VERSION@ (@SKU@)
+
+[bundle]
+format=verity
+
+[image.boot]
+filename=boot.vfat
+
+[image.rootfs]
+filename=rootfs.ext4

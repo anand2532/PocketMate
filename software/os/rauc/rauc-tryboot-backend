@@ -1,0 +1,50 @@
+#!/bin/bash
+# RAUC custom bootloader backend for CM5 tryboot A/B (RAUC docs "Custom bootloader backend interface").
+#   get-primary | set-primary <A|B> | get-state <A|B> | set-state <A|B> <good|bad> | get-current
+# State: autoboot.txt on the bootsel partition (p1), plus /var/lib/pm/rauc-boot/{pending,state-A,state-B}.
+# set-primary X does NOT change [all]; it stages X in [tryboot] and marks it pending. pm-update then runs
+# `reboot "0 tryboot"`. If X boots and pm-health marks it good, set-state X good commits [all]. If not, the
+# one-shot tryboot flag means the next normal boot is the old slot (CM5 bootloader behaviour: VERIFY on unit).
+set -euo pipefail
+BOOTSEL_DEV="${PM_BOOTSEL_DEV:-/dev/disk/by-partlabel/bootsel}"
+MNT="${PM_BOOTSEL_MNT:-/run/pm-bootsel}"
+ST="${PM_RAUC_STATE:-/var/lib/pm/rauc-boot}"
+part() { case "$1" in A) echo 2 ;; B) echo 3 ;; *) echo "bad bootname $1" >&2; exit 2 ;; esac; }
+name() { case "$1" in 2) echo A ;; 3) echo B ;; *) echo "bad boot_partition $1" >&2; exit 2 ;; esac; }
+mount_rw() {
+    [ -n "${PM_BOOTSEL_MNT:-}" ] && return 0      # tests: plain directory
+    mkdir -p "$MNT"; mountpoint -q "$MNT" || mount -t vfat -o rw,sync "$BOOTSEL_DEV" "$MNT"
+}
+active_part() { sed -n '/^\[all\]/,/^\[/{s/^boot_partition=\([0-9]\+\)/\1/p}' "$MNT/autoboot.txt" | head -1; }
+write_autoboot() {   # write_autoboot <all_part> <tryboot_part>
+    local tmp="$MNT/autoboot.tmp"
+    printf '[all]\ntryboot_a_b=1\nboot_partition=%s\n[tryboot]\nboot_partition=%s\n' "$1" "$2" > "$tmp"
+    sync; mv "$tmp" "$MNT/autoboot.txt"; sync
+}
+mkdir -p "$ST"
+case "${1:-}" in
+    get-primary)
+        mount_rw
+        if [ -s "$ST/pending" ]; then cat "$ST/pending"; else name "$(active_part)"; fi ;;
+    set-primary)
+        mount_rw; p="$(part "$2")"; cur="$(active_part)"
+        if [ "$p" = "$cur" ]; then rm -f "$ST/pending"; else write_autoboot "$cur" "$p"; echo "$2" > "$ST/pending"; fi ;;
+    get-state)
+        part "$2" >/dev/null; if [ -s "$ST/state-$2" ]; then cat "$ST/state-$2"; else echo good; fi ;;
+    set-state)
+        part "$2" >/dev/null
+        case "$3" in good|bad) ;; *) echo "bad state $3" >&2; exit 2 ;; esac
+        echo "$3" > "$ST/state-$2"
+        if [ "$(cat "$ST/pending" 2>/dev/null || true)" = "$2" ]; then
+            mount_rw
+            if [ "$3" = good ]; then p="$(part "$2")"; write_autoboot "$p" "$p"; fi
+            rm -f "$ST/pending"
+        fi ;;
+    get-current)
+        # Pi firmware exposes the boot partition number in the DT (big-endian u32). VERIFY path on CM5.
+        f=/proc/device-tree/chosen/bootloader/partition
+        if [ -n "${PM_FAKE_BOOT_PART:-}" ]; then name "$PM_FAKE_BOOT_PART"
+        elif [ -r "$f" ]; then name "$(od -An -tu4 --endian=big "$f" | tr -d ' ')"
+        else exit 1; fi ;;
+    *) echo "usage: $0 get-primary|set-primary|get-state|set-state|get-current" >&2; exit 64 ;;
+esac

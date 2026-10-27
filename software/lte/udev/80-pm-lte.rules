@@ -1,0 +1,8 @@
+# PocketMate LTE board (§19). AT port symlink /dev/pm-lte-at for pm-lte.
+# EC25: interface 02 = AT port (Quectel Linux USB driver guide; option driver ttyUSB2). VERIFY on unit.
+SUBSYSTEM=="tty", ATTRS{idVendor}=="2c7c", ATTRS{idProduct}=="0125", ENV{ID_USB_INTERFACE_NUM}=="02", SYMLINK+="pm-lte-at", GROUP="dialout", MODE="0660"
+# EC200U: AT interface number not confirmed from a Quectel document here: VERIFY with `udevadm info`.
+SUBSYSTEM=="tty", ATTRS{idVendor}=="2c7c", ATTRS{idProduct}=="0901", ENV{ID_USB_INTERFACE_NUM}=="02", SYMLINK+="pm-lte-at", GROUP="dialout", MODE="0660"
+SUBSYSTEM=="usbmisc", KERNEL=="cdc-wdm*", ATTRS{idVendor}=="2c7c", GROUP="dialout", MODE="0660"
+# Bring pm-lte up when the module enumerates (it is started by pocketmate.target anyway).
+ACTION=="add", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="2c7c", TAG+="systemd", ENV{SYSTEMD_WANTS}+="pm-lte.service"

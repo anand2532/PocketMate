@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/workspace/pocketmate/software/firmware/build-host/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

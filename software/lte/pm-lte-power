@@ -1,0 +1,156 @@
+#!/bin/bash
+# pm-lte-power: power sequencing for the PocketMate LTE board (Quectel EC25 or EC200U), ARCHITECTURE.md §19.3.
+#
+#   pm-lte-power on|off|reset|status|detect
+#
+# Pins come from pinmap.env (checked against the netlists by check_netlist.py). All three outputs drive NMOS
+# gates on the LTE board, so "high" = asserted (PWR_EN on, PWRKEY pressed, RESET_N pulled low).
+# Timings are from the Quectel hardware design guides (see quectel.py [EC25-HD] / [EC200U-HD]):
+#   VBAT settle before PWRKEY >= 30 ms (we wait 50)
+#   PWRKEY on:  EC25 >= 500 ms, EC200U >= 2 s. Holding longer is allowed for both (both guides allow PWRKEY tied
+#               to GND for auto power-on), so when the module type is unknown we hold 2.2 s.
+#   PWRKEY off: EC25 >= 650 ms, EC200U >= 3 s (a longer hold on EC25 could re-trigger power-on, so we need the type).
+#   Power-down after AT+QPOWD: EC25 <= 29.5 s, EC200U <= 30 s. VBAT must not be cut before it completes.
+#   RESET_N:    EC25 150..460 ms, EC200U >= 100 ms.
+# LTE_STATUS (GPIO16) is inverted by Q3: low = module on. That only works for EC200U (push-pull STATUS);
+# with an EC25 (open-drain STATUS, VDD_EXT pull-up) GPIO16 reads high in every state (hardware issue
+# H-LTE-1), so for EC25 we use USB enumeration instead.
+#
+# PM_LTE_DRYRUN=1: print the pinctrl calls and sleeps instead of executing them (used by tests/ and bring-up).
+# PM_LTE_FAKE_STATUS / PM_LTE_FAKE_USB: dry-run inputs for the STATUS pin level and the USB ID ("2c7c:0125").
+# PM_LTE_FAKE_USB_ON: dry-run USB ID that appears only after the PWRKEY pulse.
+set -euo pipefail
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PINMAP="${PM_LTE_PINMAP:-/etc/pocketmate/lte-pinmap.env}"
+[ -r "$PINMAP" ] || PINMAP="$HERE/pinmap.env"
+# shellcheck source=pinmap.env
+. "$PINMAP"
+STATE_DIR="${PM_LTE_STATE_DIR:-/var/lib/pm}"
+MODULE_CACHE="$STATE_DIR/lte-module"
+DRY="${PM_LTE_DRYRUN:-0}"
+PULSED=0
+
+log() { echo "pm-lte-power: $*" >&2; }
+run() { if [ "$DRY" = 1 ]; then echo "+ $*"; else "$@"; fi; }
+msleep() { if [ "$DRY" = 1 ]; then echo "+ sleep_ms $1"; else sleep "$(printf '%d.%03d' $(($1 / 1000)) $(($1 % 1000)))"; fi; }
+pin_hi() { run pinctrl set "$1" op dh; }
+pin_lo() { run pinctrl set "$1" op dl; }
+
+status_level() {   # prints 0/1 for GPIO16
+    if [ "$DRY" = 1 ]; then echo "${PM_LTE_FAKE_STATUS:-1}"; return; fi
+    case "$(pinctrl get "$LTE_STATUS_GPIO")" in *"| hi"*) echo 1 ;; *) echo 0 ;; esac
+}
+
+usb_id() {         # prints vid:pid of the first Quectel device, or nothing
+    if [ "$DRY" = 1 ]; then
+        if [ "$PULSED" = 1 ] && [ -n "${PM_LTE_FAKE_USB_ON:-}" ]; then echo "$PM_LTE_FAKE_USB_ON"; else echo "${PM_LTE_FAKE_USB:-}"; fi
+        return
+    fi
+    local d
+    for d in /sys/bus/usb/devices/*; do
+        [ -r "$d/idVendor" ] || continue
+        if [ "$(cat "$d/idVendor")" = 2c7c ]; then echo "2c7c:$(cat "$d/idProduct")"; return; fi
+    done
+}
+
+module_from_usb() {
+    case "$1" in
+        2c7c:0125) echo ec25 ;;
+        2c7c:0901) echo ec200u ;;
+        2c7c:*) echo unknown ;;
+        *) echo "" ;;
+    esac
+}
+
+cached_module() { if [ -r "$MODULE_CACHE" ]; then cat "$MODULE_CACHE"; else echo unknown; fi; }
+save_module() { mkdir -p "$STATE_DIR" && echo "$1" > "$MODULE_CACHE"; }   # dry-run: set PM_LTE_STATE_DIR
+
+is_on() {          # 0 if the module is on
+    local m; m="$(cached_module)"
+    if [ -n "$(usb_id)" ]; then return 0; fi
+    if [ "$m" = ec200u ] && [ "$(status_level)" = 0 ]; then return 0; fi
+    return 1
+}
+
+wait_for() {       # wait_for <timeout_ms> <cmd...>; polls every 250 ms
+    local t="$1"; shift
+    local waited=0
+    while [ "$waited" -lt "$t" ]; do
+        if "$@"; then return 0; fi
+        if [ "$DRY" = 1 ]; then echo "+ poll $* (${t} ms max)"; return 1; fi
+        sleep 0.25; waited=$((waited + 250))
+    done
+    return 1
+}
+
+usb_present() { [ -n "$(usb_id)" ]; }
+usb_absent() { [ -z "$(usb_id)" ]; }
+status_on() { [ "$(status_level)" = 0 ]; }
+status_off() { [ "$(status_level)" = 1 ]; }
+
+at_port() { echo "${PM_LTE_AT:-/dev/pm-lte-at}"; }
+
+do_on() {
+    if is_on; then log "already on"; return 0; fi
+    local m pulse
+    m="$(cached_module)"
+    case "$m" in ec25) pulse=600 ;; *) pulse=2200 ;; esac
+    run pinctrl set "$LTE_RESET_GPIO" op dl          # RESET_N released
+    run pinctrl set "$LTE_PWRKEY_GPIO" op dl         # PWRKEY released
+    pin_hi "$LTE_PWR_EN_GPIO"                        # LTE_VBAT on (cell+ via F1)
+    msleep 50                                        # VBAT settle >= 30 ms
+    pin_hi "$LTE_PWRKEY_GPIO"; msleep "$pulse"; pin_lo "$LTE_PWRKEY_GPIO"; PULSED=1
+    # EC200U: STATUS goes high (GPIO16 low) >= 5.05 s; USB >= 2.23 s. EC25: USB >= 13 s.
+    if wait_for 20000 usb_present; then
+        local id; id="$(usb_id)"; m="$(module_from_usb "$id")"
+        log "USB up ($id, module=$m)"; save_module "$m"
+    elif status_on; then
+        log "STATUS low but no USB: EC200U without USB? check cable/USB3-0"; save_module ec200u; return 2
+    else
+        log "no USB and no STATUS after 20 s"; return 1
+    fi
+}
+
+do_off() {
+    if ! is_on; then pin_lo "$LTE_PWR_EN_GPIO"; log "off"; return 0; fi
+    local m tmo pulse port
+    m="$(cached_module)"
+    case "$m" in ec25) tmo=30000; pulse=800 ;; ec200u) tmo=31000; pulse=3200 ;; *) tmo=31000; pulse=0 ;; esac
+    port="$(at_port)"
+    if [ -c "$port" ] || [ "$DRY" = 1 ]; then
+        log "AT+QPOWD=1 on $port"
+        if [ "$DRY" = 1 ]; then echo "+ AT+QPOWD=1 > $port"; else printf 'AT+QPOWD=1\r' > "$port" || true; fi
+    elif [ "$pulse" -gt 0 ]; then
+        log "no AT port: PWRKEY off pulse ${pulse} ms"
+        pin_hi "$LTE_PWRKEY_GPIO"; msleep "$pulse"; pin_lo "$LTE_PWRKEY_GPIO"
+    else
+        log "module type unknown and no AT port: refusing to guess PWRKEY off timing"
+    fi
+    # Never cut VBAT before power-down finishes. EC200U: also wait for STATUS (GPIO16) high.
+    if [ "$m" = ec200u ]; then wait_for "$tmo" status_off || log "STATUS still on after ${tmo} ms"; fi
+    wait_for "$tmo" usb_absent || log "USB still present after ${tmo} ms"
+    msleep 1000   # [impl] margin after USB/STATUS drop
+    pin_lo "$LTE_PWR_EN_GPIO"
+    log "off"
+}
+
+do_reset() {
+    local m ms; m="$(cached_module)"
+    case "$m" in ec25) ms=300 ;; *) ms=200 ;; esac   # EC25 150..460 ms; EC200U >= 100 ms
+    pin_hi "$LTE_RESET_GPIO"; msleep "$ms"; pin_lo "$LTE_RESET_GPIO"
+}
+
+do_status() {
+    local id; id="$(usb_id)"
+    echo "module=$(cached_module) usb=${id:-none} status_gpio16=$(status_level) on=$(is_on && echo yes || echo no)"
+}
+
+case "${1:-}" in
+    on) do_on ;;
+    off) do_off ;;
+    reset) do_reset ;;
+    status) do_status ;;
+    detect) id="$(usb_id)"; m="$(module_from_usb "$id")"; [ -n "$m" ] && save_module "$m"; echo "${m:-none}" ;;
+    *) echo "usage: $0 on|off|reset|status|detect" >&2; exit 64 ;;
+esac

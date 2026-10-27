@@ -1,0 +1,3 @@
+# LUKS2 data partition (§2.1). The key source is TODO(hardware): sealed with the CM5 OTP / secure-boot
+# chain [A-4]. Dev builds use a keyfile on bootsel (dev only, per §2.1).
+pmdata  /dev/disk/by-partlabel/data  /run/pm-bootsel/pm-dev.key  luks,discard,keyfile-timeout=10s

@@ -1,0 +1,1 @@
+console=tty3 root=PARTLABEL=rootfs-@SLOT@ rootfstype=ext4 ro rootwait fsck.repair=yes quiet loglevel=3 pm.slot=@SLOT@

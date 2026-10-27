@@ -1,0 +1,17 @@
+# PocketMate eMMC layout, cm5-4g (ARCHITECTURE.md §2.1 + v0.4.0 change: partition 1 "bootsel").
+# Apply on the factory/dev host:  sfdisk /dev/mmcblkX < cm5-4g.sfdisk   (DESTROYS the disk)
+# Partition 1 holds only autoboot.txt: the CM5 bootloader reads autoboot.txt from the first FAT partition, and
+# RAUC overwrites boot-A/boot-B as whole images, so autoboot.txt can't live inside a slot.
+label: gpt
+unit: sectors
+first-lba: 2048
+
+name=bootsel,  size=16MiB,   type=EBD0A0A2-B9E5-4433-87C0-68B6B72699C7
+name=boot-A,   size=256MiB,  type=EBD0A0A2-B9E5-4433-87C0-68B6B72699C7
+name=boot-B,   size=256MiB,  type=EBD0A0A2-B9E5-4433-87C0-68B6B72699C7
+name=rootfs-A, size=3GiB,    type=0FC63DAF-8483-4772-8E79-3D69D8477DE4
+name=rootfs-B, size=3GiB,    type=0FC63DAF-8483-4772-8E79-3D69D8477DE4
+name=models-A, size=5GiB,    type=0FC63DAF-8483-4772-8E79-3D69D8477DE4
+name=models-B, size=5GiB,    type=0FC63DAF-8483-4772-8E79-3D69D8477DE4
+name=recovery, size=512MiB,  type=0FC63DAF-8483-4772-8E79-3D69D8477DE4
+name=data,                   type=CA7D7CCB-63ED-4C53-861C-1742536059CC

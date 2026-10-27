@@ -1,0 +1,45 @@
+# PocketMate pm-lte (§19) [impl v0.4.0]. Only on units with the LTE board: /etc/pocketmate/lte.enabled is
+# created by the image's first-boot SKU detection or by hand.
+[Unit]
+Description=PocketMate LTE module power, init and governor executor
+PartOf=pocketmate.target
+After=pm-power.service
+Requires=pm-power.service
+ConditionPathExists=/etc/pocketmate/lte.enabled
+
+[Service]
+Type=notify
+NotifyAccess=main
+ExecStart=/usr/bin/pm-lte
+ExecStopPost=/usr/lib/pocketmate/pm-lte-power off
+TimeoutStopSec=45
+User=pm-lte
+Group=pm-lte
+SupplementaryGroups=pm dialout gpio
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=-/etc/default/pocketmate
+AmbientCapabilities=CAP_NET_ADMIN
+CapabilityBoundingSet=CAP_NET_ADMIN
+Restart=on-failure
+RestartSec=5
+MemoryMax=40M
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+RestrictNamespaces=yes
+LockPersonality=yes
+SystemCallArchitectures=native
+RestrictAddressFamilies=AF_UNIX AF_NETLINK AF_INET
+ReadWritePaths=/var/lib/pm
+DevicePolicy=closed
+DeviceAllow=/dev/pm-lte-at rw
+DeviceAllow=char-ttyUSB rw
+DeviceAllow=char-usbmisc rw
+DeviceAllow=/dev/gpiomem0 rw
+
+[Install]
+WantedBy=pocketmate.target

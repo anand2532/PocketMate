@@ -1,0 +1,18 @@
+# pi-gen config for the PocketMate prototype image (§2: Raspberry Pi OS Lite arm64 via pi-gen; §2 allows 'Bookworm or newer').
+# Usage (Debian/Ubuntu x86_64 or arm64 host, root or docker):
+#   git clone https://github.com/RPi-Distro/pi-gen && cd pi-gen    (VERIFY the branch that builds trixie arm64)
+#   cp -r <repo>/software/os/pi-gen/stage-pm . && cp <repo>/software/os/pi-gen/config .
+#   PM_SRC=<repo>/software ./build-docker.sh   (or sudo ./build.sh)
+IMG_NAME=pocketmate
+# trixie, not bookworm: Debian ships python3-pyside6 only from trixie (bookworm has none; checked with
+# ftp-master madison 2026-10-27: stable 6.8.2.1-4). VERIFY the pi-gen branch that builds trixie arm64.
+RELEASE=trixie
+TARGET_HOSTNAME=pocketmate
+LOCALE_DEFAULT=en_IN.UTF-8
+KEYBOARD_KEYMAP=us
+TIMEZONE_DEFAULT=Asia/Kolkata
+FIRST_USER_NAME=pmdev
+DISABLE_FIRST_BOOT_USER_RENAME=1
+ENABLE_SSH=0
+STAGE_LIST="stage0 stage1 stage2 stage-pm"
+DEPLOY_COMPRESSION=xz

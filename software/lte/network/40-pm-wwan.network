@@ -1,0 +1,16 @@
+# LTE data interface (§19.6). EC25 qmi_wwan -> wwan0 (raw-IP); EC200U ECM -> cdc_ether netdev.
+# Low priority versus Wi-Fi (RouteMetric): LTE is only used when Wi-Fi is down. nftables egress policy
+# (os/) still applies.
+[Match]
+Driver=qmi_wwan cdc_ether
+
+[Network]
+DHCP=ipv4
+IPv6AcceptRA=no
+
+[DHCPv4]
+RouteMetric=1024
+UseDNS=yes
+
+[Link]
+RequiredForOnline=no
