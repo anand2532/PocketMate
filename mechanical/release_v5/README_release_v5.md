@@ -1,6 +1,6 @@
 # PocketMate enclosure – release v5.1 (prototype freeze, updated in place)
 
-Rev **5.1**, Tue 27 Oct 2026, 22:15 IST, with O10 FFC added at 22:33 IST and O12 coax re-route / final u.FL positions added at 23:50 IST, and the O12b Abracon feed-exit re-route at 00:05 IST (28 Oct). It is built on v5.0 (21:56 IST), whose files are preserved in `archive/release_v5.0_snapshot_20261027_1629.tar.gz`; the name carries the box clock in UTC, which is 21:59 IST. The source is `../pocketmate_assembly_v4_22e.step`. All earlier files in `mechanical/` are untouched.
+Rev **5.1**, Tue 27 Oct 2026, 22:15 IST, with O10 FFC added at 22:33 IST and O12 coax re-route / final u.FL positions added at 23:50 IST, the O12b Abracon feed-exit re-route at 00:05 IST (28 Oct), and the O15 stock-cable slack loop + clips at 01:10 IST (28 Oct). It is built on v5.0 (21:56 IST), whose files are preserved in `archive/release_v5.0_snapshot_20261027_1629.tar.gz`; the name carries the box clock in UTC, which is 21:59 IST. The source is `../pocketmate_assembly_v4_22e.step`. All earlier files in `mechanical/` are untouched.
 
 Boards were read only, via /tmp copies, and never modified:
 - `hardware/kicad/PocketMate.kicad_pcb`, md5 `126f5c6c…`, with J14 reserved. It was exported with kicad-cli to `ref/carrier_kicad_export_126f5c6c.step`.
@@ -39,12 +39,12 @@ Frame: the origin is at the body centre, +X right, +Y to the top edge, and Z fro
    - SIM 3 mm rework-rule waiver (2.40);
    - main u.FL moved to Y ≥14.65 (superseded by item 8);
    - J3 (diversity) dropped.
-7. The interference check (77 parts), key gaps, STEP/STL exports, the 17-sheet PDF plus DXFs, and this README were all regenerated from the same build.
+7. The interference check (80 parts), key gaps, STEP/STL exports, the 19-sheet PDF plus DXFs, and this README were all regenerated from the same build.
 8. **O12 closed (Layout final u.FL positions, 27 Oct 23:50 IST).** Both u.FLs are rotated 90° and now sit at:
    - **J2 MAIN:** centre (−49.7, 13.2), plug envelope X −50.8..−48.6, Y 12.1..14.3 (body Y 11.9..14.5);
    - **J4 GNSS:** centre (−44.6, 15.1), envelope X −45.7..−43.5, Y 14.0..16.2.
    Both coax runs were rebuilt as true swept Ø1.13 tubes (`coax_geom.py`, Z centre 13.875) from these centres. The bend rule is **R ≥ 6.8 mm**, the strictest of the 1.13 mm micro-coax datasheets checked: Taoglas 300115B000098A and Samtec MH113 give 6.8, Wellshow D113L115 gives 5.0, Rosnol RF1.13 gives 4.5 (static) and Gigatronix 1.13 gives 4.0 (static). The cable is not named in any BOM yet, so 6.8 is a safe design value.
-   - **Coax_Main (re-routed in O12b, 28 Oct 00:05 IST, from the Abracon datasheet; see item 9):** an Ø1.13 run of 20.7 mm from the antenna feed tail at (X −59.63, Y 2.0, Z 7.9) to J2 (−49.7, 13.2, Z 13.875). It has two exact circular arcs: R 6.8 mm rising up the wall (72° heading), then R 7.0 mm swinging inward and down (82°). The minimum radius is 6.8 mm. It arrives at J2 heading +X, 8° downward.
+   - **Coax_Main (re-routed in O12b, 28 Oct 00:05 IST, from the Abracon datasheet; see item 9; this 20.7 mm route is the NEXT-SPIN route for the custom cable; the prototype route with the slack loop is item 11):** an Ø1.13 run of 20.7 mm from the antenna feed tail at (X −59.63, Y 2.0, Z 7.9) to J2 (−49.7, 13.2, Z 13.875). It has two exact circular arcs: R 6.8 mm rising up the wall (72° heading), then R 7.0 mm swinging inward and down (82°). The minimum radius is 6.8 mm. It arrives at J2 heading +X, 8° downward.
    - **Coax_GNSS:** 8.4 mm straight in −X from J4 at Y 15.1, then one **R 6.8 mm, 40° arc**, then a 40° straight to the GNSS feed at (−58.8, 17.9). It is 15.0 mm long. It passes 0.23 above the main u.FL plug, and crosses the side-key flex riser (X −54.2) with 0.78 to spare.
    - See §3 for the clearances. The previous v5.1 files are kept in `archive/pre_O12_*`; `work/build_release_v5.pre_O12.py.bak` is the previous build script.
 
@@ -55,9 +55,18 @@ Frame: the origin is at the body centre, +X right, +Y to the top edge, and Z fro
    - **Our model before this change:** FPC Y −27..13, Z 2.5..17.5, feed assumed at Y 12.5 on the +Y end, cable straight to J2. That was wrong: the real exit is on a long edge, not the +Y end.
    - **New orientation (no FPC move needed):** 40 mm along Y, 15 mm along Z, cable face toward +X (the cable side faces away from the adhesive), **exit edge at the top (Z 17.5), the 11 mm end toward +Y**. This puts the feed tail at **Y = 13 − 11 = 2.0, Z = 17.5 − 9.6 = 7.9**. The FPC box stays at X −60.4..−60.2, Y −27..13, Z 2.5..17.5.
    - **Window:** 42 × 16 (Y −28..14, Z 2..18) for a 40 × 15 part is 1.0 mm clear each side in Y and 0.5 mm in Z. The 39 × 14 copper has 1.5 / 1.0. **The part fits; the window is unchanged.**
-   - **Cable length problem:** the cable runs 20.7 mm from the tail to J2, but the catalog `-1` carries 66 mm (plus the 9.6 mm on the board), about **55 mm of slack** with nowhere to store it. Order a **custom cable length**. See O14.
+   - **Cable length problem:** the cable runs 20.7 mm from the tail to J2, but the catalog `-1` carries 66 mm (plus the 9.6 mm on the board), about **55 mm of slack** with nowhere to store it. **Superseded by item 11 (O15):** the prototype keeps the stock cable and stores the slack in a clipped loop; the custom length is for the next spin (O14).
    - **Bend fit:** the cable has to climb 6.8 mm to turn horizontal, from the tail at Z 7.9 to Z 14.7 (cable top 15.27; measured gap to the bezel 1.45, to the display back 2.37), and it ends at J2 at Z 13.875 on a slight downward slope. A catalog cable bonded along the board face would exit at the top edge (Z 17.5), which cannot turn inward with R 6.8 under the display. So the cable has to be **free of the board** from the tail on.
 10. **Layout's replies (27 Oct 23:58 IST):** J2 and J4 are **locked**. The Kapton dressing note is accepted (see §7.5 step 7). The J2 overlap into the U1 courtyard is **accepted under waiver W2**. The main antenna feed point is ours to set, so it is set at Y 2.0 (item 9).
+11. **O15: slack zone and clips for the stock 66 mm cable (PM, 28 Oct 00:49 IST).** The PM confirmed that the **prototype uses the stock `-1` cable (66 mm)**; the custom ~25 mm cable (O14) waits for the next spin. `Coax_Main` is therefore now the **stock-cable route with a defined slack loop**, and two printed clips hold it. The 20.7 mm route of item 8/9 is kept as `coax_geom.coax_main_short()` for the next spin (it is not in the prototype assembly).
+   - **Cable budget (assumption, see O16):** 66 mm (from the antenna 15 mm edge to the connector tip) + 9.6 mm bonded on the board = 75.6 mm from the solder tail to the plug tip, so about **73.6 mm to the J2 plug centre** (about 2 mm of plug length taken off; Layout's J2 envelope). The short route is 20.7 mm, so about **53 mm** of slack must be stored.
+   - **Slack zone `Vol_Coax_SlackZone`:** X −56.84..−54.39 (upper part to −54.64), Y −21.69..2.90, Z 1.9..18.0. It lies inside the LTE main keep-out (X −60.2..−55.0), in the slab between the radiator and the cell, and it holds only non-metal clips and the cable. The loop is a **stadium in the plane X = −55.59, parallel to the antenna wall**: 19.88 mm wide (Y 2.0 → −17.9), 13.8 mm high (Z 3.5..17.3), bends **R 6.9 mm** (rule ≥ 6.8). The cable leaves the tail, climbs to the top of the loop (Z 17.3), runs along the top toward −Y, down the −Y end, back along the bottom (Z 3.5) toward +Y (395° of bend in total over five fillets), then rises to J2. The route is solved in `work/opt_slack.py` (fillet polyline, `fillet_path.py`) and swept in `coax_geom.coax_main_slack()`. Measured: centre line **73.60 mm**, bend radius **6.90 mm min and max** (3-point circumradius on 0.5 mm arc samples), non-adjacent strands at least **2.54 mm apart** surface to surface, top Z 17.87, bottom Z 2.93.
+   - **Clip A `Clip_Slack_Saddle_A`:** floor saddle on the straight bottom run (X −56.64..−54.28, Y −5.93..−3.30). Base Z 1.5..2.7 stands on the unibody floor (probed floor top Z 1.5), two 0.5 mm prongs flank the cable with **0.10 mm gap per side**, and the prongs rise to 0.45 above the cable axis. Size 2.6 × 2.36 × 2.45 mm, 10.5 mm³. It is kept clear of the NTC case (2.07 mm); clearance to the battery pocket is 0.28 mm.
+   - **Clip B `Clip_Slack_Post_B`:** a retainer post outside the left arc of the loop (X −56.75..−54.42, Y −21.44..−17.82, Z 1.5..12.0, 36.9 mm³), bonded to the floor. Two 0.5 mm prongs at Z 8.9..12.0 form a slot (0.10 gap per side) around the left-most point of the loop. The back plate is set 1.5 mm further out than the nominal loop, so **the loop can grow 1.5 mm in width (+3 mm of cable) before it butts the post**.
+   - **Material and fixing:** both clips are printed (PA12 SLS/MJF or tough resin; 0.5 mm walls), non-metal, bonded to the floor with a thin film of adhesive transfer tape or two-part epoxy (as the window bonding). No vendor or part number is claimed. **Kapton anchor:** one 0.05 mm Kapton strap over the cable at the foam entry (see §7.5 step 7) completes the tie-down; it is not modelled.
+   - **Tolerance sweep (`work/slack_tolerance.txt`):** loop width −3.0 / −1.5 / 0 / +1.5 mm (cable 67.6 / 70.6 / 73.6 / 76.6 mm): no change in any gap in the table below, R stays 6.90, the clips keep 0.09–0.10 gap to the cable. Shorter cables simply make a smaller loop that floats up to 3 mm away from the post. A cable more than 3 mm longer than assumed does not fit the post slot: see O16.
+   - **RF trade-off (disclosed):** the shield of a coax loop in the antenna's keep-out can load the radiator. The loop plane is 4.05 mm (cable surface) from the FPC and the first 9.6 mm of cable is on the radiator in any case (datasheet). Prototype only; expect lower efficiency than the custom cable. Measure with and without the loop (O16). No metal is added: clips are plastic and the zone is classed `intended(zone lies inside LTE keep-out; non-metal cable+clips only)`.
+   - **New parts:** `Clip_Slack_Saddle_A`, `Clip_Slack_Post_B`, `Vol_Coax_SlackZone` (80 bodies in total). `Coax_Main` is now the slack-loop route. New STLs for both clips, 2 new drawing sheets (elevation, plan), new key-gap pairs.
 
 ### v5.0 (27 Oct 2026, 21:56 IST)
 - The first release: LTE daughterboard shelf, thermal path, cell insulation, RF windows, SIM, bezel bridge, and front M2 screws.
@@ -65,18 +74,19 @@ Frame: the origin is at the body centre, +X right, +Y to the top edge, and Z fro
 ## 1. Deliverables
 | What | Path |
 |---|---|
-| Assembly STEP (77 named bodies, coloured) | `pocketmate_assembly_release_v5.step` |
-| Per-part STEP (22 physical parts) | `step_parts/<Part>_release_v5.step` |
+| Assembly STEP (80 named bodies, coloured) | `pocketmate_assembly_release_v5.step` |
+| Per-part STEP (24 physical parts) | `step_parts/<Part>_release_v5.step` |
 | Envelopes and keep-outs (reference only) | `step_parts/envelopes_and_keepouts_release_v5.step` |
-| STL, printable/machined (11) | `stl/` – unibody, bezel, action cap, 3 RF windows (Wi-Fi, LTE main, GNSS), 2 grip inlays, camera window, Cu spreader, LTE PCB outline |
-| Drawings (17 sheets) | `drawings/pocketmate_drawings_release_v5.pdf` plus one DXF per sheet (`unibody_*`, `bezel_plan`, `window_*`, `flat_*`, `lte_daughterboard_outline`) |
+| STL, printable/machined (13) | `stl/` – unibody, bezel, action cap, 3 RF windows (Wi-Fi, LTE main, GNSS), 2 grip inlays, camera window, Cu spreader, LTE PCB outline, 2 slack clips (O15) |
+| Drawings (19 sheets) | `drawings/pocketmate_drawings_release_v5.pdf` plus one DXF per sheet (`unibody_*`, `bezel_plan`, `window_*`, `flat_*`, `lte_daughterboard_outline`, `slack_loop_elevation`, `slack_loop_plan`) |
 | Interference list (full) | `INTERFERENCE_CHECK_release_v5.md`, `work/check.json`, `work/key_gaps.json` / `key_gaps.txt` |
 | STL mesh check | `work/stl_check.json` |
+| Slack loop (O15): route solver, geometry, radius and tolerance checks | `work/opt_slack.py`, `fillet_path.py`, `coax_geom.py` (`coax_main_slack`), `work/slack_params.npy`, `work/slack_radius_check.py/.txt`, `work/slack_tolerance.txt` |
 | 47 mm LTE board fit check | `lte47_fit_check.py`, `work/lte47_fit.json` |
 | LTE FFC bow / length study (O10) | `ffc_bow.py`, `ffc_geom.py`, `ffc_fit_check.py`, `work/ffc_bow.json`, `work/ffc_fit.json` |
 | Carrier reference | `ref/carrier_kicad_export_126f5c6c.step`, `ref/carrier_footprints_126f5c6c.json` |
 
-**STL check (v5.1, trimesh 4).** All 11 STLs are **watertight, winding-consistent, `is_volume` true, a single body, with 0 edges whose face count ≠ 2**. admesh is not installed on the build box, so the trimesh edge-manifold count stands in for it.
+**STL check (v5.1, trimesh 4).** All 13 STLs are **watertight, winding-consistent, `is_volume` true, a single body, with 0 edges whose face count ≠ 2**. admesh is not installed on the build box, so the trimesh edge-manifold count stands in for it.
 
 | STL | Triangles | Volume mm³ |
 |---|---|---|
@@ -90,6 +100,7 @@ Frame: the origin is at the body centre, +X right, +Y to the top edge, and Z fro
 | Camera window | 500 | 113.1 |
 | Cu spreader | 44 | 554.5 |
 | LTE PCB | 60 | 1,734.0 |
+| Clip_Slack_Saddle_A / Post_B (O15) | 28 / 36 | 10.5 / 36.9 |
 
 The STEP files for the unibody, bezel and cap each pass BRepCheck as a valid single solid.
 
@@ -251,23 +262,39 @@ The DB edge to J14 courtyard distance of 4.05 mm is only a clearance. The housin
 | **O12 coax / u.FL (B-rep, R ≥ 6.8 mm)** | |
 | Coax GNSS → main u.FL plug envelope | **0.23** (tightest) |
 | Coax GNSS → side-key flex riser | 0.78 |
-| Coax Main → side-key flex | 2.65 |
-| Coax Main ↔ Coax GNSS | 0.67 |
-| Coax Main / GNSS → bezel | 1.45 / 1.36 |
-| Coax Main / GNSS → display back | 2.37 / 2.36 |
-| Coax Main / GNSS → LTE shield | 1.14 / 3.04 |
-| Coax Main / GNSS → U1 courtyard | 1.38 / 2.80 |
-| Coax Main / GNSS → Cu spreader | 2.16 / 3.74 |
-| Coax Main / GNSS → J7 housing | 40.81 / 35.76 |
-| Coax Main / GNSS → production cell leads | 25.45 / 20.12 |
-| Coax Main / GNSS → ALS | 4.95 / 2.53 |
-| Coax Main / GNSS → Al unibody | 3.09 / 1.41 |
+| Coax Main (stock route, O15) → side-key flex | 3.38 |
+| Coax Main ↔ Coax GNSS | 0.79 |
+| Coax Main / GNSS → bezel | **0.52** / 1.36 |
+| Coax Main / GNSS → display back | 1.97 / 2.36 |
+| Coax Main / GNSS → LTE shield | 0.61 / 3.04 |
+| Coax Main / GNSS → U1 courtyard | 0.82 / 2.80 |
+| Coax Main / GNSS → Cu spreader | 2.09 / 3.74 |
+| Coax Main / GNSS → daughterboard | 0.83 / 1.11 |
+| Coax Main / GNSS → J7 housing | 40.83 / 35.76 |
+| Coax Main / GNSS → production cell leads | 25.64 / 20.12 |
+| Coax Main / GNSS → ALS | 6.20 / 2.53 |
+| Coax Main / GNSS → Al unibody | 1.44 / 1.41 |
+| **O15 slack loop and clips (stock 66 mm cable; B-rep)** | |
+| Loop strands to each other (surface to surface) | 2.54 |
+| Loop → cell face (X −54.0) / battery pocket | 0.88 / 0.88 (tightest: bottom run at Y −2.9 where it moves toward the cell) |
+| Loop → Al floor / NTC case / liner | 1.44 / 1.04 / 1.52 |
+| Loop → bezel lip (top run, Z 17.3, X −55.0 vs lip X ≥ −54.5) / display back | 0.52 / 1.97 |
+| Loop → radiator FPC (loop plane) | 4.05 (entry strand starts on the FPC face, 0.05) |
+| Clip A / Clip B → cable | 0.10 / 0.10 (design gap per side) |
+| Clip A → Al floor / NTC case / cell / battery pocket | 0.00 (seated) / 2.07 / 0.53 / 0.28 |
+| Clip B → Al floor / cell / battery pocket / liner | 0.00 (seated) / 0.67 / 0.42 / 0.92 |
+| Clip B → bezel / display back | 3.80 / 4.99 |
+| Clip B → FPC volume / window plate | 3.45 / 3.65 (both clips sit inside the keep-out, non-metal) |
+| Clip A ↔ Clip B | 12.81 |
+| Slack zone → bezel lip / display back / cell / battery pocket / Al floor / liner | 0.24 / 1.69 / 0.64 / 0.39 / 0.40 / 0.89 |
+| Slack zone ↔ NTC case | 0.00 (touch only; zone Z starts at the NTC top, 1.9; no overlap) |
 | Coax GNSS → GNSS window | 1.34 |
 | Coax GNSS → main FPC | 4.08 |
-| Coax Main → GNSS keep-out / envelope | 3.90 / 6.16 |
-| Coax Main → cell / battery pocket / foam / liner | 2.52 / 2.02 / 1.92 / 2.42 |
-| Coax Main → LTE window plate / main FPC | 0.30 / 0.01 (cable lies on the FPC inner face, X −60.195) |
-| Coax Main → GNSS u.FL | 3.89 |
+| Coax Main → GNSS keep-out / envelope | 4.64 / 6.89 |
+| Coax Main → cell (Prod / Akyga) / battery pocket / foam / liner | 1.13 / 1.13 / 0.88 / 1.66 / 1.52 |
+| Coax Main → daughterboard flex mount / NTC case / NTC pad | 0.83 / 1.04 / 1.31 |
+| Coax Main → LTE window plate / main FPC | 0.35 / 0.05 (the first 9.6 mm of cable lies on the FPC inner face, X −60.195; datasheet) |
+| Coax Main → GNSS u.FL | 4.01 |
 | Main u.FL → LTE shield / bezel / display back / Cu spreader | 0.60 / 1.52 / 2.50 / 1.79 |
 | Main u.FL → U1 courtyard marker | **0.00** (receptacle body Y 11.9 is 0.25 inside the 12.15 courtyard edge; see O12 note) |
 | GNSS u.FL → LTE shield / bezel / display back / Cu spreader | 2.50 / 2.50 / 2.50 / 3.14 |
@@ -281,7 +308,7 @@ The DB edge to J14 courtyard distance of 4.05 mm is only a clearance. The housin
 | LTE main FPC → Wi-Fi antenna / window | 119.8 / 120.7 |
 | Wi-Fi pigtail → unibody / CM5 / carrier | 0.57 / 1.90 / 4.49 |
 
-## 4. Interference result (v5.1: 77 parts × 144 carrier solids)
+## 4. Interference result (v5.1 + O15: 80 parts × 144 carrier solids)
 There are **zero enclosure clashes**. Fixed along the way in v5.0:
 - SIM ↔ shield;
 - spreader ↔ shield;
@@ -357,6 +384,7 @@ Print the unibody and bezel from `stl/` in SLA tough resin, or MJF PA12, to chec
 ### 7.3 Plastic parts
 - Bezel/display frame, action cap and grip inlays: SLA tough resin (black). Machined PC for later builds.
 - RF windows: SLA clear or tough resin, **no metal-filled resins**. Print 0.05/side under the slot and bond with two-part epoxy.
+- **Slack clips (O15):** `Clip_Slack_Saddle_A` and `Clip_Slack_Post_B`, printed PA12 (SLS/MJF) or tough resin, 0.5 mm walls, **non-metal**. Bond to the unibody floor (Z 1.5) with adhesive transfer film or two-part epoxy; keep adhesive out of the prong slots. STLs in `stl/`.
 - Camera window: laser-cut 1.5 mm optical PC/PMMA. SLA clear is not optical grade without polishing.
 - Cu spreader: laser-cut 0.5 C1100 from `flat_HeatSpreader_Cu_0p5_release_v5.dxf`, then form the joggle and Ni plate. **Fyord**, Bangalore (laser cutting from DXF), is verified for sheet-metal cutting; copper capability is **not** verified, so ask first.
 - LTE PCB: 4-layer 0.8 mm. **PCB Power**, Ahmedabad (4-layer 0.8 mm fabrication and assembly, verified) has a 50×50 minimum assembly size, so panelize the 44×52 board.
@@ -375,7 +403,9 @@ Print the unibody and bezel from `stl/` in SLA tough resin, or MJF PA12, to chec
 | 4 | 0.2 mm foam tape dots | Bezel clamp-post tips and finger pads |
 | 1 | **Custom** 22P 0.5 mm FFC, Type A (same-side contacts, reversed numbering, J14 pin k = J1 pad 23−k). **14.5 ±0.3 mm overall**, 11.5 wide, 0.3 ±0.05 thick at the contact ends (Hirose FH12 mating spec), stiffener **3.0 mm** each end, max | J1 (LTE) ↔ J14 (carrier). Breakdown in §2b. Stock 30–50 mm cables are for the bench only and do not fit inside the enclosure. |
 | 2 | U.FL Ø1.13 coax | Main and GNSS (no diversity in v5.1). Integral to the antenna FPC or carrier. Bend R ≥ 6.8 mm. |
-| 1 | LTE main FPC 40×15 (**AANI-FB-0173-1 base part, custom cable**) | u.FL/IPEX-1, Ø1.13. Custom total cable length about 25 mm from the feed solder point; see O14. Cable exit: long edge, 11 mm from one end. |
+| 1 | LTE main FPC 40×15 (**AANI-FB-0173-1, stock `-1` cable, 66 mm, for the prototype**) | u.FL/IPEX-1, Ø1.13. About 53 mm of slack is stored in the O15 slack loop. The **custom ~25 mm cable (O14) is for the next spin** and then uses the short route (`coax_main_short()`). Cable exit: long edge, 11 mm from one end. |
+| 1+1 | Slack clips (O15): `Clip_Slack_Saddle_A`, `Clip_Slack_Post_B` | Printed PA12 or tough resin, bonded to the floor (§7.3) |
+| 1 | Kapton 0.05 strap, about 4 × 12 mm | Over the cable at the foam entry (§7.5 step 7) |
 | 1 | GNSS: Johanson 1575AT43A0040001E chip on a 9.5×12.5 carrier, **or** Abracon APAKN0904-S1575-T 9×9 patch | See §5 |
 | 1 | Nano-SIM, hinged: CUI/Same Sky NSIM-2-C | Optional MFF2 eSIM (DNP) |
 | — | Two-part epoxy, Kapton tape | Window bonding, coax and flex dressing |
@@ -388,7 +418,11 @@ Print the unibody and bezel from `stl/` in SLA tough resin, or MJF PA12, to chec
 6. Daughterboard: plug the FFC into J1 and lock it, then set the ears onto the ledges. Slide the free end 1.95 mm into carrier J14; the 3.4 mm bow slack allows this. Lock J14 and check that the bow stands up (crest ≈ Z 15.3) and is not folded down onto the cell.
 7. Mate the U.FLs (main → left wall, GNSS → top-left). Dress the coax with Kapton (Layout-approved, 23:58 IST), keeping the GNSS coax under the flex riser.
    - **Kapton dressing:** tape both coax runs down with 0.05 mm Kapton. The **GNSS coax sits only 0.23 mm above the main u.FL plug**, so put one Kapton layer between them and do not tighten the GNSS cable onto the plug. Keep the bends at R ≥ 6.8 mm; never tape a bend flat or kink the cable at the connector.
-   - **Main coax:** the cable is **free of the antenna FPC** from the feed tail (Y 2.0, Z 7.9). Do not tape it along the radiator face. Route it up the wall, inward over the foam, and into J2. Tape it only at the J2 end and at one point mid-run, 3–5 mm from the wall.
+   - **Main coax, stock 66 mm cable (O15, prototype):** the cable is **free of the antenna FPC** from the feed tail (Y 2.0, Z 7.9). Do not tape it along the radiator face.
+     1. **Before the cell goes in:** bond Clip A (X −56.64..−54.28, Y −5.93..−3.30) and Clip B (X −56.75..−54.42, Y −21.44..−17.82) to the floor at the STEP positions. Check that the NTC case (Y −12..−8) is clear of Clip A (2.07 mm).
+     2. Lead the cable from the tail up to Z 17.3, along the top toward −Y, down the −Y end and back along the bottom (Z 3.5) toward +Y. Press the bottom run into **Clip A** and seat the −Y end of the loop in the slot of **Clip B**, so the loop stands in the plane X ≈ −55.6.
+     3. Never push a bend below R 6.9 (a 13.8 mm diameter loop). If the cable is longer than modelled, the loop may slide up to 1.5 mm outward in the post slot (+3 mm of cable). If it is longer still, see O16.
+     4. After the cell is in, route the exit from the end of the bottom run to J2 as in the STEP (`Coax_Main`), keeping it under the bezel lip (0.52 mm clear at the top run) and off the shield (0.61). Put one 0.05 mm Kapton strap over the cable where it leaves the loop. Do not tape a bend flat.
 8. Insert the nano-SIM and close the lid.
 9. Shield pad, then the Cu spreader (tab onto the 0.3 pad on the Al post).
 10. Connect the display FPC to J4 and seat the display in the bezel. Lower the bezel, so the clamp posts and fingers land on the daughterboard, and fit 4× M2 countersunk screws.
@@ -401,7 +435,7 @@ Shield → 0.5 pad → Cu spreader → 0.3 pad → Al post into the bottom wall 
 
 ## 9. Open items
 **Release v5.1**
-- **O1 – CLOSED in v5.1.** The action-hole lintel is now 0.55 and the cap clears it by 0.20. All 11 STLs are watertight and manifold.
+- **O1 – CLOSED in v5.1.** The action-hole lintel is now 0.55 and the cap clears it by 0.20. All STLs are watertight and manifold (11 in v5.1, 13 since O15).
 - **O2 – Layout's `hardware/kicad-lte` (47×50, md5 34c2eb67)** matches the v5.1 **width** (X −52..−5), but needs these changes (§2a):
   - add the speaker notch and ears;
   - add the J7 notch;
@@ -430,11 +464,18 @@ Shield → 0.5 pad → Cu spreader → 0.3 pad → Al post into the bottom wall 
   - **W2 (waiver, Layout 23:58 IST):** the J2 receptacle body (Y 11.9) is 0.25 mm inside the U1 courtyard edge (Y 12.15) and 0.4 from the shield wall (Y 11.5). Accepted. The courtyard is a PCB-level marker, so the check does not flag it (Main u.FL → courtyard 0.00 in §3).
   - **Tightest gap is 0.23 mm** between the GNSS coax and the main u.FL plug envelope. Kapton, as in §7.5 step 7 (accepted by Layout).
   - **Main feed point is set by us, at Y 2.0 (Z 7.9)**, from the Abracon datasheet (§0 item 9). It is no longer an assumption.
-- **O14 (new)** – AANI-FB-0173-1 cable: the catalog `-1` has a 66 mm cable (about 75 mm from the solder point); the route needs 20.7 mm.
+- **O14 (updated 28 Oct 00:49 IST: PM decision)** – AANI-FB-0173-1 cable. **The prototype uses the stock 66 mm cable (O15); the custom ~25 mm cable waits for the next spin.** Original finding: the catalog `-1` has a 66 mm cable (about 75 mm from the solder point); the route needs 20.7 mm.
   - Ask Abracon for a **custom length of about 25 mm from the feed solder point** (20.7 route + about 4 mm service), u.FL/IPEX-1, Ø1.13, and **cable free of the board** from the tail on (not bonded along the radiator).
   - Confirm how Abracon defines L (the datasheet measures it from the 15 mm edge) and the tolerance on the 11 mm cable position. The datasheet gives no tolerance on either.
-  - Until they confirm, the 66 mm `-1` can be used for fit tests only, with the slack looped (one R ≥ 6.8 loop is about 43 mm) away from the antenna keep-out.
+  - For the prototype the 66 mm `-1` is used with the slack loop of O15. The earlier advice to keep the loop away from the antenna keep-out could **not** be met: the only pocket large enough for an R ≥ 6.8 loop is the antenna slab itself, so the loop sits inside the LTE keep-out (plastic clips only). See O16 for the RF consequence.
+  - Next spin: swap to the custom cable and the short route, `coax_geom.coax_main_short()` (20.7 mm, already verified), then delete the two clips.
   - Also ask whether the cable can leave the solder tail with R 6.8 straight away, or needs 1–2 mm of straight (each extra mm of straight raises the apex by 1 mm, to Z 15.7 for 1 mm, so the bezel and display gaps (1.45 / 2.37) must be re-checked).
+- **O15 – CLOSED (28 Oct 01:10 IST).** Slack zone `Vol_Coax_SlackZone`, floor saddle (Clip A) and retainer post (Clip B) are modelled and checked (§0 item 11, §3). **Zero new clashes** (only the 4 carrier rows, C1–C3, from earlier remain). Tightest new gaps: loop to bezel lip 0.52, to battery pocket 0.88, to shield 0.61, zone to bezel lip 0.24, clip A to battery pocket 0.28; clips grip the cable with 0.10 mm per side.
+- **O16 (new, OPEN)** – stock-cable assumptions to be measured on the real part:
+  - The route length of **73.6 mm to the J2 centre assumes** the 66 mm is measured to the connector tip, the 9.6 mm is bonded on the board and a plug half-length of about 2 mm. Measure the real cable from the solder tail to the J2 plug centre. The clip design absorbs −3.0 to +1.5 mm of loop width (cable 67.6..76.6 mm); a longer cable needs the post moved (change `_TOL`).
+  - **Abracon gives no minimum bend radius for the cable.** We use 6.8 mm (strictest of the board rules). Confirm with Abracon or test on the real cable.
+  - **RF:** about 40 mm of shielded cable now loops inside the LTE keep-out (loop 4.05 mm from the radiator). Compare efficiency/OTA with the loop against a bench run with the cable dressed away from the radiator, and against the custom 25 mm cable next spin. If detuning is seen, retune or move the loop to the other side of the cell (needs a new pocket).
+  - The clips are not tested for adhesion or print tolerance (0.10 mm gap per side to a Ø1.13 cable): print a few at 0.15 and 0.20 gap as spares if the 0.10 gap is too tight.
 - **O13** – LTE_VBAT current through the FFC is at the edge of its rating (§2b). The burst RMS is fine, but do not add more LTE load to these 6 pins.
 
 **Carried forward**
