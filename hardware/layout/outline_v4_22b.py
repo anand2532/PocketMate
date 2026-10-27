@@ -19,3 +19,8 @@ for z in B.Zones():
         for x,y in [(x0,24.05),(x1,24.05),(x1,26.3),(x0,26.3)]: o.Append(M(x),M(-y))
         print('DSI drop KO now X',x0,x1,'Y 24.05..26.3')
 P.SaveBoard(K,B)
+B=P.LoadBoard(K)
+for z in B.Zones():
+    if z.GetZoneName().startswith('KO_SoC_pad_zone_B'):
+        z.SetDoNotAllowFootprints(False); print('SoC zone footprint restriction removed:',z.GetZoneName())
+P.SaveBoard(K,B)
