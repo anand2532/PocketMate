@@ -1,0 +1,4 @@
+(fp_lib_table
+ (version 7)
+ (lib (name "kicad-lte")(type "KiCad")(uri "${KIPRJMOD}/kicad-lte.pretty")(options "")(descr "kicad-lte custom footprints (Quectel EC25/EC200U shared LGA-144)"))
+)
