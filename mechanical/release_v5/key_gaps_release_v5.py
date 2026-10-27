@@ -22,6 +22,12 @@ pairs += [(c,o) for c in ('Coax_Main','Coax_GNSS') for o in ('Foam_Prod_0p5','Li
 pairs += [('Coax_Main','Coax_GNSS'),('Coax_Main','Vol_LTE_UFL_GNSS'),('Coax_GNSS','Vol_LTE_UFL_Main'),('Coax_Main','Vol_Ant_GNSS_Keepout'),('Coax_Main','Vol_Ant_GNSS_Envelope'),('Coax_GNSS','Vol_Ant_LTE_Main_Keepout'),('Coax_GNSS','Vol_Ant_LTE_Main_FPC_40x15'),('Coax_Main','Vol_Ant_LTE_Main_FPC_40x15'),('Coax_GNSS','Vol_Ant_GNSS_Envelope')]
 pairs += [(u,o) for u in ('Vol_LTE_UFL_Main','Vol_LTE_UFL_GNSS') for o in ('Vol_LTE_EC25_Shield','Vol_LTE_U1_Courtyard','Bezel_DisplayFrame_PC','Vol_Display','HeatSpreader_Cu_0p5','SideKey_Flex','Vol_J7_Housing205341','Vol_Leads_Prod62','LTE_Flex_22P')]
 pairs += [('Vol_LTE_UFL_Main','Vol_LTE_UFL_GNSS')]
+# O15 slack loop + clips (PM 28 Oct): stock 66 mm cable
+_S=('Clip_Slack_Saddle_A','Clip_Slack_Post_B'); _O=('Al_Unibody','Vol_Battery','Vol_Cell_Prod_62','Vol_Cell_Proto_Akyga','BattPad_NTCpocket','Vol_NTC_Case','Bezel_DisplayFrame_PC','Vol_Display','Vol_Ant_LTE_Main_FPC_40x15','RFWindow_LTE_Main_L_PC','Foam_Proto_2p0','Liner_PET_Proto','LTE_Daughterboard_PCB','SideKey_Flex')
+pairs += [(c,o) for c in _S for o in _O+('Coax_Main','Vol_Coax_SlackZone')]
+pairs += [('Coax_Main',o) for o in ('Clip_Slack_Saddle_A','Clip_Slack_Post_B','BattPad_NTCpocket','Vol_Cell_Proto_Akyga','Foam_Proto_2p0','Liner_PET_Proto','LTE_Daughterboard_PCB','Vol_LTE_UFL_Main','Vol_LTE_U1_Courtyard')]
+pairs += [('Vol_Coax_SlackZone',o) for o in _O+('Vol_Ant_LTE_Main_Keepout','Coax_GNSS','Vol_Leads_Prod62')]
+pairs += [('Clip_Slack_Saddle_A','Clip_Slack_Post_B')]
 P['PCB:CarrierBoard']=[v for k,v in P.items() if k.startswith('PCB:=>')][0]
 out={}
 for a,b in pairs:

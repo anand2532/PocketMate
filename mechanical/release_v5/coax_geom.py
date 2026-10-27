@@ -47,7 +47,8 @@ def _tube(edges, p0, d0):
     p0 = tuple(p0) + ((ZC,) if len(p0) == 2 else ())
     prof = cq.Wire.makeCircle(D/2, cq.Vector(*p0), cq.Vector(*d0) if len(d0) == 3 else cq.Vector(d0[0], d0[1], 0))
     return cq.Workplane().add(prof).toPending().sweep(cq.Workplane().add(w), transition='round').val()
-def coax_main():
+def coax_main_short():
+    """20.7 mm route for the custom 25 mm cable (next spin, O14). Not in the prototype assembly."""
     g = main_geom(); V = lambda p: cq.Vector(*p)
     e1 = cq.Edge.makeThreePointArc(V(g['F']), V(g['M1']), V(g['E1']))
     e2 = cq.Edge.makeThreePointArc(V(g['E1']), V(g['M2']), V(g['E2']))
@@ -78,3 +79,38 @@ def summary():
                 gnss=dict(path=[p0, pa, pb, pe], arc_R_mm=R_GNSS, arc_deg=40, length_mm=round(Lg, 2)), z_centre=ZC, dia=D, bend_rule_mm=6.8)
 if __name__ == '__main__':
     print(json.dumps(summary(), indent=1)); m = coax_main(); g = coax_gnss(); print(m.isValid(), m.Volume(), g.isValid(), g.Volume())
+
+
+# ===================== SLACK LOOP (stock 66 mm Abracon -1 cable, prototype) =====================
+# Stock cable: 66 mm from the antenna 15 mm edge to the connector tip + 9.6 mm bonded on the board = 75.6 mm from the solder tail;
+# to the J2 plug centre ~73.6 mm (assumes ~2 mm plug half-length, Layout's J2 envelope).  Short route = 20.7 mm -> ~53 mm slack.
+# Route = polyline of waypoints with exact R = R_SLACK corner fillets (fillet_path.py), solved once with scipy (work/opt_slack.py,
+# work/slack_params.npy) so that: total length 73.6 mm, every bend >= R_SLACK, centreline clear of floor, cell, bezel lip, DB, window,
+# radiator, other strands (>= 1.9 mm centre-to-centre).  Loop = stadium in the plane X = SLK_X (parallel to the antenna wall).
+R_SLACK = 6.9
+L_STOCK_TO_J2 = 73.6
+SLK_X, SLK_W, SLK_X4, SLK_Y4, SLK_X5, SLK_Y5, SLK_Z5 = -55.5874, 19.8758, -55.4179, -0.5861, -58.14, 10.717, 12.8788
+SLK_ZB = 3.5; SLK_ZT = SLK_ZB + 2*R_SLACK; SLK_YR = FEED['y']
+def slack_waypoints(w=None, length_trim=None):
+    w = SLK_W if w is None else w
+    return [FEED_P_, (SLK_X, SLK_YR, SLK_ZT), (SLK_X, SLK_YR - w, SLK_ZT), (SLK_X, SLK_YR - w, SLK_ZB),
+            (SLK_X4, SLK_Y4, SLK_ZB), (SLK_X5, SLK_Y5, SLK_Z5), J2]
+FEED_P_ = (FEED['x'], FEED['y'], FEED['z'])
+def slack_segs(w=None):
+    from fillet_path import fillet_polyline
+    return fillet_polyline(slack_waypoints(w), R_SLACK)
+def coax_main_slack(w=None):
+    segs, rep = slack_segs(w); V = lambda p: cq.Vector(*[float(c) for c in p]); es = []
+    for s in segs:
+        if s[0] == 'L':
+            if math.dist(s[1], s[2]) > 1e-6: es.append(cq.Edge.makeLine(V(s[1]), V(s[2])))
+        else: es.append(cq.Edge.makeThreePointArc(V(s[1]), V(s[2]), V(s[3])))
+    d0 = [FEED_P_[i] - 0 for i in range(3)]
+    t = [slack_waypoints(w)[1][i] - FEED_P_[i] for i in range(3)]; n = math.sqrt(sum(c*c for c in t)); t = [c/n for c in t]
+    return _tube(es, FEED_P_, tuple(t))
+def slack_summary(w=None):
+    from fillet_path import length, sample
+    segs, rep = slack_segs(w); pts = sample(segs, 0.25)
+    # radius check: analytic arcs, plus independent 3-point circumradius on a 1 mm resample of the arcs only
+    rmin = min(s[6] for s in segs if s[0] == 'A')
+    return dict(length_mm=round(length(segs), 2), min_R_mm=round(rmin, 2), corners=rep, loop_w=SLK_W, loop_plane_X=SLK_X, n_pts=len(pts))

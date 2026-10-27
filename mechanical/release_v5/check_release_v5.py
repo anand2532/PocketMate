@@ -29,7 +29,7 @@ for o in fps:
 ALL = {k: v for k, v in P.items() if k != 'Vol_Carrier'}; ALL.update(B)   # real board solid replaces the box envelope
 SAME = {'PCB:J14': 'Vol_J14_FH12_22_Courtyard', 'PCB:J3': 'Vol_J3_FH12_22', 'PCB:J4': 'Vol_J4_FH12_22', 'PCB:J11': 'Vol_J11_FH12_16'}
 METAL = lambda n: not (n.endswith('_PC') or n.startswith('Vol_Ant') or n.startswith('Foam') or n.startswith('Liner')
-                       or n.startswith('ThermalPad') or n in ('GripInlay_L', 'GripInlay_R', 'Bezel_DisplayFrame_PC', 'ActionCap_PC', 'Vol_LTE_SIM_LidSwing'))
+                       or n.startswith('ThermalPad') or n.startswith('Clip_Slack') or n in ('GripInlay_L', 'GripInlay_R', 'Bezel_DisplayFrame_PC', 'ActionCap_PC', 'Vol_LTE_SIM_LidSwing'))
 def classify(a, b):
     s = {a, b}
     if any(n.startswith('PCB:') for n in s) and ('Vol_Carrier' in s or 'PCB:CarrierBoard' in s): return 'same-board'
@@ -43,6 +43,11 @@ def classify(a, b):
     if va and vb and va == vb and ('Cell' in a or 'Cell' in b) and ('Leads' in a or 'Leads' in b): return 'intended(lead on cell)'
     if 'Vol_Battery' in s: return 'pocket-envelope'
     if 'BattPad_NTCpocket' in s and any('Cell' in n or 'Vol_NTC_Batt' in n for n in s): return 'intended(pad)'
+    if 'Vol_Coax_SlackZone' in s:   # O15: slack-zone envelope (keep-in for stock-cable loop + clips)
+        o = (s - {'Vol_Coax_SlackZone'}).pop()
+        if o == 'Coax_Main' or o.startswith('Clip_Slack'): return 'intended(slack zone contents)'
+        if o == 'Vol_Ant_LTE_Main_Keepout': return 'intended(zone lies inside LTE keep-out; non-metal cable+clips only)'
+    if any(n.startswith('Clip_Slack') for n in s) and 'Al_Unibody' in s: return 'intended(clip seated on unibody floor)'
     if any('Keepout' in n for n in s):
         o = (s - {n for n in s if 'Keepout' in n}).pop() if len(s) > 1 else a
         if any(t in o for t in ('Coax', 'Vol_Ant', 'Pigtail', 'UFL')) or not METAL(o): return 'keepout-ok(non-metal/own feed)'

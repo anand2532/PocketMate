@@ -56,6 +56,7 @@ class Sheet:
                 d = msp.add_linear_dim(base=(x, p1[1]), p1=p1, p2=p2, angle=90, override={'dimtxt': 1.0, 'dimasz': 0.8}, text=txt or '<>')
             d.render()
         ax.set_aspect('equal'); ax.grid(True, lw=0.2)
+        if getattr(s, 'lim', None): ax.set_xlim(*s.lim[0]); ax.set_ylim(*s.lim[1])
         ax.set_title(f'{s.t}\n{s.sub}', fontsize=10)
         ax.text(0.01, 0.01, '\n'.join(s.notes + ['PocketMate release v5.1 (27 Oct 2026) - units mm - origin body centre, +X right, +Y top edge, Z from outer back',
                                                   'General tol. ISO 2768-mK unless noted; critical dims per README']),
@@ -127,6 +128,33 @@ s.dim((-52, -32), (-5, -32), -5, '47.0'); s.dim((-52, -23.4), (-52, 17), -3, hor
 s.note('U1 EC25/EC200U ROTATED 90 deg, centre (-35.8,-5.5); J1 FH12-22 rot 90 mouth +X at X-5.0, contacts centred Y-6.5 (aligns with carrier J14)')
 s.note('v5.1: 47 mm wide (X-52..-5) per Layout; keep speaker notch X<-34.4/Y<-23.4 and J7 notch X>-9.4/Y>15.5; NSIM-2-C at X-17.75..-5.35 Y-31.6..-17.6'); s.note('Ears X-27..-22.5 and -13..-10 to Y-35.0 sit on Al ledges; bezel clamp posts above. No screws (no room over the cell).')
 sheets.append((s, 'lte_daughterboard_outline_release_v5.dxf'))
+# O15 slack loop (stock 66 mm cable) - YZ elevation (section in plane X = loop plane) and XY plan at Z = 3.5
+import coax_geom as _cg
+from fillet_path import sample as _sample
+_segs, _rep = _cg.slack_segs(); _cl = [(p[1], p[2]) for p in _sample(_segs, 0.3)]; _clx = [(p[0], p[1]) for p in _sample(_segs, 0.3)]
+XL = _cg.SLK_X
+s = Sheet(f'O15 STOCK-CABLE SLACK LOOP - elevation, section plane X={XL:.2f} (view from +X), Coax_Main centre line + clips + zone',
+          'Coax_Main / Clip_Slack_Saddle_A / Clip_Slack_Post_B / Vol_Coax_SlackZone')
+s.add([_cl], 'COAX_CL', 'r'); s.add(section(P['Coax_Main'], 'X', XL), 'COAX_CUT', 'r')
+for n_, c_ in (('Clip_Slack_Post_B', 'g'), ('Clip_Slack_Saddle_A', 'g'), ('Vol_Coax_SlackZone', 'm'), ('Al_Unibody', 'k'), ('Vol_Ant_LTE_Main_Keepout', '0.6')):
+    s.add(section(P[n_], 'X', XL), n_[:18], c_)
+s.add(section(P['Bezel_DisplayFrame_PC'], 'X', -54.8), 'BEZEL_X-54.8', 'b')
+s.dim((_cg.SLK_YR - _cg.SLK_W, _cg.SLK_ZT), (_cg.SLK_YR, _cg.SLK_ZT), 3, f'loop width {_cg.SLK_W:.2f} (c/l)')
+s.dim((_cg.SLK_YR - _cg.SLK_W, _cg.SLK_ZB), (_cg.SLK_YR - _cg.SLK_W, _cg.SLK_ZT), -3, f'loop height {2*_cg.R_SLACK:.1f} (c/l, R{_cg.R_SLACK})', horiz=False)
+s.note(f'Stock 66 mm Abracon cable: {_cg.L_STOCK_TO_J2} mm centre line from solder tail to J2 (assumed, see README O15/O16); bends R{_cg.R_SLACK} (rule >=6.8)')
+s.note('Post B: PA12/tough-resin printed, bonded to floor; prongs flank the left arc (0.10 gap/side) and let the loop grow 1.5 mm in width (+3 mm cable)')
+s.note('Saddle A: floor clip on the bottom run, base Z1.5..2.7, prongs 0.5 thick, 0.10 gap to cable. Clips NON-METAL; only cable + clips enter the LTE keep-out')
+s.lim = ((-28, 17), (-3, 21))
+sheets.append((s, 'slack_loop_elevation_release_v5.dxf'))
+s = Sheet('O15 STOCK-CABLE SLACK LOOP - plan section Z=3.5 (bottom run, clips, cell face)', 'Coax_Main / clips / Vol_Battery / Al_Unibody / FPC volume')
+s.add([_clx], 'COAX_CL_XY', 'r'); s.add(section(P['Coax_Main'], 'Z', 3.5), 'COAX_CUT', 'r')
+for n_, c_ in (('Clip_Slack_Post_B', 'g'), ('Clip_Slack_Saddle_A', 'g'), ('Vol_Coax_SlackZone', 'm'), ('Vol_Battery', 'b'), ('Vol_Ant_LTE_Main_Keepout', '0.6'), ('Vol_Ant_LTE_Main_FPC_40x15', 'c')):
+    s.add(section(P[n_], 'Z', 3.5), n_[:18], c_)
+s.add(section(P['Al_Unibody'], 'Z', 1.6), 'AL_Z1.6', 'k')
+s.dim((-60.2, -22.5), (-54.0, -22.5), -2, 'keep-out edge/cell X-60.2..-54.0', True)
+s.note('Window: view limited by section of Z=3.5; cell face X=-54.0, keep-out X-60.2..-55.0, FPC X-60.4..-60.2; floor top Z1.5')
+s.lim = ((-64, -46), (-28, 16))
+sheets.append((s, 'slack_loop_plan_release_v5.dxf'))
 with PdfPages(os.path.join(HERE, 'drawings', 'pocketmate_drawings_release_v5.pdf')) as pdf:
     for s, f in sheets: s.render(pdf, f)
 print(len(sheets), 'sheets')
