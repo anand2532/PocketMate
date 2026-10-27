@@ -88,9 +88,45 @@ P['Vol_Ant_GNSS_Envelope'] = box(-60.4, -58.8, 17.5, 27.0, 2.5, 15.0)           
 P['Vol_Ant_GNSS_PatchOpt_Envelope'] = box(-60.4, -55.6, 17.5, 27.0, 2.5, 12.0)  # option: 9x9x4 patch (Abracon APAKN0904-S1575-T class) on 9.5x9.5x0.8 carrier, kept below the side-key flex riser (Z12)
 P['Vol_Ant_GNSS_Keepout'] = box(-58.8, -55.0, 17.0, 27.5, 2.0, 15.5)
 # coax routes (Ø1.13 mini-coax, modelled as 1.3 mm square runs)
-from coax_geom import coax_main, coax_gnss   # O12: swept Ø1.13, R>=6.8 (see coax_geom.py)
-P['Coax_Main'] = coax_main()
+from coax_geom import coax_main_slack, coax_gnss   # O12: swept Ø1.13, R>=6.8 (see coax_geom.py); O15: stock 66 mm cable with slack loop
+P['Coax_Main'] = coax_main_slack()
 P['Coax_GNSS'] = coax_gnss()
+
+# ---- O15 (PM 28 Oct): stock 66 mm Abracon cable on the prototype -> defined slack zone + printed floor clips ----
+import math as _m
+import coax_geom as _cg
+from fillet_path import fillet_polyline as _fp
+_segs, _rep = _cg.slack_segs()
+def _frame_box(cx, cy, z0, z1, ang, a0, a1, l0, l1):
+    """box in a local frame rotated by ang (rad, about Z) around (cx,cy): along-axis a in [a0,a1], lateral l in [l0,l1], Z z0..z1"""
+    b = box(a0, a1, l0, l1, z0, z1)
+    return b.rotate(cq.Vector(0, 0, 0), cq.Vector(0, 0, 1), _m.degrees(ang)).translate(cq.Vector(cx, cy, 0))
+# bottom straight of the loop = 3rd straight run; find it from the waypoints (BL corner -> W4), straight part between the two fillets
+_W = _cg.slack_waypoints(); _BL, _W4 = _W[3], _W[4]
+_u = [(_W4[i]-_BL[i]) for i in range(3)]; _n = _m.sqrt(sum(c*c for c in _u)); _u = [c/_n for c in _u]
+_t3 = _rep[2][2]; _t4 = _rep[3][2]
+_s0, _s1 = _t3, _n - _t4                       # straight run along BL->W4 (distance from BL waypoint)
+_sm = _s1 - 1.45                               # clip A at the +Y end of the straight (keeps clear of the NTC case Y -12..-8)
+_cxA, _cyA = _BL[0] + _u[0]*_sm, _BL[1] + _u[1]*_sm; _angA = _m.atan2(_u[1], _u[0])   # strand heading azimuth
+_ZB = _cg.SLK_ZB; _FLOOR = 1.5      # Al unibody floor top in the antenna slab is Z 1.5 (probed)
+# Clip A: floor saddle (PA12 / printed resin, bonded with adhesive transfer film): base 1.2 thick (Z 1.5..2.7), two 0.5 prongs flanking the cable (0.1 gap each side)
+_g = _cg.D/2 + 0.10
+P['Clip_Slack_Saddle_A'] = fuse(_frame_box(_cxA, _cyA, _FLOOR, _FLOOR+1.20, _angA, -1.3, 1.3, -_g-0.5, _g+0.5),
+                                _frame_box(_cxA, _cyA, _FLOOR, _ZB+0.45, _angA, -1.3, 1.3, -_g-0.5, -_g),
+                                _frame_box(_cxA, _cyA, _FLOOR, _ZB+0.45, _angA, -1.3, 1.3, _g, _g+0.5))
+# Clip B: retainer post outside the left arc of the loop (left-most cable point Y = SLK_YR - SLK_W - R - D/2), two flanking prongs at Z 8.9..12.0
+_yl = _cg.SLK_YR - _cg.SLK_W - _cg.D/2                      # cable surface at the left-most point of the arc (Y)
+_xc = _cg.SLK_X; _gp = _cg.D/2 + 0.10
+_TOL = 1.5                                                   # loop can grow 1.5 mm in width (= +3 mm cable) before it butts the post
+_py1, _py0 = _yl - _TOL - 0.30, _yl - _TOL - 0.30 - 1.20     # back plate Y range
+_Zl = _ZB + _cg.R_SLACK                                    # left-most point of the arc is at this Z
+P['Clip_Slack_Post_B'] = fuse(box(_xc-_gp-0.5, _xc+_gp+0.5, _py0, _py1, _FLOOR, _Zl+1.6),
+                              box(_xc-_gp-0.5, _xc-_gp, _py1-0.01, _yl + _cg.D*0.55, _Zl-1.5, _Zl+1.6),
+                              box(_xc+_gp, _xc+_gp+0.5, _py1-0.01, _yl + _cg.D*0.55, _Zl-1.5, _Zl+1.6))
+# slack-zone envelope (keep-in for the stock-cable loop; loop width can change by +/-1.5 mm for cable length tolerance +/-3 mm)
+_zy0, _zy1 = _py0 - 0.25, _cg.SLK_YR+0.9
+P['Vol_Coax_SlackZone'] = fuse(box(_cg.SLK_X-1.25, _cg.SLK_X+1.2, _zy0, _zy1, 1.9, 15.5),      # lower part (Z 1.9 = NTC case top; clip bases Z 1.5..2.7 stand in the floor recess)
+                               box(_cg.SLK_X-1.25, _cg.SLK_X+0.85, _zy0, _zy1, 15.4, 18.0))   # upper part stays 0.2 clear of the bezel lip X -54.5
 # ---------------- bezel: clamp posts over ears + two finger clamps from the side-key rib ----------------
 Bz = src['Bezel_DisplayFrame_PC']
 Bz = fuse(Bz, box(-24.0, -22.5, -34.6, -32.6, 12.25, 15.85), box(-12.5, -10.5, -34.6, -32.6, 12.25, 15.85),
@@ -122,7 +158,7 @@ NEW = ['LTE_Daughterboard_PCB','Vol_LTE_EC25_Shield','Vol_LTE_U1_Courtyard','Vol
        'Liner_PET_Prod','Foam_Prod_0p5','Liner_PET_Proto','Foam_Proto_2p0','ThermalPad_Shield_0p5','HeatSpreader_Cu_0p5',
        'ThermalPad_Post_0p3','RFWindow_LTE_Main_L_PC','RFWindow_GNSS_TL_PC',
        'Vol_Ant_LTE_Main_FPC_40x15','Vol_Ant_LTE_Main_Keepout','Vol_Ant_GNSS_Envelope','Vol_Ant_GNSS_Keepout',
-       'Vol_Ant_GNSS_PatchOpt_Envelope','Coax_Main','Coax_GNSS','Vol_Pigtail']
+       'Vol_Ant_GNSS_PatchOpt_Envelope','Coax_Main','Coax_GNSS','Vol_Pigtail','Vol_Coax_SlackZone','Clip_Slack_Saddle_A','Clip_Slack_Post_B']
 if __name__ == '__main__':
     import pickle
     from OCP.BRepTools import BRepTools

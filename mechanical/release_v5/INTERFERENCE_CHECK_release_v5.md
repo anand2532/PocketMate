@@ -1,6 +1,6 @@
 # Release v5.1 – interference check output (auto-generated: check_release_v5.py -> make_interference_md.py)
 
-Parts: 77 enclosure parts/volumes + 144 carrier solids from the KiCad export of PocketMate.kicad_pcb (md5 126f5c6c…, read-only copy). Estimated-height boxes for parts without 3D models: TP1, TP2, U1, J9, J5.
+Parts: 80 enclosure parts/volumes + 144 carrier solids from the KiCad export of PocketMate.kicad_pcb (md5 126f5c6c…, read-only copy). Estimated-height boxes for parts without 3D models: TP1, TP2, U1, J9, J5.
 
 Threshold: common volume > 0.01 mm³. CLASH = real; other classes are intended / variant / envelope pairs.
 
@@ -22,13 +22,19 @@ Threshold: common volume > 0.01 mm³. CLASH = real; other classes are intended /
 | Vol_LTE_FFC_Bow_MaxTol_15p3 | PCB:J14 | 6.745 | intended(FFC stiffener seated in FH12) | [0.59, 2.55, -12.25, -0.75, 11.74, 12.04] |
 | Vol_UFL | Vol_Pigtail | 1.98 | intended(coax mate) | [51.4, 52.9, 0.4, 1.6, 1.9, 3.0] |
 | Vol_LTE_UFL_GNSS | Coax_GNSS | 1.025 | intended(coax mate) | [-45.7, -44.6, 14.54, 15.66, 13.31, 14.3] |
-| Vol_LTE_UFL_Main | Coax_Main | 0.961 | intended(coax mate) | [-50.8, -49.58, 12.64, 13.87, 13.32, 14.3] |
+| Vol_LTE_UFL_Main | Coax_Main | 1.123 | intended(coax mate) | [-50.8, -49.53, 12.29, 13.74, 13.18, 14.3] |
 | Vol_Ant_GNSS_Envelope | Coax_GNSS | 0.061 | intended(coax mate) | [-59.13, -58.8, 17.5, 17.89, 13.31, 14.44] |
 | Vol_J7_Molex205338 | Vol_J7_Housing205341 | 43.24 | intended(mated) | [-0.91, 0.26, 16.13, 30.68, 11.6, 14.14] |
+| Coax_Main | Vol_Coax_SlackZone | 49.53 | intended(slack zone contents) | [-56.84, -54.88, -18.44, 2.9, 2.93, 17.87] |
+| Clip_Slack_Saddle_A | Vol_Coax_SlackZone | 7.59 | intended(slack zone contents) | [-56.64, -54.39, -5.93, -3.3, 1.9, 3.95] |
+| Clip_Slack_Post_B | Vol_Coax_SlackZone | 31.096 | intended(slack zone contents) | [-56.75, -54.42, -19.94, -17.82, 1.9, 12.0] |
+| Vol_Ant_LTE_Main_Keepout | Vol_Coax_SlackZone | 692.12 | intended(zone lies inside LTE keep-out; non-metal cable+clips only) | [-56.84, -55.0, -20.94, 2.9, 2.2, 18.0] |
 | Bezel_DisplayFrame_PC | Vol_Antenna_Keepout | 0.72 | keepout-ok(non-metal/own feed) | [54.4, 54.5, -25.0, 11.0, 15.8, 16.0] |
 | Vol_Antenna_FPC | Vol_Antenna_Keepout | 91.8 | keepout-ok(non-metal/own feed) | [59.6, 59.9, -24.0, 10.0, 5.5, 14.5] |
 | Vol_Antenna_Keepout | Vol_Pigtail | 5.76 | keepout-ok(non-metal/own feed) | [57.0, 59.6, 0.4, 1.6, 4.0, 6.6] |
-| Vol_Ant_LTE_Main_Keepout | Coax_Main | 15.097 | keepout-ok(non-metal/own feed) | [-60.2, -55.0, 1.43, 12.64, 7.9, 15.27] |
+| Vol_Ant_LTE_Main_Keepout | Coax_Main | 67.507 | keepout-ok(non-metal/own feed) | [-60.15, -54.95, -18.44, 11.74, 2.93, 17.87] |
+| Vol_Ant_LTE_Main_Keepout | Clip_Slack_Saddle_A | 3.734 | keepout-ok(non-metal/own feed) | [-56.64, -55.0, -5.92, -3.3, 2.2, 3.95] |
+| Vol_Ant_LTE_Main_Keepout | Clip_Slack_Post_B | 22.037 | keepout-ok(non-metal/own feed) | [-56.75, -55.0, -19.94, -17.82, 2.2, 12.0] |
 | Vol_Ant_GNSS_PatchOpt_Envelope | Vol_Ant_GNSS_Keepout | 288.8 | keepout-ok(non-metal/own feed) | [-58.8, -55.6, 17.5, 27.0, 2.5, 12.0] |
 | Vol_Ant_GNSS_Keepout | Coax_GNSS | 1.288 | keepout-ok(non-metal/own feed) | [-58.8, -56.86, 17.0, 18.32, 13.31, 14.44] |
 | Vol_Cell_Prod_62 | Vol_Cell_Proto_Akyga | 22134.0 | other-variant | [-53.75, -2.75, -33.5, 28.5, 2.3, 9.3] |
@@ -108,15 +114,23 @@ Threshold: common volume > 0.01 mm³. CLASH = real; other classes are intended /
 | RFWindow_GNSS_TL_PC | Al_Unibody | 0.0 |
 | Vol_Ant_LTE_Main_FPC_40x15 | Vol_Ant_LTE_Main_Keepout | 0.0 |
 | Vol_Ant_LTE_Main_Keepout | Coax_Main | 0.0 |
+| Vol_Ant_LTE_Main_Keepout | Clip_Slack_Saddle_A | 0.0 |
+| Vol_Ant_LTE_Main_Keepout | Clip_Slack_Post_B | 0.0 |
+| Vol_Ant_LTE_Main_Keepout | Vol_Coax_SlackZone | 0.0 |
 | Vol_Ant_GNSS_Envelope | Vol_Ant_GNSS_PatchOpt_Envelope | 0.0 |
 | Vol_Ant_GNSS_Envelope | Vol_Ant_GNSS_Keepout | 0.0 |
 | Vol_Ant_GNSS_Envelope | Coax_GNSS | 0.0 |
 | Vol_Ant_GNSS_Keepout | Vol_Ant_GNSS_PatchOpt_Envelope | 0.0 |
 | Vol_Ant_GNSS_Keepout | Coax_GNSS | 0.0 |
+| Coax_Main | Vol_Coax_SlackZone | 0.0 |
 | Vol_Pigtail | Vol_UFL | 0.0 |
 | Vol_Pigtail | Vol_Antenna_FPC | 0.0 |
 | Vol_Pigtail | Vol_Antenna_Keepout | 0.0 |
-| Vol_Ant_LTE_Main_FPC_40x15 | Coax_Main | 0.005 |
+| Vol_Coax_SlackZone | Vol_NTC_Case | 0.0 |
+| Vol_Coax_SlackZone | Clip_Slack_Saddle_A | 0.0 |
+| Vol_Coax_SlackZone | Clip_Slack_Post_B | 0.0 |
+| Clip_Slack_Saddle_A | Al_Unibody | 0.0 |
+| Clip_Slack_Post_B | Al_Unibody | 0.0 |
 | RFWindow_LTE_Main_L_PC | Vol_Ant_LTE_Main_FPC_40x15 | 0.013 |
 | RFWindow_GNSS_TL_PC | Vol_Ant_GNSS_Envelope | 0.013 |
 | RFWindow_GNSS_TL_PC | Vol_Ant_GNSS_PatchOpt_Envelope | 0.013 |
@@ -124,15 +138,21 @@ Threshold: common volume > 0.01 mm³. CLASH = real; other classes are intended /
 | Vol_Ant_GNSS_Envelope | Al_Unibody | 0.039 |
 | Vol_Ant_GNSS_PatchOpt_Envelope | Al_Unibody | 0.039 |
 | LTE_Daughterboard_PCB | Bezel_DisplayFrame_PC | 0.05 |
+| Vol_Ant_LTE_Main_FPC_40x15 | Coax_Main | 0.051 |
 | Vol_Ant_LTE_Main_Keepout | Al_Unibody | 0.058 |
 | Vol_J14_FH12_22_Courtyard | PCB:CarrierBoard | 0.09 |
+| Coax_Main | Clip_Slack_Post_B | 0.099 |
 | LTE_Daughterboard_PCB | Vol_Battery | 0.1 |
 | Foam_Prod_0p5 | Vol_Cell_Prod_62 | 0.1 |
 | Foam_Proto_2p0 | Vol_Cell_Proto_Akyga | 0.1 |
 | HeatSpreader_Cu_0p5 | Bezel_DisplayFrame_PC | 0.1 |
+| Coax_Main | Clip_Slack_Saddle_A | 0.1 |
 | Vol_LTE_EC25_Shield | HeatSpreader_Cu_0p5 | 0.2 |
 | RFWindow_LTE_Main_L_PC | Vol_Ant_LTE_Main_Keepout | 0.2 |
 | Vol_LTE_UFL_Main | Coax_GNSS | 0.235 |
+| Vol_Coax_SlackZone | Bezel_DisplayFrame_PC | 0.237 |
+| Clip_Slack_Saddle_A | BattPad_NTCpocket | 0.28 |
+| Clip_Slack_Saddle_A | Vol_Battery | 0.28 |
 | LTE_Daughterboard_PCB | LTE_Flex_22P | 0.29 |
 | LTE_Daughterboard_PCB | Vol_LTE_FFC_Bow_MaxTol_15p3 | 0.29 |
 | LTE_Flex_22P | PCB:CarrierBoard | 0.29 |
@@ -142,12 +162,20 @@ Threshold: common volume > 0.01 mm³. CLASH = real; other classes are intended /
 | Liner_PET_Prod | Vol_Leads_Prod62 | 0.3 |
 | Liner_PET_Proto | Al_Unibody | 0.3 |
 | Vol_Ant_LTE_Main_Keepout | Vol_NTC_Case | 0.3 |
-| RFWindow_LTE_Main_L_PC | Coax_Main | 0.305 |
+| RFWindow_LTE_Main_L_PC | Coax_Main | 0.351 |
+| Vol_Coax_SlackZone | BattPad_NTCpocket | 0.387 |
+| Vol_Coax_SlackZone | Vol_Battery | 0.387 |
 | HeatSpreader_Cu_0p5 | Vol_Display | 0.4 |
+| Vol_Coax_SlackZone | Al_Unibody | 0.4 |
 | Vol_J14_FH12_22_Courtyard | PCB:C61 | 0.417 |
+| Clip_Slack_Post_B | BattPad_NTCpocket | 0.422 |
+| Clip_Slack_Post_B | Vol_Battery | 0.422 |
 | LTE_Daughterboard_PCB | Liner_PET_Prod | 0.5 |
 | Vol_Ant_LTE_Main_Keepout | Bezel_DisplayFrame_PC | 0.5 |
 | Vol_Ant_GNSS_Keepout | Al_Unibody | 0.5 |
+| Coax_Main | Bezel_DisplayFrame_PC | 0.522 |
+| Clip_Slack_Saddle_A | Vol_Cell_Prod_62 | 0.53 |
+| Clip_Slack_Saddle_A | Vol_Cell_Proto_Akyga | 0.53 |
 | ThermalPad_Shield_0p5 | Bezel_DisplayFrame_PC | 0.55 |
 | LTE_Daughterboard_PCB | Vol_J7_Housing205341 | 0.56 |
 | Vol_Pigtail | Al_Unibody | 0.566 |
@@ -158,16 +186,21 @@ Threshold: common volume > 0.01 mm³. CLASH = real; other classes are intended /
 | HeatSpreader_Cu_0p5 | Vol_Speaker | 0.6 |
 | ThermalPad_Post_0p3 | Bezel_DisplayFrame_PC | 0.6 |
 | ThermalPad_Post_0p3 | Vol_Speaker | 0.6 |
+| Vol_LTE_EC25_Shield | Coax_Main | 0.614 |
 | Liner_PET_Proto | Vol_Leads_Prod62 | 0.622 |
+| Vol_Coax_SlackZone | Vol_Cell_Prod_62 | 0.637 |
+| Vol_Coax_SlackZone | Vol_Cell_Proto_Akyga | 0.637 |
 | Liner_PET_Prod | Vol_NTC_Rise | 0.65 |
 | Liner_PET_Proto | Vol_NTC_Rise | 0.65 |
 | Vol_J14_FH12_22_Courtyard | PCB:R56 | 0.668 |
-| Coax_Main | Coax_GNSS | 0.673 |
+| Clip_Slack_Post_B | Vol_Cell_Prod_62 | 0.672 |
+| Clip_Slack_Post_B | Vol_Cell_Proto_Akyga | 0.672 |
 | Liner_PET_Proto | Vol_Leads_ProtoAkyga | 0.676 |
 | Liner_PET_Prod | Vol_J7_Housing205341 | 0.7 |
 | Vol_J14_FH12_22_Courtyard | PCB:R57 | 0.705 |
 | Coax_GNSS | SideKey_Flex | 0.779 |
 | Vol_Ant_LTE_Main_Keepout | Coax_GNSS | 0.784 |
+| Coax_Main | Coax_GNSS | 0.793 |
 | Vol_LTE_EC25_Shield | Foam_Prod_0p5 | 0.8 |
 | Vol_LTE_EC25_Shield | Foam_Proto_2p0 | 0.8 |
 | Vol_LTE_U1_Courtyard | Foam_Prod_0p5 | 0.8 |
@@ -182,11 +215,16 @@ Threshold: common volume > 0.01 mm³. CLASH = real; other classes are intended /
 | Vol_LTE_DB_Conn_FH12_22 | Foam_Prod_0p5 | 0.8 |
 | Vol_LTE_DB_Conn_FH12_22 | Foam_Proto_2p0 | 0.8 |
 | Vol_Ant_GNSS_Keepout | SideKey_Flex | 0.8 |
+| Vol_LTE_U1_Courtyard | Coax_Main | 0.824 |
+| LTE_Daughterboard_PCB | Coax_Main | 0.829 |
 | Vol_LTE_U1_Courtyard | Vol_Speaker | 0.85 |
 | Foam_Prod_0p5 | Bezel_DisplayFrame_PC | 0.85 |
 | Foam_Proto_2p0 | Bezel_DisplayFrame_PC | 0.85 |
+| Coax_Main | Vol_Battery | 0.877 |
 | Foam_Prod_0p5 | Vol_J7_Housing205341 | 0.883 |
 | Foam_Proto_2p0 | Vol_J7_Housing205341 | 0.883 |
+| Liner_PET_Prod | Vol_Coax_SlackZone | 0.887 |
+| Liner_PET_Proto | Vol_Coax_SlackZone | 0.887 |
 | Vol_J14_FH12_22_Courtyard | PCB:C16 | 0.895 |
 | Vol_LTE_EC25_Shield | Vol_Battery | 0.9 |
 | Vol_LTE_U1_Courtyard | Vol_Battery | 0.9 |
@@ -196,4 +234,8 @@ Threshold: common volume > 0.01 mm³. CLASH = real; other classes are intended /
 | Vol_LTE_DB_Conn_FH12_22 | Vol_Battery | 0.9 |
 | ThermalPad_Shield_0p5 | Vol_Display | 0.9 |
 | Vol_Pigtail | RFWindow_PC | 0.9 |
+| Clip_Slack_Saddle_A | GripInlay_L | 0.9 |
+| Clip_Slack_Post_B | GripInlay_L | 0.9 |
 | Vol_J14_FH12_22_Courtyard | PCB:C62 | 0.916 |
+| Liner_PET_Prod | Clip_Slack_Post_B | 0.922 |
+| Liner_PET_Proto | Clip_Slack_Post_B | 0.922 |
