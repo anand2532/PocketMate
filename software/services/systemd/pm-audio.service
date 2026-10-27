@@ -1,0 +1,47 @@
+# PocketMate pm-audio — generated for ARCHITECTURE.md §5.2 [impl v0.4.0]
+[Unit]
+Description=PocketMate audio capture (PTT-gated)
+PartOf=pocketmate.target
+After=pm-power.service
+Wants=pm-power.service
+
+[Service]
+Type=notify
+NotifyAccess=main
+ExecStart=/usr/bin/pm-audio
+User=pm-audio
+Group=pm-audio
+SupplementaryGroups=pm
+Environment=PYTHONUNBUFFERED=1
+EnvironmentFile=-/etc/default/pocketmate
+RuntimeDirectory=pm
+RuntimeDirectoryPreserve=yes
+RuntimeDirectoryMode=0770
+WatchdogSec=30
+Restart=on-failure
+RestartSec=2
+MemoryMax=80M
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+RestrictNamespaces=yes
+RestrictRealtime=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+CapabilityBoundingSet=
+UMask=0007
+PrivateNetwork=yes
+RestrictAddressFamilies=AF_UNIX
+SupplementaryGroups=audio pm-mic
+DeviceAllow=char-alsa rw
+ReadWritePaths=/var/lib/pm
+
+[Install]
+WantedBy=pocketmate.target

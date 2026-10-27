@@ -1,0 +1,9 @@
+# udev rules [impl v0.4.0]
+# P1/P3: only pm-audio may open the capture device. The I2S capture PCM card name is VERIFY on hardware
+# (depends on the final codec/dtoverlay; prototype uses googlevoicehat-soundcard or simple-audio-card).
+SUBSYSTEM=="sound", KERNEL=="pcmC*D*c", ATTRS{id}=="pocketmate", GROUP="pm-mic", MODE="0660"
+# MCU UART (UART0 on GPIO14/15, ARCHITECTURE.md §3)
+KERNEL=="ttyAMA0", GROUP="dialout", MODE="0660"
+# rfkill + backlight writable by pm-power (radio leases, auto-brightness §10.4.3)
+SUBSYSTEM=="rfkill", ACTION=="add", RUN+="/bin/chgrp pm-power /sys%p/state /sys%p/soft", RUN+="/bin/chmod g+w /sys%p/state /sys%p/soft"
+SUBSYSTEM=="backlight", ACTION=="add", RUN+="/bin/chgrp pm-power /sys%p/brightness", RUN+="/bin/chmod g+w /sys%p/brightness"

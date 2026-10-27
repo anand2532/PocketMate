@@ -1,0 +1,10 @@
+[Unit]
+Description=PocketMate reminder wake sync (every 5 min)
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=5min
+AccuracySec=30s
+
+[Install]
+WantedBy=timers.target

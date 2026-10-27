@@ -1,0 +1,18 @@
+# Retention sweep + trash purge + consent-chain verification (§7, P9, P11).
+[Unit]
+# /var/lib/pm is the LUKS2 data partition (ARCHITECTURE.md §2.1)
+RequiresMountsFor=/var/lib/pm
+Description=PocketMate memory retention sweep
+
+[Service]
+Type=oneshot
+User=pm-core
+Group=pm-core
+ExecStart=/usr/bin/pm-memory --db /var/lib/pm/memory.db sweep
+ExecStart=/usr/bin/pm-memory --db /var/lib/pm/memory.db verify-chain
+ReadWritePaths=/var/lib/pm
+PrivateNetwork=yes
+NoNewPrivileges=yes
+ProtectSystem=strict
+Nice=10
+IOSchedulingClass=idle

@@ -1,0 +1,15 @@
+# Push the next reminder wake time to the MCU (RTC alarm) before suspend/shutdown and periodically.
+[Unit]
+Description=PocketMate reminder wake sync
+After=pm-power.service
+
+[Service]
+Type=oneshot
+User=pm-core
+Group=pm-core
+SupplementaryGroups=pm
+ExecStart=/usr/bin/pm-remind --db /var/lib/pm/memory.db next-wake
+ReadOnlyPaths=/var/lib/pm
+PrivateNetwork=yes
+NoNewPrivileges=yes
+ProtectSystem=strict
